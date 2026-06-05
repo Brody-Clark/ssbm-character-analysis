@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from pathlib import Path
 
 class HSV:
     def __init__(self):
@@ -28,9 +29,12 @@ def onMaxVChanged(x):
 
 # 2. Build a blank window and an initial black canvas
 cv2.namedWindow('image')
-img = cv2.imread(".\\out\\frame0038.png")
-hsv_image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+frame_dir = Path.cwd() / 'data' / 'out'
+frame_file = str(frame_dir / 'frame0058.png')
+frame_rgb = cv2.imread(frame_file)
+
+hsv_image = cv2.cvtColor(frame_rgb, cv2.COLOR_BGR2HSV)
+gray = cv2.cvtColor(frame_rgb, cv2.COLOR_BGR2GRAY)
 
 
 # Define a 3x3 High Pass Filter Kernel (Laplacian-style edge detection)

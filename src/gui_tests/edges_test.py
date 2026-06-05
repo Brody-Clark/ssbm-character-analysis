@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-
+from pathlib import Path
 class EdgeThreshold:
     def __init__(self):
         self.min_e = 20
@@ -13,29 +13,25 @@ def onMinEChanged(x):
 def onMaxEChanged(x):
     et.max_e = x
 
-f1 = cv.imread('.\\frames\\frame_01.png')
-f2 =  cv.imread('.\\out\\frame0072.png')
-
-f1 = cv.cvtColor(f1, cv.COLOR_BGR2GRAY)
-f2 = cv.cvtColor(f2, cv.COLOR_BGR2GRAY)
-blurred1 = cv.GaussianBlur(f1, (5, 5), 0)
-blurred2 = cv.GaussianBlur(f2, (5, 5), 0)
-edges1 = cv.Canny(blurred1, 20, 60)
-edges2 = cv.Canny(blurred2, 20, 60)
-motion = cv.absdiff(edges1, edges2)
+frame_dir = Path.cwd() / 'data' / 'out'
+frame_file = str(frame_dir / 'frame0058.png')
+frame_rgb = cv.imread(frame_file)
+cv.imshow('rgb', frame_rgb)
+frame_gray = cv.cvtColor(frame_rgb, cv.COLOR_BGR2GRAY)
+blurred = cv.GaussianBlur(frame_gray, (5, 5), 0)
+edges = cv.Canny(blurred, 20, 60)
 cv.namedWindow('image')
 cv.createTrackbar('min E', 'image', 20, 255, onMinEChanged)
 cv.createTrackbar('max E', 'image', 60, 255, onMaxEChanged)
 
 while True:
-    cv.imshow('image', edges2)
+    cv.imshow('image', edges)
 
     key = cv.waitKey(1)
     if key == ord(' '):
         break
     
-    edges1 = cv.Canny(blurred1, et.min_e, et.max_e)
-    edges2 = cv.Canny(blurred2, et.min_e, et.max_e)
+    edges = cv.Canny(blurred, et.min_e, et.max_e)
     # motion = cv.absdiff(edges1, edges2)
         
     
