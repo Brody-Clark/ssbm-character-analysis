@@ -158,8 +158,6 @@ contours, hierarchy = cv.findContours(
 )
 
 
-
-# show(mario_edges, 'morphed mareios  ')
 for cnt in contours:
     area = cv.contourArea(cnt)    
     x, y, w, h = cv.boundingRect(cnt)

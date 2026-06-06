@@ -13,7 +13,6 @@ class HSV:
 
 hsv = HSV()
 
-# 1. Define a dummy callback function required by the trackbar
 def onMinHChanged(x):
     hsv.min_h = x
 def onMaxHChanged(x):
@@ -27,7 +26,6 @@ def onMinVChanged(x):
 def onMaxVChanged(x):
     hsv.max_v = x
 
-# 2. Build a blank window and an initial black canvas
 cv2.namedWindow('image')
 frame_dir = Path.cwd() / 'data' / 'out'
 frame_file = str(frame_dir / 'frame0058.png')
@@ -36,20 +34,6 @@ frame_rgb = cv2.imread(frame_file)
 hsv_image = cv2.cvtColor(frame_rgb, cv2.COLOR_BGR2HSV)
 gray = cv2.cvtColor(frame_rgb, cv2.COLOR_BGR2GRAY)
 
-
-# Define a 3x3 High Pass Filter Kernel (Laplacian-style edge detection)
-# The sum of all elements in an edge-detection HPF kernel should equal 0
-# kernel = np.array([[-1, -1, -1],
-#                    [-1,  8, -1],
-#                    [-1, -1, -1]])
-
-# # Apply convolution 
-# hpf_spatial = cv2.filter2D(gray, -1, kernel)
-# hsv_image = cv2.cvtColor(hpf_spatial, cv2.COLOR_GRAY2BGR)
-# hsv_image = cv2.cvtColor(hsv_image, cv2.COLOR_BGR2HSV)
-# cv2.imshow('hpf', hpf_spatial)
-
-# 3. Initialize the trackbars (Name, Window, Default, Max, Callback)
 cv2.createTrackbar('min H', 'image', 0, 179, onMinHChanged)
 cv2.createTrackbar('max H', 'image', 179, 179, onMaxHChanged)
 cv2.createTrackbar('min S', 'image', 0, 255, onMinSChanged)
@@ -66,10 +50,8 @@ mask = cv2.inRange(hsv_image, lower, upper)
 result = cv2.bitwise_and(hsv_image, hsv_image, mask=mask)
 
 while True:
-    # 4. Display the live frame
     cv2.imshow('image', result)
     
-    # Check for the Escape key to close the window safely
     key = cv2.waitKey(1) & 0xFF
     if key == 27:
         break
@@ -78,13 +60,4 @@ while True:
     mask = cv2.inRange(hsv_image, lower, upper)
     result = cv2.bitwise_and(hsv_image, hsv_image, mask=mask)
         
-    # 5. Extract the position integers of each distinct trackbar
-    # r = cv2.getTrackbarPos('R', 'image')
-    # g = cv2.getTrackbarPos('G', 'image')
-    # b = cv2.getTrackbarPos('B', 'image')
-    
-    
-    # 6. Apply values directly onto the canvas (Note: OpenCV relies on BGR formatting)
-    # canvas[:] = [b, g, r]
-
 cv2.destroyAllWindows()
