@@ -8,6 +8,6 @@ class Tracker:
     def __init__(self):
         pass
     
-    def track(self, detections: list[Rect]) -> list[TrackedObjectState]:
+    def track(self, detections: list[Rect]) -> tuple[list[TrackedObjectState], list[Rect]]:
         pass
     

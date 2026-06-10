@@ -1,5 +1,6 @@
 from ssbmv.pipeline.pipeline import VisionPipeline
 from ssbmv.domain.sprite_database import SpriteDatabase
+from ssbmv.source.frame_source import *
 import argparse
 from ssbmv.logger import configure_logging
 from pathlib import Path
@@ -19,3 +20,4 @@ if __name__ == "__main__":
     sprite_db = SpriteDatabase(sprite_sheet_root_path=sprite_path)
     sprite_db.init()
     pipeline = VisionPipeline(sprite_db)
+    pipeline.process(frame_source=VideoSource)
