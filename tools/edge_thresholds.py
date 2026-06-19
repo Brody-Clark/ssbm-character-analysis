@@ -14,7 +14,7 @@ def onMaxEChanged(x):
     et.max_e = x
 
 frame_dir = Path.cwd() / 'data' / 'out'
-frame_file = str(frame_dir / 'frame0058.png')
+frame_file = str(frame_dir / 'Region_1.jpg')
 frame_rgb = cv.imread(frame_file)
 cv.imshow('rgb', frame_rgb)
 frame_gray = cv.cvtColor(frame_rgb, cv.COLOR_BGR2GRAY)

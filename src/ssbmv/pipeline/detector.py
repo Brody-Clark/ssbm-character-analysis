@@ -79,9 +79,11 @@ class Detector:
     def _get_regions_of_interest(self, img: cv.typing.MatLike, motion_mask: cv.typing.MatLike, lvl_of_detail: int = 1) -> list[cv.typing.Rect]:
         img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         hsv_mask = self._get_hsv_mask(img=img)
-        edges = self._get_edges(img_gray=img_gray)
+        # edges = self._get_edges(img_gray=img_gray)
+        edges = cv.Canny(hsv_mask, 12, 100)
+        edges = cv.dilate(edges, self._edge_dilation_kernel, iterations=1)
         combined = edges & hsv_mask & motion_mask
-        combined = self._get_closed_edges(combined)
+        closed = self._get_closed_edges(combined)
         
         contours, hierarchy = cv.findContours(
             img, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
