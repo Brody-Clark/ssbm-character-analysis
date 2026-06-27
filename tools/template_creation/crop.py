@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     # Parse cli arguments and handle bad inputs
     parser = argparse.ArgumentParser(
-        description="Label pixel regions in an image and save to csv.",
+        description="Crop images for template creation.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
