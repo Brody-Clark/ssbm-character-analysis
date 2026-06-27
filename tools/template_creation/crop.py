@@ -1,11 +1,13 @@
+"""
+Prompts user to manually crop images in a given directory for template creation.
+"""
 
 import cv2
 from pathlib import Path
-import csv
 from dataclasses import dataclass
 import argparse
 
-WINDOW_NAME = "display"
+WINDOW_NAME = "image to crop"
 
 image = None
 display = None
@@ -134,11 +136,9 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"Input directory is not a valid directory")
 
     output_path = Path(args["output"]).resolve()
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    if not output_path.is_dir():
-        raise ValueError("Output directory is not a valid directory.")
-
-    input_files = [f for f in image_path.iterdir() if f.is_file()]
+    input_files = [f for f in image_path.rglob("*") if f.is_file()]
     for f in input_files:
             
         image = cv2.imread(f)
@@ -158,6 +158,8 @@ if __name__ == "__main__":
             cv2.imshow(WINDOW_NAME, display)
 
             k = cv2.waitKey(1)
+            if k == ord('x'):
+                break
             if k == ord(" "):
                 x = start_point[0] + 1
                 y = start_point[1] + 1
