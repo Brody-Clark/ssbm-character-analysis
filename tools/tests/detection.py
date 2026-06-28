@@ -34,15 +34,26 @@ hsv_mask = cv.dilate(hsv_mask, kernel, iterations=1)
 
 show(hsv_mask, 'hsv_mask')
 
+# vertical_closing_kernel = cv.getStructuringElement(cv.MORPH_RECT, (2, 7))
+# line_erased = cv.morphologyEx(hsv_mask, cv.MORPH_OPEN, vertical_closing_kernel)
+# show(line_erased, "Line erased")
+# wait()
+
 blurred = cv.GaussianBlur(frame_gray, (3, 3), 0)
 edges = cv.Canny(blurred, 12, 50)
 show(edges, "raw edges")
-hsv_edges = cv.Canny(hsv_mask, 30, 90)
+
+vertical_closing_kernel = cv.getStructuringElement(cv.MORPH_RECT, (1, 3))
+line_erased = cv.morphologyEx(edges, cv.MORPH_OPEN, vertical_closing_kernel)
+show(line_erased, "Line erased")
 
 # Dilate edges to increase thickness and give more area for AND operation
 kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (8, 8))
-dilated_image = cv.dilate(edges, kernel, iterations=1)
-# show(dilated_image, "dilated edges")
+dilated_image = cv.dilate(line_erased, kernel, iterations=1)
+show(dilated_image, "dilated edges")
+
+
+
 
 comb = dilated_image & hsv_mask # & dynamic_mask
 show(comb, 'combined')

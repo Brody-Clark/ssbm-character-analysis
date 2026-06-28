@@ -1,21 +1,21 @@
 import cv2 as cv
 import numpy as np
-from ssbmv.domain.models import Frame, Dimension2D
+from ssbmv.domain.models import Frame, Dimension2D, Region
 import heapq
 import logging
 from functools import lru_cache
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 _logger = logging.getLogger(__name__)
 
 _MIN_SPRITE_AREA_RATIO = 0.006
-_MAX_SPRITE_AREA_RATIO = ...    # TODO
 
 @dataclass(slots=True)
 class Candidate:
     score:int = 0
     rect: cv.typing.Rect = [0,0,0,0]
     lod: int = 0
+    mask: cv.typing.MatLike = field(default_factory=list)
 
 class Detector:
     def __init__(self):
@@ -27,7 +27,8 @@ class Detector:
         self._hsv_mask_upper_1 = np.array([180, 255, 255])
         self._hsv_mask_lower_2 = np.array([0, 64, 45])
         self._hsv_mask_upper_2 = np.array([45, 255, 255])
-        self._closing_kernel = cv.getStructuringElement(cv.MORPH_RECT, (1, 4))
+        self._vertical_closing_kernel = cv.getStructuringElement(cv.MORPH_RECT, (1, 4))
+        self._horizontal_erase_kernel = cv.getStructuringElement(cv.MORPH_RECT, (3, 1))
         self._square_kernel = np.ones((8, 8), np.uint8)
         self._edge_dilation_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (8, 8))
         self._line_erase_kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
@@ -72,7 +73,7 @@ class Detector:
         return edges
     
     def _get_closed_edges(self, edges: cv.typing.MatLike) -> cv.typing.MatLike:
-        dilated = cv.dilate(edges, self._closing_kernel, iterations=1)
+        dilated = cv.dilate(edges, self._vertical_closing_kernel, iterations=1)
         closed = cv.morphologyEx(dilated, cv.MORPH_CLOSE, self._square_kernel)
         return closed
     
@@ -111,17 +112,20 @@ class Detector:
         return int(_MIN_SPRITE_AREA_RATIO * dim.w * dim.h)
     
     def _get_motion_mask(self, frame: Frame, region: cv.typing.Rect) -> cv.typing.MatLike:
-        
-        return self._update_static_mask(frame.image)[] # TODO: apply region
+        x, y, w, h = region
+        return self._update_static_mask(frame.image)[y: y+ h, x: x  +w] 
     
     def _get_character_mask(self, frame: Frame, region: cv.typing.Rect) -> cv.typing.MatLike:
-        img = frame.image[]  # TODO: apply region
+        x, y, w, h = region
+        img = frame.image[y: y + h, x: x + w]
         hsv_mask = self._get_hsv_mask(img=img)
         img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         edges = self._get_edges(img_gray=img_gray)
         motion_mask = self._get_motion_mask(frame=frame, region=region)
         combined = edges & hsv_mask & motion_mask
         combined = self._get_closed_edges(combined)
+        
+        return combined
         
     def _get_candidates(self, frame: Frame, region: cv.typing.Rec, predicted_rois: list[cv.typing.Rect] | None = [], lvl_of_detail=1) -> list[Candidate]:
         
@@ -140,14 +144,14 @@ class Detector:
                 if area < 120000:
                     r = [x,y,w,h]
                     score = self._score(frame, region=r, predicted_rois=predicted_rois, aspect_ratio=aspect_ratio, extent=extent) # TODO: implement handling
-                    candidates.append(Candidate(rect=r, lod=lvl_of_detail, score=score))
+                    candidates.append(Candidate(rect=r, lod=lvl_of_detail, score=score, mask=character_mask))
                 else:
                     # TODO: break up and add more contours?
                     continue
     
         return candidates
     
-    def detect(self, frame: Frame, predicted_rois: list[cv.typing.Rect] | None) -> list[cv.typing.Rect]:
+    def detect(self, frame: Frame, predicted_rois: list[cv.typing.Rect] | None) -> list[Region]:
         
         candidates: list[Candidate] = self._get_candidates(frame=frame, predicted_rois=predicted_rois)
         heapq.heapify(candidates)
@@ -158,7 +162,10 @@ class Detector:
         while candidates and iterations < self._max_iterations:
             candidate: Candidate = heapq.heappop(candidates)
             if self._meets_criteria(candidate):
-                best.append(candidate.rect)
+                x, y, w, h = candidate.rect
+                img_rgb = frame[y: y + h, x: x + w]
+                img_rgb = img_rgb & candidate.mask
+                best.append(Region(rect=candidate.rect, masked_rgb_slice=img_rgb))
                 continue
             if candidate.area / (frame.dimensions.w * frame.dimensions.h) < min_area:
                 continue

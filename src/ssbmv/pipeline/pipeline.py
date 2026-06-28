@@ -41,7 +41,7 @@ class VisionPipeline:
             tracks, track_predictions = self._tracker.track(regions)
             predictions = track_predictions
 
-            tracks = self._matcher.match(tracked_objs=tracks)
+            tracks = self._matcher.match(frame=frame, tracked_objs=tracks)
 
             if self._debug_enabled:
                 self.debug_frame(frame=frame, tracked_objs=tracks)
