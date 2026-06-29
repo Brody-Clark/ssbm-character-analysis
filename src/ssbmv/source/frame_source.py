@@ -1,14 +1,15 @@
 from abc import abstractmethod
+from ssbmv.domain.models import Frame
 
 class FrameSourceBase():
     
     @abstractmethod
-    def __iter__(self):
+    def __iter__(self) -> Frame:
         pass
 
-class VideoSource():
+class VideoSource(FrameSourceBase):
     pass
 
-class ImageSource():
+class ImageSource(FrameSourceBase):
     pass
 

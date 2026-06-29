@@ -1,11 +1,12 @@
-# logging_config.py
-
 import json
 import logging
 from datetime import datetime, UTC
 
 
 class JsonFormatter(logging.Formatter):
+    """
+    Formats logs in structured JSON
+    """
     def format(self, record):
         return json.dumps({
             "timestamp": datetime.now(UTC).isoformat(),
@@ -19,6 +20,12 @@ class JsonFormatter(logging.Formatter):
 
 
 def configure_logging(debug: bool):
+    """
+    Overrides logger to setup JSON formatting and optionally set debug logs
+
+    Args:
+        debug (bool): Disables debug logs if True
+    """
     if not debug:
         logging.disable(logging.CRITICAL)
         return

@@ -25,3 +25,9 @@ class TrackedObjectState:
     region: Region
     predicted_region: Rect
     sprite_name: Optional[str]
+    
+@dataclass(slots=True)
+class GameState:
+    tracked_objects: list[TrackedObjectState] = field(default_factory=list)
+    frame_id: int = 0
+    timestamp: int = 0

@@ -2,7 +2,7 @@ import logging
 import itertools
 import numpy as np
 import cv2 as cv
-from ssbmv.domain.sprite_database import SpriteDatabase
+from ssbmv.domain.sprite_database import SpriteDatabase, Character
 from ssbmv.domain.models import TrackedObjectState, Frame
 from skimage.feature import local_binary_pattern
 
@@ -10,16 +10,15 @@ _logger = logging.getLogger(__name__)
     
 class Matcher:
     def __init__(self,  sprite_database: SpriteDatabase):
-        self._templates  = self._load_templates(sprite_database)
+        self._templates: dict[Character, list[list[np.float32]]]  = self._load_templates(sprite_database)
         
     def _get_features(self, image: cv.typing.MatLike):
         contour = self._get_shape_contour(image=image)
         distances = self._compute_centroid_distances(contour=contour)
         desc = self._get_fourier_descriptors(distances=distances, num_descriptors=32, sample_size=128)
-        # TODO: also get LBP and create feature vector
         hist = self._extract_character_lbp(image) # TODO: finish
         features = itertools.chain(hist, desc) # TODO: normalize
-        return desc
+        return features
     
     def _extract_character_lbp(self, roi_masked_bgr: cv.typing.MatLike, P:int=8, R:int=1):
         # 1. Convert your masked ROI to grayscale
@@ -45,14 +44,14 @@ class Matcher:
         
         return hist
 
-    def _load_templates(self, sprite_database: SpriteDatabase):
-        templates = []
+    def _load_templates(self, sprite_database: SpriteDatabase) -> dict[Character, list[list[np.float32]]]:
+        templates = {}
         for char, sprite_sheet in sprite_database.character_sprite_db.items():
+            features = []
             for s in sprite_sheet.sprite_img:
-                contour = self._get_shape_contour(image=s)
-                distances = self._compute_centroid_distances(contour=contour)
-                desc = self._get_fourier_descriptors(distances=distances, num_descriptors=32, sample_size=128)
-                templates.append(desc)
+                features.append(self._get_features(image=s))
+            templates[char] = features
+        return templates
 
     def _get_shape_contour(self, image: cv.typing.MatLike):
         # Ensure image is binary
@@ -101,10 +100,28 @@ class Matcher:
         
         return normalized_fds
     
+    def _get_best_match(roi_features, template_dict, threshold=0.15):
+        best_match = "Unknown"
+        min_distance = float("inf")
+        
+        for character_name, template_features in template_dict.items():
+            # Calculate Euclidean Distance (L2) between the two texture arrays
+            distance = np.linalg.norm(roi_features - template_features)
+            
+            if distance < min_distance:
+                min_distance = distance
+                best_match = character_name
+                
+        # Apply a safety gate to reject bad matches
+        if min_distance > threshold:
+            return "Unknown/Background Stage Geometry"
+            
+        return best_match
+
     def match(self, frame: Frame, tracked_objs: list[TrackedObjectState]) -> list[TrackedObjectState]:
         for obj in tracked_objs:
             features = self._get_features(image=obj.region.masked_rgb_slice)
-            sprite_name = self._get_match(features)
+            sprite_name = self._get_best_match(features, self._templates)
             obj.sprite_name
             
             

@@ -14,6 +14,7 @@ if __name__ == "__main__":
     configure_logging(args.debug)
     
     sprite_path = Path.cwd() / 'assets' / 'sprites'
+    
     if not sprite_path.exists():
         raise RuntimeError(f"Invalid sprite data root path {sprite_path}")
     
