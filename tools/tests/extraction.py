@@ -11,10 +11,71 @@ def wait():
         if key == ord(' '):
             return
         
+def posterize_roi(roi_bgr, factor=32):
+    """
+    Reduces the color space by flattening pixel shades.
+    factor=64 reduces 256 colors down to 4 distinct steps per channel.
+    """
+    # Integer division drops the low-order bits (shading/gradients)
+    quantized = (roi_bgr // factor) * factor
+    return quantized
+        
 frame_dir = Path.cwd() / 'data' / 'out'
 frame_file = str(frame_dir / 'Region_1.jpg')
 frame_rgb = cv.imread(frame_file)
-print(frame_rgb.shape)
+
+frame_hsv = cv.cvtColor(frame_rgb, cv.COLOR_BGR2HSV)
+lower1 = np.array([83,56, 40])
+upper1 = np.array([180, 255, 255])
+lower2 = np.array([0, 64, 45])
+upper2 = np.array([45, 255, 255])
+hsv_mask = cv.inRange(frame_hsv, lower1, upper1)
+hsv_mask = hsv_mask | cv.inRange(frame_hsv, lower2, upper2)
+hsv_mask_orig = hsv_mask
+
+# Erase some of the thin lines left behind after hsv masking
+line_eraser_kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
+hsv_mask = cv.morphologyEx(hsv_mask, cv.MORPH_OPEN, line_eraser_kernel)
+
+kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (12, 12))
+hsv_mask = cv.dilate(hsv_mask, kernel, iterations=1)
+
+show(hsv_mask, 'hsv_mask')
+
+
+contours, _ = cv.findContours(hsv_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+cv.drawContours(frame_rgb, contours=contours, contourIdx=-1, color=(223, 220, 20), thickness=cv.FILLED)
+show(frame_rgb, "final")
+wait()
+
+
+flat_color = posterize_roi(frame_rgb)
+show(flat_color, "Posterized")
+gray = cv.cvtColor(flat_color, cv.COLOR_BGR2GRAY)
+gray = cv.GaussianBlur(gray, (5, 5), 0)
+edges = cv.Canny(gray, 16, 32)
+kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
+edges = cv.morphologyEx(edges, cv.MORPH_CLOSE, kernel)
+
+show(edges, "edgs")
+# 2. Find contours with complete hierarchical relationships
+# cv.RETR_CCOMP organizes topology into a 2-level hierarchy (external and internal)
+contours, hierarchy = cv.findContours(edges, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
+
+sub_candidates = []
+if hierarchy is not None:
+    for i, contour in enumerate(contours):
+        # Optional: Check if it is an internal child component
+        # hierarchy[0][i][3] != -1 means it has a parent (it's inside the main fused box)
+        
+        area = cv.contourArea(contour)
+        if area > 200:  # Filter out tiny pixel fragments
+            rec = cv.boundingRect(contour)
+            cv.rectangle(frame_rgb, rec=rec, color=(220, 230, 36), thickness=2)
+            sub_candidates.append(contour)
+            
+# cv.drawContours(frame_rgb, sub_candidates, -1, (220, 220, 32), cv.FILLED )
+
 frame_gray = cv.cvtColor(frame_rgb, cv.COLOR_BGR2GRAY)
 frame_hsv = cv.cvtColor(frame_rgb, cv.COLOR_BGR2HSV)
 

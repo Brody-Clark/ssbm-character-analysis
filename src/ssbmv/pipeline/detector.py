@@ -127,10 +127,10 @@ class Detector:
         
         return combined
         
-    def _get_candidates(self, frame: Frame, region: cv.typing.Rec, predicted_rois: list[cv.typing.Rect] | None = [], lvl_of_detail=1) -> list[Candidate]:
+    def _get_candidates(self, frame: Frame, region: cv.typing.Rect, predicted_rois: list[cv.typing.Rect] | None = [], lvl_of_detail=1) -> list[Candidate]:
         
         character_mask = self._get_character_mask(frame=frame, region=region)
-        contours, hierarchy = cv.findContours(
+        contours, _ = cv.findContours(
             character_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
         )
         

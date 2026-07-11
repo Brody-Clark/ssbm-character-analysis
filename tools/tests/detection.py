@@ -34,10 +34,8 @@ hsv_mask = cv.dilate(hsv_mask, kernel, iterations=1)
 
 show(hsv_mask, 'hsv_mask')
 
-# vertical_closing_kernel = cv.getStructuringElement(cv.MORPH_RECT, (2, 7))
-# line_erased = cv.morphologyEx(hsv_mask, cv.MORPH_OPEN, vertical_closing_kernel)
-# show(line_erased, "Line erased")
-# wait()
+contours, _ = cv.findContours(hsv_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+cv.drawContours(frame_rgb, contours=contours, contourIdx=-1, color=(223, 220, 20), thickness=cv.FILLED)
 
 blurred = cv.GaussianBlur(frame_gray, (3, 3), 0)
 edges = cv.Canny(blurred, 12, 50)
