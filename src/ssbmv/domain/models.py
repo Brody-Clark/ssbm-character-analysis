@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from cv2.typing import MatLike, Rect
+from cv2.typing import MatLike, Rect, Point
 from typing import Optional
 
 @dataclass(slots=True)
@@ -23,8 +23,9 @@ class Frame:
 class TrackedObjectState:
     track_id: int = -1
     region: Region
-    predicted_region: Rect
+    predicted_centroid: Point = field(default_factory=list)
     sprite_name: Optional[str]
+    frames_active: int = 0
     
 @dataclass(slots=True)
 class GameState:
