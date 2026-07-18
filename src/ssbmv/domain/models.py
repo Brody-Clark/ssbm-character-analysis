@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from cv2.typing import MatLike, Rect, Point
 from typing import Optional
+from ssbmv.domain.sprite_database import Character
 
 @dataclass(slots=True)
 class Region:
@@ -26,6 +27,10 @@ class TrackedObjectState:
     predicted_centroid: Point = field(default_factory=list)
     sprite_name: Optional[str]
     frames_active: int = 0
+
+@dataclass(slots=True)
+class MatchedCharacter:
+    sprite_name: str = ""
     
 @dataclass(slots=True)
 class GameState:
