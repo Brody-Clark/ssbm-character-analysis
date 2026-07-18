@@ -2,9 +2,8 @@ import cv2
 import os
 import shutil
 import numpy as np
-
-INPUT_DIR = "D:\\Dev\\Super Smash Bros Vision\\data\\frames\\mario\\cropped"  
-OUTPUT_DIR = "D:\\Dev\\Super Smash Bros Vision\\data\\frames\\mario\\cropped\\labeled"     
+import argparse
+from pathlib import Path
 
 ANIMATION_MAP = {
     '0': 'idle',
@@ -27,11 +26,11 @@ ANIMATION_MAP = {
     'h': 'dodge'
 }
 
-def setup_directories():
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
+def setup_directories(output_dir: str):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     for folder_name in ANIMATION_MAP.values():
-        path = os.path.join(OUTPUT_DIR, folder_name)
+        path = os.path.join(output_dir, folder_name)
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -90,15 +89,42 @@ def create_dashboard(image_path, current_input, current_idx, total_images):
     return combined_window
 
 def main():
-    setup_directories()
+    # Parse cli arguments and handle bad inputs
+    parser = argparse.ArgumentParser(
+        description="Label images in a directory by action.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    parser.add_argument(
+        "--input",
+        "-i",
+        type=str,
+        help="Input data folder",
+        required=True,
+    )
+
+    parser.add_argument(
+        "--output",
+        "-o",
+        type=str,
+        help="Output folder",
+        required=True,
+    )
+
+    args = vars(parser.parse_args())
+    setup_directories(args.output)
+    input_dir = args.input
+    if not Path(input_dir).is_dir():
+        raise FileNotFoundError(f"Input directory is not a valid directory")
+
     
     # Retrieve valid image targets
     valid_extensions = ('.png', '.jpg', '.jpeg')
-    images = [os.path.join(INPUT_DIR, f) for f in os.listdir(INPUT_DIR) if f.lower().endswith(valid_extensions)]
+    images = [os.path.join(input_dir, f) for f in os.listdir(input_dir) if f.lower().endswith(valid_extensions)]
     images.sort()
     
     if not images:
-        print(f"Error: No image assets detected inside directory '{INPUT_DIR}'")
+        print(f"Error: No image assets detected inside directory '{input_dir}'")
         return
         
     cv2.namedWindow("Melee CV Annotation Tool", cv2.WINDOW_AUTOSIZE)
@@ -131,7 +157,7 @@ def main():
         elif key == 32:
             if current_buffer in ANIMATION_MAP:
                 assigned_class = ANIMATION_MAP[current_buffer]
-                target_folder = os.path.join(OUTPUT_DIR, assigned_class)
+                target_folder = os.path.join(args.output, assigned_class)
                 
                 # Create a unique incremental naming format for file tracking stability
                 existing_count = len(os.listdir(target_folder))
@@ -142,20 +168,13 @@ def main():
                 # Copy instead of move to preserve your source recording folder integrity
                 shutil.copy(img_path, destination_path)
                 
-                # Advance iteration tracking variables
                 idx += 1
                 current_buffer = "" # Flush active key buffer string
             else:
-                # Trigger a system window flash warn sound if pressing space with no assignments loaded
                 print("Warning: Load a valid numeric option before pressing Spacebar.")
 
     cv2.destroyAllWindows()
     print("Labeling complete!")
 
 if __name__ == '__main__':
-    # Ensure source path folder matches target layout setups before executing
-    if not os.path.exists(INPUT_DIR):
-        os.makedirs(INPUT_DIR)
-        print(f"Created initial input directory '{INPUT_DIR}'. Drop your 450 frames inside here and restart.")
-    else:
-        main()
+    main()
