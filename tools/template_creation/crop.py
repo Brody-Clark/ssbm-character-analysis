@@ -78,12 +78,7 @@ def mouse_callback(event, x, y, flags, param):
         x2 = max(start_point[0], end_point[0])
         y2 = max(start_point[1], end_point[1])
 
-        rect = Rect(Point(x1, y1), Point(x2, y2))
-
         cv2.rectangle(display, start_point, end_point, (0, 255, 0), 1)
-    
-
-        # display = image.copy()
 
 
 def get_annotated_file_path(original_path: str) -> str:
@@ -139,37 +134,47 @@ if __name__ == "__main__":
     output_path.mkdir(parents=True, exist_ok=True)
 
     input_files = [f for f in image_path.rglob("*") if f.is_file()]
-    for f in input_files:
+    image = cv2.imread(str(input_files[0]))
+    if image is None:
+        raise RuntimeError("Input file is not a valid image.")
+
+    # Create image window and display image
+    cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_AUTOSIZE)
+    cv2.imshow(WINDOW_NAME, image)
+
+    display = image.copy()
+    # Register mouse event callback to handle drawing selection rect
+    cv2.setMouseCallback(WINDOW_NAME, mouse_callback)
+    while True:
+        cv2.imshow(WINDOW_NAME, display)
+
+        k = cv2.waitKey(1)
+        if k == ord('x'):
+            exit()
+        if k == ord(" "):
+            x = start_point[0] + 2
+            y = start_point[1] + 2
+            w = end_point[0] - x
+            h = end_point[1] - y
+            
+            display = display[y: y + h+2, x: x + w+2]
+            # Save cropped image to new image file
+            cv2.imwrite(str(output_path / input_files[0].stem ) + ".jpg", display)
+            break
+    
+    cv2.destroyAllWindows()
+        
+    for f in input_files[1:]:
             
         image = cv2.imread(f)
         if image is None:
-            raise RuntimeError("Input file is not a valid image.")
-
-        # Create image window and display image
-        cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_AUTOSIZE)
-        cv2.imshow(WINDOW_NAME, image)
-
-        # Register mouse event callback to handle drawing selection rect
-        cv2.setMouseCallback(WINDOW_NAME, mouse_callback)
-
-        # Main loop
-        display = image.copy()
-        while True:
-            cv2.imshow(WINDOW_NAME, display)
-
-            k = cv2.waitKey(1)
-            if k == ord('x'):
-                break
-            if k == ord(" "):
-                x = start_point[0] + 1
-                y = start_point[1] + 1
-                w = end_point[0] - x
-                h = end_point[1] - y
-                
-                display = display[y: y + h, x: x + w]
-                # Save cropped image to new image file
-                cv2.imwrite(str(output_path / f.stem ) + ".jpg", display)
-                break
+            print(f"ERROR: failed to load {str(f)}")
+            continue
         
-    cv2.destroyAllWindows()
+        image = image[y: y + h+2, x: x + w+2]
+        # Save cropped image to new image file
+        cv2.imwrite(str(output_path / f.stem ) + ".jpg", image)
+        
+    print("FINISHED")
+    
 
