@@ -14,7 +14,6 @@ _MIN_SPRITE_AREA_RATIO = 0.006
 class Candidate:
     score:int = 0
     rect: cv.typing.Rect = [0,0,0,0]
-    lod: int = 0
     mask: cv.typing.MatLike = field(default_factory=list)
 
 class Detector:
@@ -41,12 +40,13 @@ class Detector:
 
         # Erase thin lines left behind after hsv masking
         hsv_mask = cv.morphologyEx(hsv_mask, cv.MORPH_OPEN, self._line_erase_kernel)
+        
+        # TODO: Erase long horizontal lines with another kernel
 
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (10, 10))
         hsv_mask = cv.dilate(hsv_mask, kernel, iterations=1)
         return hsv_mask
     
-    @lru_cache(maxsize=4)
     def _update_static_mask(self, frame_gray: cv.typing.MatLike):
         if self._running_background is None:
             self._running_background = frame_gray.copy().astype(np.float32)
@@ -77,10 +77,8 @@ class Detector:
         closed = cv.morphologyEx(dilated, cv.MORPH_CLOSE, self._square_kernel)
         return closed
     
-    def _get_regions_of_interest(self, img: cv.typing.MatLike, motion_mask: cv.typing.MatLike, lvl_of_detail: int = 1) -> list[cv.typing.Rect]:
-        img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    def _get_regions_of_interest(self, img: cv.typing.MatLike, motion_mask: cv.typing.MatLike) -> list[cv.typing.Rect]:
         hsv_mask = self._get_hsv_mask(img=img)
-        # edges = self._get_edges(img_gray=img_gray)
         edges = cv.Canny(hsv_mask, 12, 100)
         edges = cv.dilate(edges, self._edge_dilation_kernel, iterations=1)
         combined = edges & hsv_mask & motion_mask
@@ -105,33 +103,30 @@ class Detector:
     
     def _score(self, frame: Frame, region: cv.typing.Rect, predicted_rois: list[cv.typing.Rect] | None) -> int:
         # Score = w_1 * S_
-        pass
+        return 1
     
     @lru_cache(maxsize=8)
     def _get_min_area(self, dim: Dimension2D) -> int:
         return int(_MIN_SPRITE_AREA_RATIO * dim.w * dim.h)
+
     
-    def _get_motion_mask(self, frame: Frame, region: cv.typing.Rect) -> cv.typing.MatLike:
-        x, y, w, h = region
-        return self._update_static_mask(frame.image)[y: y+ h, x: x  +w] 
-    
-    def _get_character_mask(self, frame: Frame, region: cv.typing.Rect) -> cv.typing.MatLike:
+    def _get_candidate_mask(self, frame: Frame, region: cv.typing.Rect) -> cv.typing.MatLike:
         x, y, w, h = region
         img = frame.image[y: y + h, x: x + w]
         hsv_mask = self._get_hsv_mask(img=img)
         img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         edges = self._get_edges(img_gray=img_gray)
-        motion_mask = self._get_motion_mask(frame=frame, region=region)
+        motion_mask = self._update_static_mask(img)
         combined = edges & hsv_mask & motion_mask
         combined = self._get_closed_edges(combined)
         
         return combined
         
-    def _get_candidates(self, frame: Frame, region: cv.typing.Rect, predicted_rois: list[cv.typing.Rect] | None = [], lvl_of_detail=1) -> list[Candidate]:
+    def _get_candidates(self, frame: Frame, region: cv.typing.Rect, predicted_rois: list[cv.typing.Rect]) -> list[Candidate]:
         
-        character_mask = self._get_character_mask(frame=frame, region=region)
+        candidate_mask = self._get_candidate_mask(frame=frame, region=region)
         contours, _ = cv.findContours(
-            character_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+            candidate_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
         )
         
         candidates: list[Candidate] = []
@@ -140,40 +135,73 @@ class Detector:
             x, y, w, h = cv.boundingRect(cnt)
             aspect_ratio = float(w) / h
             extent = float(area) / (w * h)
-            if area > 10000 and (aspect_ratio >= 0.5 and aspect_ratio <= 3.5):  
+            if area > 10000 and (aspect_ratio <= 0.7 and aspect_ratio >= .35):  
                 if area < 120000:
                     r = [x,y,w,h]
-                    score = self._score(frame, region=r, predicted_rois=predicted_rois, aspect_ratio=aspect_ratio, extent=extent) # TODO: implement handling
-                    candidates.append(Candidate(rect=r, lod=lvl_of_detail, score=score, mask=character_mask))
+                    score = self._score(frame, region=r, predicted_rois=predicted_rois, aspect_ratio=aspect_ratio, extent=extent)
+                    candidates.append(Candidate(rect=r, score=score, mask=candidate_mask))
                 else:
-                    # TODO: break up and add more contours?
+                    # TODO: Spectral Clustering for near-convex decomposition
                     continue
     
         return candidates
     
-    def detect(self, frame: Frame, predicted_rois: list[cv.typing.Rect] | None) -> list[Region]:
+    # TODO: **NEW** local and global methods
+    def _local_search(frame, matched_tracks):
+        for track in matched_tracks:
+            x,y,w,h = track
+            local = frame[y:y+h, x:x+w]
+            candidate = self._get_candidates(local)
+        pass
+    
+    
+    def _global_search(frame, matched_tracks):
+        for track in matched_tracks:
+            x,y,w,h = track
+            local = frame[y:y+h, x:x+w]
+        frame_copy = frame.copy()
+        cv.rectangle(frame_copy, rec=track, color=(0,0,0))
+        frame_copy = cv.resize(frame_copy, (320, 180)) # TODO: need to better handle scaling than hard coding
+        self._get_candidates(frame_copy)
+        #TODO: scale back up.
+        candidate_boxes = scale_boxes_up(candidate_boxes_scaled, scale_factor=4)
         
+        pass
+    
+    def _get_character_HUDs(self, frame, motion_mask):
+        # TODO: Bottom 1/4 (?) of screen, look for distinct contours
+        hud_area = motion_mask[] # TODO: slice
+        contours, _ = cv.findContours(
+            ~hud_area, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+        )
+        if len(contours) <= 1:
+            return None
+        
+        candidate_HUDs = 0
+        for c in contours:
+            x,y,w,h = cv.boundingRect(c)
+            # TODO: check size, aspect ratio, etc... Maybe even just edge detection with template matching...
+            candidate_HUDs+=1
+            
+        if candidate_HUDs > 1 and candidate_HUDs < 5:
+            return candidate_HUDs
+        # TODO: either need to find better way to isolate them, or just assume 4 (bad performance)
+        return None
+        
+    def detect(self, frame: Frame, matched_tracks: list[cv.typing.Rect] | None) -> list[Region]:
+        motion_mask = self._update_static_mask(frame)
+        if not self._identified_character_HUDs:
+           huds = self._get_character_HUDs(frame=frame, motion_mask=motion_mask)
+           if huds:
+               self._character_HUDs = huds
+               self._idetified_character_HUDS = True
+           else:
+               return []
+           
+        if len(matched_tracks) == self._character_HUDs:
+            candidates = self._local_search(matched_tracks)
+        else:
+            candidates = self._global_search(matched_tracks)
+           
         candidates: list[Candidate] = self._get_candidates(frame=frame, predicted_rois=predicted_rois)
-        heapq.heapify(candidates)
-        
-        best = []
-        iterations = 0
-        min_area = self._get_min_area(frame.dimension)
-        while candidates and iterations < self._max_iterations:
-            candidate: Candidate = heapq.heappop(candidates)
-            if self._meets_criteria(candidate):
-                x, y, w, h = candidate.rect
-                img_rgb = frame[y: y + h, x: x + w]
-                img_rgb = img_rgb & candidate.mask
-                best.append(Region(rect=candidate.rect, masked_rgb_slice=img_rgb))
-                continue
-            if candidate.area / (frame.dimensions.w * frame.dimensions.h) < min_area:
-                continue
-            last_lod = candidate.lod
-            sub_rois = self._get_regions_of_interest(img=candidate, lvl_of_detail=last_lod+1)
-            for r in sub_rois:
-                score = self._score(frame=frame, region=r)
-                heapq.heappush(candidates, Candidate(rect=r, score=score, lod=last_lod+1))
-            iterations += 1
-        
-        return best
+  
