@@ -111,7 +111,7 @@ def main():
         required=True,
     )
 
-    args = vars(parser.parse_args())
+    args = parser.parse_args()
     setup_directories(args.output)
     input_dir = args.input
     if not Path(input_dir).is_dir():

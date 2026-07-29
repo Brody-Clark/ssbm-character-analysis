@@ -2,10 +2,10 @@ import logging
 import itertools
 import numpy as np
 import cv2 as cv
-from skimage.feature import local_binary_pattern
+from skimage.feature.texture import local_binary_pattern
 from scipy.spatial.distance import cdist
 from ssbmv.domain.sprite_database import SpriteDatabase, Character
-from ssbmv.domain.models import TrackedObjectState
+from ssbmv.domain.models import GameState, TrackedActor, Frame
 
 _logger = logging.getLogger(__name__)
 
@@ -127,13 +127,18 @@ class Matcher:
 
         return best_match
 
-    def match(self, tracked_objs: list[TrackedObjectState]) -> list[TrackedObjectState]:
-        if not tracked_objs:
-            return tracked_objs
-        query_features = [
-            self._get_features(image=obj.region.masked_rgb_slice)
-            for obj in tracked_objs
-        ]
+    def match(self, frame: Frame, game_state: GameState) -> list[TrackedActor]:
+        if not game_state.active_tracks:
+            return []
+        
+        query_features = []
+        active_tracks = game_state.active_tracks
+        for actor in active_tracks:
+            if actor.is_active:
+                x, y, w, h = actor.current_rect
+                cropped_image = frame.image[y : y + h, x : x + w]
+                query_features.append(self._get_features(image=cropped_image))
+
 
         # Stack into a 2D matrix of shape (num_tracked_objs, feature_dimension)
         query_matrix = np.array(query_features, dtype=np.float32)
@@ -145,7 +150,7 @@ class Matcher:
         best_template_indices = np.argmin(dists, axis=1)
 
         # Map the indices back to characters and update objects
-        for obj, best_idx in zip(tracked_objs, best_template_indices):
+        for obj, best_idx in zip(active_tracks, best_template_indices):
             obj.sprite_name = self.template_characters[best_idx]
 
-        return tracked_objs
+        return active_tracks

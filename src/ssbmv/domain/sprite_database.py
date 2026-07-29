@@ -12,15 +12,16 @@ class Character(Enum):
     MARIO = 1
     KIRBY = 2
 
+CHARACTER_NAMES: dict[str, Character] = {
+   'mario':Character.MARIO,
+   'kirby': Character.KIRBY,
+}
+
 @dataclass(slots=True)
 class SpriteSheet:
     sprite_names: list[str] = field(default_factory=list)
     sprite_img: list[MatLike] = field(default_factory=list)
 
-_CHARACTER_NAMES: dict[str, Character] = {
-   'mario':Character.MARIO,
-   'kirby': Character.KIRBY,
-}
 
 class SpriteDatabase:
     def __init__(self, sprite_sheet_root_path: Path):
@@ -29,7 +30,7 @@ class SpriteDatabase:
     
     def init(self):
         # Init db dict
-        for k, v in _CHARACTER_NAMES.items():
+        for k, v in CHARACTER_NAMES.items():
             self.character_sprite_db[v] = SpriteSheet()
             
         # Load all character sprite sheet data into memory
@@ -44,7 +45,7 @@ class SpriteDatabase:
             name = parts[0]
             anim = parts[1]
             
-            character = _CHARACTER_NAMES.get(name.lower(), None)
+            character = CHARACTER_NAMES.get(name.lower(), None)
             if character is None:
                 _logger.error("Invalid character name: %s", character)
                 continue

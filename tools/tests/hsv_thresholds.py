@@ -27,8 +27,8 @@ def onMaxVChanged(x):
     hsv.max_v = x
 
 cv2.namedWindow('image')
-frame_dir = Path.cwd() / 'data' / 'out'
-frame_file = str(frame_dir / 'frame0058.png')
+frame_dir = Path.cwd() / 'data' / 'test'
+frame_file = str(frame_dir / 'great_bay_frame.jpg')
 frame_rgb = cv2.imread(frame_file)
 
 hsv_image = cv2.cvtColor(frame_rgb, cv2.COLOR_BGR2HSV)

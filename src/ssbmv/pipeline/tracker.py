@@ -1,6 +1,11 @@
 from cv2.typing import Rect, Point
 from cv2 import KalmanFilter
-from src.ssbmv.domain.models import TrackedObjectState, Region
+from src.ssbmv.domain.models import (
+    Region,
+    TrackedActor,
+    GameState,
+    DetectionCandidate,
+)
 import logging
 from scipy.optimize import linear_sum_assignment
 import math
@@ -25,14 +30,20 @@ class Tracker:
 
         return matrix
 
-    def _match_tracks(self, trackers: list[Point], detections: list[Point]):
-        cost_matrix = self._compute_distance_matrix(trackers, detections)
+    def _match_tracks(
+        self, trackers: list[TrackedActor], detections: list[DetectionCandidate]
+    ):
+        track_centroids = [t.centroid() for t in trackers]
+        detection_centroids = [d.centroid() for d in detections]
+        cost_matrix = self._compute_distance_matrix(
+            track_centroids, detection_centroids
+        )
 
         # Run Hungarian Assignment
         row_ind, col_ind = linear_sum_assignment(cost_matrix)
 
         # Filter matches using a max distance threshold
-        MAX_DISTANCE = 75  # TODO: based on ratio: Max pixels a character can realistically travel in 1 frame
+        MAX_DISTANCE = 120  # TODO: based on ratio: Max pixels a character can realistically travel in 1 frame
 
         valid_matches = []
         unmatched_trackers = set(range(len(trackers)))
@@ -43,47 +54,47 @@ class Tracker:
                 valid_matches.append((t, d))
                 unmatched_trackers.remove(t)
                 unmatched_detections.remove(d)
-        
-        return valid_matches,unmatched_trackers,unmatched_detections
+
+        return valid_matches, unmatched_trackers, unmatched_detections
 
     def _get_centroid(self, rect: Rect) -> Point:
         x, y, w, h = rect.rect
         return Point((x + w) / 2, (y + h) / 2)
 
-    # TODO: need to capture frames_active and frames_unmatched
-    # TODO: tracker shouldnt capture region or sprite name. split detection, track, and match
-    def track(
-        self, detections: list[Region], prev_tracks: list[TrackedObjectState]
-    ) -> list[TrackedObjectState]:
-        detection_centroids = [self._get_centroid(d.rect) for d in detections]
+    def track(self, game_state: GameState) -> list[TrackedActor]:
         matches, unmatched_tracker_ids, unmatched_detection_ids = self._match_tracks(
-            trackers=prev_tracks, detections=detection_centroids
+            trackers=game_state.active_tracks, detections=game_state.raw_detections
         )
 
         new_tracks = []
+        
+        # Update matched tracks
         for prev_track_idx, detection_idx in matches:
-            kf = self._kalman_filters[prev_track_idx]
-            kf.correct(detection_centroids[detection_idx])
-            prev = prev_tracks[prev_track_idx]
-            prev.predicted_centroid = kf.predict()
-            prev.frames_active += 1
-            new_tracks.append(prev)
-            self._unmatched_frames[prev_track_idx] = 0  # Reset unmatched frame count
+            track = game_state.active_tracks[prev_track_idx]
+            kf = track.kalman_filter
+            kf.correct(game_state.raw_detections[detection_idx].centroid())
+            track.predicted_centroid = kf.predict()
+            track.age_frames += 1
+            track.time_since_update = 0  # Reset unmatched frame count
+            new_tracks.append(track)
 
+        # Persist unmatched tracks unless they have been unmatched for too long
         for id in unmatched_tracker_ids:
-            self._unmatched_frames[id] += 1
-            if self._unmatched_frames[id] > self._max_unmatched_frames:
+            track = game_state.active_tracks[id]
+            track.time_since_update += 1
+            if track.time_since_update > self._max_unmatched_frames:
                 continue
-            new_tracks.append(prev_tracks[id])
+            new_tracks.append(track)
 
+        # Add new detection tracks
         for id in unmatched_detection_ids:
+            detection = game_state.raw_detections[id]
             new_tracks.append(
-                TrackedObjectState(
-                    track_id=0,
-                    region=0,
-                    predicted_centroid=detection_centroids[id],
-                    sprite_name=None,
-                    frames_active=1,
+                TrackedActor(
+                    track_id=1,
+                    player_slot=None,
+                    current_rect=detection.rect,
+                    kalman_filter=KalmanFilter(),
                 )
             )
 
