@@ -25,7 +25,9 @@ class TrackedActor:
 
     # State & Spatial Tracking
     current_rect: Rect
-    predicted_centroid: Optional[Point] = None  # Predicted search window for NEXT frame (from Kalman)
+    predicted_centroid: Optional[Point] = (
+        None  # Predicted search window for NEXT frame (from Kalman)
+    )
     kalman_filter: KalmanFilter = KalmanFilter()
 
     # Matching & Classification
@@ -52,13 +54,14 @@ class DetectionCandidate:
     rect: Rect
     contour: ndarray  # Raw contour points
     binary_mask: ndarray  # Binary image mask patch
-    
+
     @property
     def centroid(self) -> Point:
         return (
             self.rect[0] + self.rect[2] // 2,
             self.rect[1] + self.rect[3] // 2,
         )
+
 
 @dataclass
 class HUDState:

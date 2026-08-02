@@ -8,16 +8,19 @@ class JsonFormatter(logging.Formatter):
     """
     Formats logs in structured JSON
     """
+
     def format(self, record):
-        return json.dumps({
-            "timestamp": datetime.now(UTC).isoformat(),
-            "level": record.levelname,
-            "logger": record.name,
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
-            "message": record.getMessage(),
-        })
+        return json.dumps(
+            {
+                "timestamp": datetime.now(UTC).isoformat(),
+                "level": record.levelname,
+                "logger": record.name,
+                "module": record.module,
+                "function": record.funcName,
+                "line": record.lineno,
+                "message": record.getMessage(),
+            }
+        )
 
 
 def configure_logging(debug: bool):

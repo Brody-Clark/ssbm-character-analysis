@@ -9,14 +9,17 @@ from dataclasses import dataclass, field
 
 _logger = logging.getLogger(__name__)
 
+
 class Character(Enum):
     MARIO = 1
     KIRBY = 2
 
-CHARACTER_NAMES: dict[Character, str]={
-    Character.MARIO: 'mario',
-    Character.KIRBY: 'kirby'
+
+CHARACTER_NAMES: dict[Character, str] = {
+    Character.MARIO: "mario",
+    Character.KIRBY: "kirby",
 }
+
 
 @dataclass(slots=True)
 class SpriteSheet:
@@ -29,9 +32,13 @@ class SpriteDatabase:
         self.character_sprite_db: dict[str, SpriteSheet] = {}
 
     def init(self, sprite_sheet_root_path: Path):
-        self.character_sprite_db = self._load_character_spritesheets(sprite_sheet_root_path)
+        self.character_sprite_db = self._load_character_spritesheets(
+            sprite_sheet_root_path
+        )
 
-    def _load_character_spritesheets(self, root_path: str | Path) -> dict[str, SpriteSheet]:
+    def _load_character_spritesheets(
+        self, root_path: str | Path
+    ) -> dict[str, SpriteSheet]:
         """Iterates over a root directory structured as `{character}/{animation}/{num}.jpg`
         and loads each character's sprites into an in-memory SpriteSheet dictionary.
         """
@@ -40,6 +47,7 @@ class SpriteDatabase:
             raise ValueError(f"Invalid root path: {root_path}")
 
         character_db: dict[str, SpriteSheet] = {}
+
         def natural_sort_key(file_path: Path):
             return [
                 int(text) if text.isdigit() else text.lower()
@@ -66,7 +74,8 @@ class SpriteDatabase:
 
                 # Collect and naturally sort image files
                 image_files = [
-                    f for f in anim_dir.iterdir()
+                    f
+                    for f in anim_dir.iterdir()
                     if f.is_file() and f.suffix.lower() in valid_extensions
                 ]
                 image_files.sort(key=natural_sort_key)
@@ -75,7 +84,7 @@ class SpriteDatabase:
                 for img_path in image_files:
                     img = imread(str(img_path))
                     if img is None:
-                        continue 
+                        continue
 
                     sprite_identifier = f"{anim_name}"
 
@@ -85,12 +94,14 @@ class SpriteDatabase:
             character_db[char_name] = sprite_sheet
 
         return character_db
-            
+
     @lru_cache(maxsize=4)
-    def get_sprites_by_character(self, character: Character) -> list[SpriteSheet] | None:
+    def get_sprites_by_character(
+        self, character: Character
+    ) -> list[SpriteSheet] | None:
         sprites = self.character_sprite_db.get(character, None)
         return sprites
-    
+
     @lru_cache(maxsize=4)
     def get_palette_by_character(self, character: Character) -> MatLike:
         pass

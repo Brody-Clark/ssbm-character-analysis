@@ -13,6 +13,7 @@ _logger = logging.getLogger(__name__)
 
 MAX_DISTANCE = 200  # TODO: based on ratio: Max pixels a character can realistically travel in 1 frame
 
+
 class Tracker:
     def __init__(self, max_unmatched_frames: int = 4):
         self._max_unmatched_frames = max_unmatched_frames
@@ -63,14 +64,19 @@ class Tracker:
         )
 
         new_tracks = []
-        
+
         # Update matched tracks
         for prev_track_idx, detection_idx in matches:
             track = game_state.active_tracks[int(prev_track_idx)]
             kf = track.kalman_filter
             detection = game_state.raw_detections[int(detection_idx)]
-            centroid = np.array(detection.centroid) 
-            kf.correct(np.array([[np.float32(centroid[0])], [np.float32(centroid[1])]], dtype=np.float32))
+            centroid = np.array(detection.centroid)
+            kf.correct(
+                np.array(
+                    [[np.float32(centroid[0])], [np.float32(centroid[1])]],
+                    dtype=np.float32,
+                )
+            )
 
             prediction = kf.predict()
             pred_x, pred_y = int(prediction[0][0]), int(prediction[1][0])
@@ -92,34 +98,36 @@ class Tracker:
         for id in unmatched_detection_ids:
             detection = game_state.raw_detections[id]
             new_track = TrackedActor(
-                                track_id=1,
-                                player_slot=None,
-                                current_rect=detection.rect,
-                                kalman_filter=KalmanFilter(),
-                            )
+                track_id=1,
+                player_slot=None,
+                current_rect=detection.rect,
+                kalman_filter=KalmanFilter(),
+            )
             cur_centroid = self._get_centroid(detection.rect)
-            initial_state = np.array([
-                [np.float32(cur_centroid[0])],
-                [np.float32(cur_centroid[1])],
-                [0.0],  # initial vx = 0
-                [0.0]   # initial vy = 0
-            ], dtype=np.float32)
+            initial_state = np.array(
+                [
+                    [np.float32(cur_centroid[0])],
+                    [np.float32(cur_centroid[1])],
+                    [0.0],  # initial vx = 0
+                    [0.0],  # initial vy = 0
+                ],
+                dtype=np.float32,
+            )
 
             # Init new kalman filter
-            new_track.kalman_filter.transitionMatrix = np.array([
-                [1, 0, 1, 0],
-                [0, 1, 0, 1],
-                [0, 0, 1, 0],
-                [0, 0, 0, 1]
-            ], dtype=np.float32)
-            new_track.kalman_filter.measurementMatrix = np.array([
-                [1, 0, 0, 0],
-                [0, 1, 0, 0]
-            ], dtype=np.float32)
+            new_track.kalman_filter.transitionMatrix = np.array(
+                [[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]],
+                dtype=np.float32,
+            )
+            new_track.kalman_filter.measurementMatrix = np.array(
+                [[1, 0, 0, 0], [0, 1, 0, 0]], dtype=np.float32
+            )
             new_track.kalman_filter.statePost = initial_state
             new_track.kalman_filter.statePre = initial_state
             new_track.kalman_filter.processNoiseCov = np.eye(4, dtype=np.float32) * 1e-2
-            new_track.kalman_filter.measurementNoiseCov = np.eye(2, dtype=np.float32) * 1e-1
+            new_track.kalman_filter.measurementNoiseCov = (
+                np.eye(2, dtype=np.float32) * 1e-1
+            )
             new_track.kalman_filter.errorCovPost = np.eye(4, dtype=np.float32)
 
             prediction = new_track.kalman_filter.predict()

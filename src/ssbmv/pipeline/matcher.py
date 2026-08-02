@@ -24,9 +24,7 @@ class Matcher:
 
         # Shape: (Total number of templates across all characters, feature_dimension)
         self.template_matrix = np.array(flat_templates, dtype=np.float32)
-        self.template_characters = (
-            flat_characters 
-        )
+        self.template_characters = flat_characters
 
     def _extract_color_histogram(self, image: cv.typing.MatLike) -> np.ndarray:
         """Exract 1D saturation feature vector"""
@@ -66,7 +64,7 @@ class Matcher:
         desc = desc / (np.linalg.norm(desc) + 1e-7)
         color_norm = hist_hsv_sat / (np.linalg.norm(hist_hsv_sat) + 1e-7)
 
-        features = np.hstack((hist, desc, color_norm)).astype(np.float32) 
+        features = np.hstack((hist, desc, color_norm)).astype(np.float32)
         return True, features
 
     def _extract_character_lbp(
@@ -102,13 +100,9 @@ class Matcher:
 
     def _get_shape_contour(self, image: cv.typing.MatLike):
         img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        _, thresh = cv.threshold(
-            img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU
-        )
+        _, thresh = cv.threshold(img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
 
-        contours, _ = cv.findContours(
-            thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
-        )
+        contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
         if not contours:
             return None
 
@@ -146,9 +140,9 @@ class Matcher:
             return None
 
         # Normalize by the DC component to achieve scale invariance.
-        normalized_fds = (
-            fft_lengths[1 : num_descriptors + 1] / fft_lengths[0]
-        ).astype(np.float32)
+        normalized_fds = (fft_lengths[1 : num_descriptors + 1] / fft_lengths[0]).astype(
+            np.float32
+        )
         return normalized_fds
 
     def _distance_to_confidence(self, dist: float, scale: float = 1.0) -> float:
