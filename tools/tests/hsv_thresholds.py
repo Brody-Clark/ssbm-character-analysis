@@ -27,13 +27,13 @@ def onMaxVChanged(x):
     hsv.max_v = x
 
 cv2.namedWindow('image')
-frame_dir = Path.cwd() / 'data' / 'test'
-frame_file = str(frame_dir / 'great_bay_frame.jpg')
+frame_dir = Path.cwd() / 'data' / 'recordings' /'temple'
+frame_file = str(frame_dir / 'frame_0068.png')
 frame_rgb = cv2.imread(frame_file)
 
 hsv_image = cv2.cvtColor(frame_rgb, cv2.COLOR_BGR2HSV)
 gray = cv2.cvtColor(frame_rgb, cv2.COLOR_BGR2GRAY)
-
+# 
 cv2.createTrackbar('min H', 'image', 0, 179, onMinHChanged)
 cv2.createTrackbar('max H', 'image', 179, 179, onMaxHChanged)
 cv2.createTrackbar('min S', 'image', 0, 255, onMinSChanged)

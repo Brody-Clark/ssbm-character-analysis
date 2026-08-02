@@ -9,7 +9,7 @@ from numpy import ndarray
 @dataclass(slots=True)
 class Region:
     masked_rgb_slice: MatLike = field(default_factory=list)
-    rect: Rect = [-1, -1, -1, -1]
+    rect: Rect = field(default_factory=lambda: [-1, -1, -1, -1])
 
     @property
     def centroid(self) -> Point:
@@ -26,7 +26,7 @@ class TrackedActor:
     # State & Spatial Tracking
     current_rect: Rect
     predicted_centroid: Optional[Point] = None  # Predicted search window for NEXT frame (from Kalman)
-    kalman_filter: KalmanFilter
+    kalman_filter: KalmanFilter = KalmanFilter()
 
     # Matching & Classification
     confirmed_character: str = "Unknown"
@@ -59,8 +59,6 @@ class DetectionCandidate:
             self.rect[0] + self.rect[2] // 2,
             self.rect[1] + self.rect[3] // 2,
         )
-    # features: Optional[ndarray] = None # Computed LBP / Fourier Descriptors
-
 
 @dataclass
 class HUDState:
@@ -77,11 +75,13 @@ class GameState:
     # timestamp_ms: float
 
     # HUD Metadata (Context Layer)
-    hud_states: List[HUDState | None] = [None] * 4
+    hud_states: List[HUDState | None] = field(default_factory=lambda: [None] * 4)
 
     # Pipeline Processing Layers
     active_tracks: List[TrackedActor] = field(default_factory=list)
     raw_detections: List[DetectionCandidate] = field(default_factory=list)
+    debug: bool = False
+    huds_found: bool = False
 
     @property
     def expected_player_count(self) -> int:
@@ -119,9 +119,9 @@ class Detection:
     character_rois: list[Region]
 
 
-@dataclass(slots=True)
-class MatchedCharacter:
-    sprite_name: str = ""
+# @dataclass(slots=True)
+# class MatchedCharacter:
+#     sprite_name: str = ""
 
 
 # @dataclass(slots=True)

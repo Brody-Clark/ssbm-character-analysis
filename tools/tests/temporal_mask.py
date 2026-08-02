@@ -1,30 +1,45 @@
 import cv2
 import numpy as np
 
-motion_sub_learn_rate = 0.005
-running_mask = None
+class UIElementDetector:
+    def __init__(self, max_compression_artifact: int = 25):
+        self.max_allowed_diff = max_compression_artifact
+        self.min_img = None
+        self.max_img = None
+        self.frames_processed = 0
+        self._static_mask = None
 
+    def update(self, frame_gray: cv2.typing.MatLike) -> cv2.typing.MatLike:
+        """
+        Updates pixel ranges and returns static UI mask (255 = Static UI, 0 = Gameplay).
+        """
+        # 1. Guarantee frame_gray is strictly a 2D array (H, W)
+        if frame_gray.ndim == 3:
+            if frame_gray.shape[2] == 1:
+                frame_gray = frame_gray.squeeze(axis=2)
+            else:
+                frame_gray = cv2.cvtColor(frame_gray, cv2.COLOR_BGR2GRAY)
 
-def update_static_mask(frame_gray: cv2.typing.MatLike):
-    global running_mask
-    if running_mask is None:
-        running_mask = frame_gray.copy().astype(np.uint8)
-        return np.zeros_like(frame_gray)
+        # 2. Lazy initialization to guarantee exact shape matching on Frame 1
+        if self.min_img is None or self.min_img.shape != frame_gray.shape:
+            self.min_img = frame_gray.copy()
+            self.max_img = frame_gray.copy()
 
-    # Blend the current frame into long-term memory
-    # cv2.accumulateWeighted(frame_gray, running_mask, motion_sub_learn_rate)
-    running_mask = running_mask | frame_gray
+        self.frames_processed += 1
+        
+        # 3. Update minimum and maximum seen values at each pixel coordinate
+        np.minimum(self.min_img, frame_gray, out=self.min_img)
+        np.maximum(self.max_img, frame_gray, out=self.max_img)
 
-    # Convert back to 8-bit to compare
-    bg_model = cv2.convertScaleAbs(running_mask)
+        # 4. Compute max variation per pixel across all observed frames
+        range_img = cv2.subtract(self.max_img, self.min_img)
 
-    # Take absolute difference between current frame and the long-term stable model
-    diff = cv2.absdiff(frame_gray, bg_model)
-
-    # Threshold the difference to isolate moving elements
-    _, motion_mask = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)
-
-    return motion_mask
+        # 5. Static pixels: variation <= max_allowed_diff (X)
+        #    Dynamic pixels: variation > max_allowed_diff (X)
+        _, static_ui_mask = cv2.threshold(
+            range_img, self.max_allowed_diff, 255, cv2.THRESH_BINARY_INV
+        )
+        return static_ui_mask
 
 
 def get_character_HUDs(frame, motion_mask):
@@ -72,11 +87,12 @@ def get_character_HUDs(frame, motion_mask):
 
 
 # Open the video file or game capture stream
-cap = cv2.VideoCapture(".\\data\\recordings\\ssbm_corneria.mp4")
+cap = cv2.VideoCapture(".\\data\\recordings\\corneria.mp4")
 fgbg = cv2.createBackgroundSubtractorMOG2(
     history=800, varThreshold=46, detectShadows=True
 )
 ret, prev_frame = cap.read()
+static_mask_generator = UIElementDetector()
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -92,13 +108,14 @@ while cap.isOpened():
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (4, 4))
     closed_edges = cv2.morphologyEx(motion_mask, cv2.MORPH_OPEN, kernel, iterations=2)
     cv2.imshow("MOG foreground mask", motion_mask)
-    mask = update_static_mask(frame_gray=frame_gray)
+    mask = static_mask_generator.update(frame_gray)
+    cv2.imshow("Temporal mask", mask)
     get_character_HUDs(frame, fg_mask)
 
     # cv2.imshow("Temporal Mask", mask)
     prev_frame = frame.copy()
 
-    if cv2.waitKey(10) & 0xFF == ord("q"):
+    if cv2.waitKey(20) & 0xFF == ord("q"):
         break
 
 cap.release()

@@ -13,12 +13,12 @@ def onMinEChanged(x):
 def onMaxEChanged(x):
     et.max_e = x
 
-frame_dir = Path.cwd() / 'data' / 'test'
-frame_file = str(frame_dir / 'great_bay_frame_ui.jpg')
+frame_dir = Path.cwd() / 'data' / 'recordings'
+frame_file = str(frame_dir / 'final_destination'/ 'frame_0068.png')
 frame_rgb = cv.imread(frame_file)
 cv.imshow('rgb', frame_rgb)
 frame_gray = cv.cvtColor(frame_rgb, cv.COLOR_BGR2GRAY)
-blurred = cv.GaussianBlur(frame_gray, (5, 5), 0)
+blurred = cv.GaussianBlur(frame_gray, (3, 3), 0)
 edges = cv.Canny(blurred, 20, 60)
 cv.namedWindow('image')
 cv.createTrackbar('min E', 'image', 0, 1140, onMinEChanged)
