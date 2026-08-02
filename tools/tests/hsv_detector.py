@@ -1,109 +1,173 @@
+import sys
 import cv2
 import numpy as np
 from pathlib import Path
-# Global variables to store current mouse position
-mouse_x, mouse_y = 0, 0
 
-def posterize_lut(image, levels):
-    # Calculate the size of each color bucket division
-    bucket_size = 256 // levels
-    
-    # Create a 256-element lookup array mapping original values to the bucket centers
-    lut = np.array([min((i // bucket_size) * bucket_size + (bucket_size // 2), 255) 
-                    for i in range(256)]).astype(np.uint8)
-    
-    # Apply the lookup table instantly across all channels
-    return cv2.LUT(image, lut)
+# Global state
+frame_dir = Path.cwd() / 'data' / 'recordings' /'corneria'
+frame_file = str(frame_dir / 'frame_0055.png')
+image_path = frame_file
+original_img = None
+hsv_img = None
 
-def mouse_move(event, x, y, flags, param):
-    """Callback function that updates coordinates when the mouse moves."""
-    global mouse_x, mouse_y
-    if event == cv2.EVENT_MOUSEMOVE:
-        mouse_x, mouse_y = x, y
+# Mouse ROI selection variables
+selecting = False
+ix, iy = -1, -1
+current_rect = None
+
+# List of saved ROI masks and HSV bounds
+# Format: {"box": (x, y, w, h), "lower": [h, s, v], "upper": [h, s, v]}
+selected_ranges = []
 
 
-# --- 1. Load Image and Convert to HSV ---
-# Replace 'stage_screenshot.png' with your file path
-cwd = Path.cwd()
-image_path =  cwd / "data" /  "test"/ "great_bay_frame.jpg"
-img_bgr = cv2.imread(str(image_path))
+def extract_hsv_bounds(roi_hsv: np.ndarray) -> tuple[list[int], list[int]]:
+    """Calculates min and max HSV bounds for a given HSV region."""
+    h_min = int(np.min(roi_hsv[:, :, 0]))
+    h_max = int(np.max(roi_hsv[:, :, 0]))
+    s_min = int(np.min(roi_hsv[:, :, 1]))
+    s_max = int(np.max(roi_hsv[:, :, 1]))
+    v_min = int(np.min(roi_hsv[:, :, 2]))
+    v_max = int(np.max(roi_hsv[:, :, 2]))
 
-if img_bgr is None:
-    raise Exception(f"Error: Could not open or find the image '{image_path}'.")
+    return [h_min, s_min, v_min], [h_max, s_max, v_max]
 
-img_bgr = posterize_lut(img_bgr, 5)
-out_path = cwd / "data" /  "test"/ "great_bay_frame_posterized.jpg"
-cv2.imwrite(str(out_path), img_bgr)
 
-# Convert to HSV color space
-img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+def mouse_callback(event, x, y, flags, param):
+    """Mouse event callback to handle box selection on the image."""
+    global selecting, ix, iy, current_rect, hsv_img
 
-# --- 2. Setup OpenCV Window and Callback ---
-window_name = "HSV Eyedropper Tool"
-cv2.namedWindow(window_name)
-cv2.setMouseCallback(window_name, mouse_move)
+    if event == cv2.EVENT_LBUTTONDOWN:
+        selecting = True
+        ix, iy = x, y
+        current_rect = (x, y, 0, 0)
 
-print("Hover your mouse over the image to inspect HSV values.")
-print("Press 'q' or 'ESC' to exit.")
+    elif event == cv2.EVENT_MOUSEMOVE and selecting:
+        w = x - ix
+        h = y - iy
+        current_rect = (ix, iy, w, h)
 
-# --- 3. Main Display Loop ---
-while True:
-    # Clone the original image so we draw fresh text every frame
-    display_img = img_bgr.copy()
+    elif event == cv2.EVENT_LBUTTONUP:
+        selecting = False
+        x1, y1 = min(ix, x), min(iy, y)
+        x2, y2 = max(ix, x), max(iy, y)
+        w, h = x2 - x1, y2 - y1
 
-    # Get dimensions to prevent drawing text off-screen
-    h, w, _ = display_img.shape
+        # Only register selections larger than 3x3 pixels
+        if w > 3 and h > 3:
+            roi_hsv = hsv_img[y1:y2, x1:x2]
+            lower, upper = extract_hsv_bounds(roi_hsv)
 
-    # Clamp mouse coordinates to image boundaries
-    x = max(0, min(mouse_x, w - 1))
-    y = max(0, min(mouse_y, h - 1))
+            selected_ranges.append(
+                {"box": (x1, y1, w, h), "lower": lower, "upper": upper}
+            )
+            print(
+                f"[+] Added Region #{len(selected_ranges)}: Lower={lower}, Upper={upper}"
+            )
 
-    # Read the HSV values at the current pixel coordinate
-    h_val = img_hsv[y, x, 0]
-    s_val = img_hsv[y, x, 1]
-    v_val = img_hsv[y, x, 2]
+        current_rect = None
 
-    # Create the display text string
-    text = f"X:{x} Y:{y} | H:{h_val} S:{s_val} V:{v_val}"
 
-    # Determine text placement (shift text up if mouse is near the bottom edge)
-    text_y = y - 15 if y > 30 else y + 25
-    text_x = x + 15 if x < w - 250 else x - 250
+def render_display() -> tuple[np.ndarray, np.ndarray]:
+    """Generates the marked selector image and the resulting combined mask."""
+    display_img = original_img.copy()
+    h, w = original_img.shape[:2]
+    combined_mask = np.zeros((h, w), dtype=np.uint8)
 
-    # Draw a small crosshair at the pixel
-    cv2.drawMarker(
-        display_img, (x, y), (0, 255, 0), cv2.MARKER_CROSS, 10, 1, cv2.LINE_AA
+    # 1. Compute cumulative mask across all selected HSV ranges
+    for item in selected_ranges:
+        lower = np.array(item["lower"], dtype=np.uint8)
+        upper = np.array(item["upper"], dtype=np.uint8)
+
+        mask = cv2.inRange(hsv_img, lower, upper)
+        combined_mask = cv2.bitwise_or(combined_mask, mask)
+
+    # 2. Draw selection boxes on display image
+    for i, item in enumerate(selected_ranges, 1):
+        bx, by, bw, bh = item["box"]
+        cv2.rectangle(display_img, (bx, by), (bx + bw, by + bh), (0, 255, 0), 2)
+        cv2.putText(
+            display_img,
+            f"#{i}",
+            (bx, max(15, by - 5)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (0, 255, 0),
+            1,
+        )
+
+    # Draw active dragging rectangle
+    if current_rect is not None:
+        rx, ry, rw, rh = current_rect
+        cv2.rectangle(display_img, (rx, ry), (rx + rw, ry + rh), (0, 255, 255), 1)
+
+    # Create masked preview (Stage Removed -> Black)
+    stage_removed = cv2.bitwise_and(
+        original_img, original_img, mask=cv2.bitwise_not(combined_mask)
     )
 
-    # Draw a dark background shadow behind the text for readability
-    cv2.putText(
-        display_img,
-        text,
-        (text_x, text_y),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.5,
-        (0, 0, 0),
-        3,
-        cv2.LINE_AA,
-    )
-    # Draw the green text overlay
-    cv2.putText(
-        display_img,
-        text,
-        (text_x, text_y),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.5,
-        (0, 255, 0),
-        1,
-        cv2.LINE_AA,
-    )
+    return display_img, stage_removed
 
-    # Render the updated frame
-    cv2.imshow(window_name, display_img)
 
-    # Exit keys
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord("q") or key == 27:
-        break
+def main():
+    global original_img, hsv_img
 
-cv2.destroyAllWindows()
+    original_img = cv2.imread(image_path)
+    if original_img is None:
+        print(
+            f"Error: Could not load image from '{image_path}'. Check file path!"
+        )
+        sys.exit(1)
+
+    hsv_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2HSV)
+
+    window_name = "Stage ROI Selector (Click & Drag)"
+    cv2.namedWindow(window_name)
+    cv2.setMouseCallback(window_name, mouse_callback)
+
+    print("\n--- INSTRUCTIONS ---")
+    print(" 1. Click & Drag boxes over stage geometry/background elements.")
+    print(" 2. Press 'u' to undo the last selection.")
+    print(" 3. Press SPACEBAR to finish and output HSV bounds to console.")
+    print(" 4. Press 'q' or ESC to quit without saving.\n")
+
+    while True:
+        display_img, stage_removed = render_display()
+
+        cv2.imshow(window_name, display_img)
+        cv2.imshow("Preview: Stage Geometry Removed", stage_removed)
+
+        key = cv2.waitKey(20) & 0xFF
+
+        # SPACEBAR: Finish and print results
+        if key == 32:
+            break
+
+        # 'u': Undo last selection box
+        elif key == ord("u"):
+            if selected_ranges:
+                removed = selected_ranges.pop()
+                print(f"[-] Removed Region #{len(selected_ranges) + 1}")
+
+        # 'q' or ESC: Quit program
+        elif key in (ord("q"), 27):
+            print("\nExited without printing final config.")
+            cv2.destroyAllWindows()
+            sys.exit(0)
+
+    cv2.destroyAllWindows()
+
+    # Output Python-ready data structures
+    print("\n" + "=" * 50)
+    print("       FINAL EXTRACTED HSV BOUNDS FOR PIPELINE       ")
+    print("=" * 50 + "\n")
+
+    print("# Copy/Paste this into your stage config manager:\n")
+    print("STAGE_HSV_FILTERS = [")
+    for i, item in enumerate(selected_ranges, 1):
+        print(f'    {{"lower": {item["lower"]}, "upper": {item["upper"]}}},'
+        )
+    print("]\n")
+
+
+if __name__ == "__main__":
+    main()

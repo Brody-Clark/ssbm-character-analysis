@@ -9,20 +9,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Debug Pipeline (recording)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/main.py",
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/src"
-            },
-            "args": ["--input", "${input:videoPath}", "--debug"],
-            "justMyCode": false
-        },
-        {
-            "name": "Debug Pipeline Corneria",
+            "name": "Debug Pipeline with Video",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/main.py",
@@ -32,16 +19,8 @@
                 "PYTHONPATH": "${workspaceFolder}/src",
                 "PYTHONUNBUFFERED": "1"
             },
-            "args": ["--input", "${workspaceFolder}/data/recordings/temple.mp4", "--debug"],
+            "args": ["--input", "${workspaceFolder}/data/recordings/corneria.mp4", "--debug", "--stage", "corneria"],
             "justMyCode": false
-        }
-    ],
-    "inputs": [
-        {
-            "id": "videoPath",
-            "type": "promptString",
-            "description": "Path to a video file under data/recordings/",
-            "default": "./data/recordings/corneria.mp4"
         }
     ]
 }

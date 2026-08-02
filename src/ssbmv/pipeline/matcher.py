@@ -28,7 +28,23 @@ class Matcher:
             flat_characters 
         )
 
+    def _extract_color_histogram(self, image: cv.typing.MatLike) -> np.ndarray:
+        """Exract 1D saturation feature vector"""
+        hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+        mask = (cv.cvtColor(image, cv.COLOR_BGR2GRAY) > 0).astype(np.uint8)
+
+        # 4 bins for Saturation
+        hist = cv.calcHist([hsv], [1], mask, [8], [0, 256])
+        hist = hist.flatten()
+
+        hist_sum = hist.sum()
+        if hist_sum > 0:
+            hist /= hist_sum
+
+        return hist
+
     def _get_features(self, image: cv.typing.MatLike):
+        # Fourier descriptors
         contour = self._get_shape_contour(image=image)
         if contour is None:
             return False, []
@@ -38,12 +54,19 @@ class Matcher:
         desc = self._get_fourier_descriptors(
             distances=distances, num_descriptors=32, sample_size=256
         )
+
+        # LBP
         hist = self._extract_character_lbp(image)
+
+        # HSV Saturation
+        hist_hsv_sat = self._extract_color_histogram(image)
 
         # Normalize
         hist = hist / (np.linalg.norm(hist) + 1e-7)
         desc = desc / (np.linalg.norm(desc) + 1e-7)
-        features = np.hstack(hist, desc) 
+        color_norm = hist_hsv_sat / (np.linalg.norm(hist_hsv_sat) + 1e-7)
+
+        features = np.hstack((hist, desc, color_norm)).astype(np.float32) 
         return True, features
 
     def _extract_character_lbp(
@@ -79,14 +102,18 @@ class Matcher:
 
     def _get_shape_contour(self, image: cv.typing.MatLike):
         img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        _, thresh = cv.threshold(img_gray, 127, 255, cv.THRESH_BINARY)
-        contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+        _, thresh = cv.threshold(
+            img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU
+        )
+
+        contours, _ = cv.findContours(
+            thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+        )
         if not contours:
             return None
 
-        # Select the largest contour assuming it's the sprite
         contour = max(contours, key=cv.contourArea)
-        return contour[:, 0, :]  # Reshape to (N, 2) for easier coordinate math
+        return contour[:, 0, :]
 
     def _compute_centroid_distances(self, contour: cv.typing.MatLike):
         M = cv.moments(contour.astype(np.float32))
@@ -113,33 +140,16 @@ class Matcher:
         # Compute FFT
         fft_coeffs = np.fft.fft(resampled_distances)
 
-        # Take magnitude to achieve rotation invariance (discards phase shifts)
         fft_lengths = np.abs(fft_coeffs)
 
-        # Normalize by the DC component (fft_lengths[0]) to achieve scale invariance.
         if fft_lengths[0] < 1e-7:
             return None
-        normalized_fds = fft_lengths[1 : num_descriptors + 1] / fft_lengths[0]
 
+        # Normalize by the DC component to achieve scale invariance.
+        normalized_fds = (
+            fft_lengths[1 : num_descriptors + 1] / fft_lengths[0]
+        ).astype(np.float32)
         return normalized_fds
-
-    def _get_best_match(self, roi_features, template_dict, threshold=0.15):
-        best_match = "Unknown"
-        min_distance = float("inf")
-
-        for character_name, template_features in template_dict.items():
-            # Calculate Euclidean Distance between the two feature vectors
-            distance = np.linalg.norm(roi_features - template_features)
-
-            if distance < min_distance:
-                min_distance = distance
-                best_match = character_name
-
-        # Reject bad matches
-        if min_distance > threshold:
-            return "Unknown"
-
-        return best_match
 
     def _distance_to_confidence(self, dist: float, scale: float = 1.0) -> float:
         return np.exp(-scale * dist)
@@ -147,33 +157,39 @@ class Matcher:
     def match(self, frame: Frame, game_state: GameState) -> list[TrackedActor]:
         if not game_state.active_tracks:
             return []
-        
+
+        matched_actors = []
         query_features = []
-        active_tracks = game_state.active_tracks
-        for actor in active_tracks:
+
+        # Keep actors and features aligned by tracking valid indices
+        for actor in game_state.active_tracks:
             if actor.is_active:
                 x, y, w, h = actor.current_rect
                 cropped_image = frame.image[y : y + h, x : x + w]
+
+                if cropped_image.size == 0:
+                    continue
+
                 success, features = self._get_features(image=cropped_image)
                 if success:
                     query_features.append(features)
+                    matched_actors.append(actor)
 
-        if len(query_features) == 0:
-            return active_tracks
-        # Stack into a 2D matrix of shape (num_tracked_objs, feature_dimension)
+        if not query_features:
+            return game_state.active_tracks
+
         query_matrix = np.array(query_features, dtype=np.float32)
 
-        # Shape of dists: (num_tracked_objs, total_templates)
+        # Compute pairwise Euclidean distances
         dists = cdist(query_matrix, self.template_matrix, metric="euclidean")
 
         min_dists = np.min(dists, axis=1)
-
-        # Find the column index of the minimum distance for each tracked object
         best_template_indices = np.argmin(dists, axis=1)
 
-        # Map the indices back to characters and update objects
-        for obj, best_idx, min_dist in zip(active_tracks, best_template_indices, min_dists):
-            obj.confirmed_character = self.template_characters[best_idx]
-            obj.confidence_score = self._distance_to_confidence(min_dist) 
+        for actor, best_idx, min_dist in zip(
+            matched_actors, best_template_indices, min_dists
+        ):
+            actor.confirmed_character = self.template_characters[best_idx]
+            actor.confidence_score = self._distance_to_confidence(min_dist)
 
-        return active_tracks
+        return game_state.active_tracks

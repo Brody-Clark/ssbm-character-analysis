@@ -11,13 +11,15 @@ import logging
 import json
 import cv2 as cv
 import time
+from datetime import datetime
+from pathlib import Path
 
 _logger = logging.getLogger(__name__)
 
 
 class VisionPipeline:
-    def __init__(self, sprite_db: SpriteDatabase):
-        self._detector: detector.Detector = detector.Detector()
+    def __init__(self, sprite_db: SpriteDatabase, stage: str):
+        self._detector: detector.Detector = detector.Detector(stage_name=stage)
         self._tracker: tracker.Tracker = tracker.Tracker()
         self._matcher: matcher.Matcher = matcher.Matcher(sprite_database=sprite_db)
 
@@ -25,6 +27,8 @@ class VisionPipeline:
         debug_frame = frame.image.copy()
 
         for obj in tracked_objs:
+            if obj.age_frames < 5:
+                continue
             x, y, w, h = obj.current_rect
             cv.rectangle(
                 debug_frame, rec=obj.current_rect, color=(220, 220, 32), thickness=2
@@ -52,51 +56,52 @@ class VisionPipeline:
                 break
         return
 
-    def process(self, video_source: VideoSource, debug: bool):
+    def process(self, video_source: VideoSource, output_file_path: Path, debug: bool):
         game_state = GameState()
         game_state.debug = debug
         start = time.perf_counter()
+        with open(output_file_path, "w", encoding="utf8") as f:
+            while video_source.is_opened():
+                game_state.frame_index += 1
 
-        while video_source.is_opened():
-            game_state.frame_index += 1
+                frame: Frame = video_source.read()
+                if not frame:
+                    break
 
-            frame: Frame = video_source.read()
-            if not frame:
-                continue
+                detections = self._detector.detect(frame=frame, game_state=game_state)
+                game_state.raw_detections = detections
 
-            detections = self._detector.detect(frame=frame, game_state=game_state)
-            game_state.raw_detections = detections
+                tracked_actors = self._tracker.track(game_state=game_state)
+                game_state.active_tracks = tracked_actors
 
-            tracked_actors = self._tracker.track(game_state=game_state)
-            game_state.active_tracks = tracked_actors
+                tracks = self._matcher.match(frame=frame, game_state=game_state)
 
-            tracks = self._matcher.match(frame=frame, game_state=game_state)
+                if debug:
+                    self._debug_frame(frame=frame, tracked_objs=tracks)
 
-            if debug:
-                self._debug_frame(frame=frame, tracked_objs=tracks)
-
-            end = time.perf_counter()
-            actors = []
-            for tracked_actor in tracked_actors:
-                actors.append(
-                    {
-                        "current_rect": tracked_actor.current_rect,
-                        "predicted_centroid": tracked_actor.predicted_centroid,
-                        "confirmed_character": tracked_actor.confirmed_character,
-                        "age_frames": tracked_actor.age_frames,
-                        "time_since_update": tracked_actor.time_since_update,
-                        "is_active":tracked_actor.is_active
-                    }
-                )
-            result = {
-                "frame": game_state.frame_index,
-                "expected_player_count": game_state.expected_player_count,
-                "actors": actors,
-                "timestamp": end,
-                "elapsed_frame_time": end - start,
-            }
-            _logger.info(json.dumps(result))
-            start = end
+                end = time.perf_counter()
+                actors = []
+                for tracked_actor in tracked_actors:
+                    actors.append(
+                        {
+                            "current_rect": tracked_actor.current_rect,
+                            "predicted_centroid": tracked_actor.predicted_centroid,
+                            "confirmed_character": tracked_actor.confirmed_character,
+                            "age_frames": tracked_actor.age_frames,
+                            "time_since_update": tracked_actor.time_since_update,
+                            "is_active": tracked_actor.is_active,
+                        }
+                    )
+                result = {
+                    "frame": game_state.frame_index,
+                    "expected_player_count": game_state.expected_player_count,
+                    "actors": actors,
+                    "timestamp": end,
+                    "elapsed_frame_time": end - start,
+                }
+                json.dump(result, f, indent=4)
+                # _logger.debug(json.dumps(result))
+                start = end
 
         video_source.release()
         cv.destroyAllWindows()
