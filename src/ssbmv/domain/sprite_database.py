@@ -20,6 +20,7 @@ CHARACTER_NAMES: dict[Character, str] = {
     Character.KIRBY: "kirby",
 }
 
+VALID_EXTENSIONS = [".jpg, .jpeg, .png"]
 
 @dataclass(slots=True)
 class SpriteSheet:
@@ -31,10 +32,44 @@ class SpriteDatabase:
     def __init__(self):
         self.character_sprite_db: dict[str, SpriteSheet] = {}
 
-    def init(self, sprite_sheet_root_path: Path):
+    def init(self, asset_path: Path):
+        sprite_sheet_root_path = asset_path / "sprites"
+        hud_root_path = asset_path / "huds"
         self.character_sprite_db = self._load_character_spritesheets(
             sprite_sheet_root_path
         )
+        self.character_hud_db = self.character_sprite_db = self._load_character_huds(
+            hud_root_path
+        )
+
+    def _load_character_huds(self, root_path: str | Path) -> dict[str, SpriteSheet]:
+        """Iterates over a root directory structured as `{character}/{animation}/{num}.jpg`
+        and loads each character's sprites into an in-memory SpriteSheet dictionary.
+        """
+        root = Path(root_path)
+        if not root.exists() or not root.is_dir():
+            raise ValueError(f"Invalid root path: {root_path}")
+
+        sprite_db: dict[str, SpriteSheet] = {}
+
+        # Collect images
+        image_files = [
+            f
+            for f in root.iterdir()
+            if f.is_file() and f.suffix.lower() in VALID_EXTENSIONS
+        ]
+
+        # Load each image and append to the character's SpriteSheet
+        for img_path in image_files:
+            img = imread(str(img_path))
+            if img is None:
+                continue
+
+            name = img_path.stem
+
+            sprite_db[name] = SpriteSheet([img]) # TODO: just map char to img, dont need sprite sheet. Need to update Matcher then...
+
+        return sprite_db
 
     def _load_character_spritesheets(
         self, root_path: str | Path

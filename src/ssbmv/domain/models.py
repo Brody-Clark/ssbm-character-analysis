@@ -66,8 +66,9 @@ class DetectionCandidate:
 @dataclass
 class HUDState:
     player_slot: int  # 1, 2, 3, or 4
-    icon_character_id: Optional[str]  # Matched character from HUD icon (e.g., "Fox")
-    hud_rect: Rect  # Bounding box of the HUD element at bottom
+    icon_character_id: Optional[str]
+    hud_rect: Rect
+    binary_mask: MatLike
 
 
 @dataclass
