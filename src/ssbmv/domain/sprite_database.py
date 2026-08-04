@@ -20,7 +20,7 @@ CHARACTER_NAMES: dict[Character, str] = {
     Character.KIRBY: "kirby",
 }
 
-VALID_EXTENSIONS = [".jpg, .jpeg, .png"]
+VALID_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
 @dataclass(slots=True)
 class SpriteSheet:
@@ -38,11 +38,11 @@ class SpriteDatabase:
         self.character_sprite_db = self._load_character_spritesheets(
             sprite_sheet_root_path
         )
-        self.character_hud_db = self.character_sprite_db = self._load_character_huds(
+        self.character_hud_db = self._load_character_huds(
             hud_root_path
         )
 
-    def _load_character_huds(self, root_path: str | Path) -> dict[str, SpriteSheet]:
+    def _load_character_huds(self, root_path: str | Path) -> dict[str, MatLike]:
         """Iterates over a root directory structured as `{character}/{animation}/{num}.jpg`
         and loads each character's sprites into an in-memory SpriteSheet dictionary.
         """
@@ -50,7 +50,7 @@ class SpriteDatabase:
         if not root.exists() or not root.is_dir():
             raise ValueError(f"Invalid root path: {root_path}")
 
-        sprite_db: dict[str, SpriteSheet] = {}
+        sprite_db: dict[str, MatLike] = {}
 
         # Collect images
         image_files = [
@@ -67,7 +67,7 @@ class SpriteDatabase:
 
             name = img_path.stem
 
-            sprite_db[name] = SpriteSheet([img]) # TODO: just map char to img, dont need sprite sheet. Need to update Matcher then...
+            sprite_db[name] = img
 
         return sprite_db
 
@@ -88,10 +88,7 @@ class SpriteDatabase:
                 int(text) if text.isdigit() else text.lower()
                 for text in re.split(r"(\d+)", file_path.name)
             ]
-
-        # Supported image extensions
-        valid_extensions = {".jpg", ".jpeg", ".png"}
-
+        
         # Iterate through character folders
         for char_dir in sorted(root.iterdir()):
             if not char_dir.is_dir():
@@ -111,7 +108,7 @@ class SpriteDatabase:
                 image_files = [
                     f
                     for f in anim_dir.iterdir()
-                    if f.is_file() and f.suffix.lower() in valid_extensions
+                    if f.is_file() and f.suffix.lower() in VALID_EXTENSIONS
                 ]
                 image_files.sort(key=natural_sort_key)
 

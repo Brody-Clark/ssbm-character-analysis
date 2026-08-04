@@ -15,6 +15,7 @@ _logger = logging.getLogger(__name__)
 
 _MIN_SPRITE_AREA_RATIO = 0.006
 
+
 class Detector:
     def __init__(self, stage_name: str):
         self._min_roi_area_ratio = 5
@@ -76,43 +77,6 @@ class Detector:
             range_img, self.max_allowed_diff, 255, cv.THRESH_BINARY_INV
         )
         return ~static_ui_mask
-
-    # def _get_edges(self, img_gray: cv.typing.MatLike) -> cv.typing.MatLike:
-    #     blurred = cv.GaussianBlur(img_gray, (5, 5), 0)
-    #     edges = cv.Canny(blurred, 2, 46)
-    #     # edges = cv.dilate(edges, self._edge_dilation_kernel, iterations=1)
-    #     return edges
-
-    # def _get_closed_edges(self, edges: cv.typing.MatLike) -> cv.typing.MatLike:
-    #     dilated = cv.dilate(edges, self._vertical_closing_kernel, iterations=1)
-    #     closed = cv.morphologyEx(dilated, cv.MORPH_CLOSE, self._square_kernel)
-    #     return closed
-
-    # def _get_regions_of_interest(
-    #     self, img: cv.typing.MatLike, motion_mask: cv.typing.MatLike
-    # ) -> list[cv.typing.Rect]:
-    #     hsv_mask = self._get_hsv_mask(img=img)
-    #     edges = cv.Canny(hsv_mask, 12, 100)
-    #     edges = cv.dilate(edges, self._edge_dilation_kernel, iterations=1)
-    #     combined = edges & hsv_mask & motion_mask
-    #     closed = self._get_closed_edges(combined)
-
-    #     contours, hierarchy = cv.findContours(
-    #         img, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
-    #     )
-    #     regions_of_interest = []
-    #     for cnt in contours:
-    #         area = cv.contourArea(cnt)
-    #         x, y, w, h = cv.boundingRect(cnt)
-    #         aspect_ratio = float(w) / h
-    #         extent = float(area) / (w * h)
-    #         if area > 10000 and (aspect_ratio >= 0.5 and aspect_ratio <= 3.5):
-    #             if area < 120000:
-    #                 regions_of_interest.append([x, y, w, h])
-    #             else:
-    #                 continue
-
-    #     return regions_of_interest
 
     def _get_min_area(self, dim: Dimension2D) -> int:
         return int(_MIN_SPRITE_AREA_RATIO * dim.w * dim.h)
@@ -176,12 +140,16 @@ class Detector:
         return final_actor_mask, raw_rects
 
     def _get_candidate_mask(
-        self, frame: Frame, region: cv.typing.Rect
+        self,
+        frame: Frame,
+        region: cv.typing.Rect,
     ) -> cv.typing.MatLike:
         x, y, w, h = region
         img = frame.image[y : y + h, x : x + w]
+
+        motion_mask = self._mog.apply(frame.image)
+        fg_mask = motion_mask[y : y + h, : x + w]
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
-        fg_mask = self._mog.apply(frame.image)
         _, fg_mask = cv.threshold(fg_mask, 125, 255, cv.THRESH_BINARY)
         fg_mask = cv.morphologyEx(fg_mask, cv.MORPH_OPEN, kernel, iterations=2)
         fg_mask = cv.dilate(fg_mask, kernel=kernel)
@@ -206,7 +174,10 @@ class Detector:
         return final_actor_mask
 
     def _get_candidates(
-        self, frame: Frame, rect: cv.typing.Rect, debug: bool = False
+        self,
+        frame: Frame,
+        rect: cv.typing.Rect,
+        debug: bool = False,
     ) -> list[DetectionCandidate]:
 
         candidate_mask = self._get_candidate_mask(frame=frame, region=rect)
@@ -245,10 +216,13 @@ class Detector:
 
         return candidates
 
-    def _get_character_HUDs(self, frame, motion_mask) -> list[HUDState]:
+    def _get_character_HUDs(self, frame: cv.typing.MatLike) -> list[HUDState]:
         # Get binary mask of thin slice where HUD elements live
-        hud_area = frame[536:586, 230:1080]
-        hud_mask = ~motion_mask[536:586, 230:1080]
+        frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        # hud_area = frame[536:586, 230:1080]
+        static_mask = self._update_static_mask(frame_gray)
+        hud_mask = ~static_mask[536:586, 230:1080]
+        cv.imshow("HUD MASK", hud_mask)
 
         # Clean up mask
         kernel = cv.getStructuringElement(cv.MORPH_RECT, (3, 3))
@@ -259,7 +233,12 @@ class Detector:
         candidate_huds = []
         x, y, w, h = 0, 0, 50, 50
         for _ in range(4):
-            hud_state = HUDState(0, None, hud_rect=[x, y, w, h], binary_mask=hud_mask[y : y + h, x : x + w])
+            hud_state = HUDState(
+                0,
+                None,
+                hud_rect=[x + 230, y + 536, w, h],
+                binary_mask=hud_mask[y : y + h, x : x + w],
+            )
             candidate_huds.append(hud_state)
             x += 212
         return candidate_huds
@@ -267,20 +246,16 @@ class Detector:
     def detect(
         self, frame: Frame, game_state: GameState
     ) -> tuple[list[DetectionCandidate], list[HUDState]]:
-        if not game_state.huds_found:
-            fg_mask = self._mog.apply(frame.image)
-            huds = self._get_character_HUDs(frame=frame, motion_mask=fg_mask)
-            game_state.hud_states = huds
 
-        # TODO: If number of identifed actors < identified HUDS, then global, else local
-        # for actor in game_state.active_tracks:
-        #     centroid = actor.predicted_centroid
-        #     x,y,w,h = actor.current_roi
-        #     # Predicted region is ~20% larger
-        #     predicted_rect = [centroid[0]-1.1*w/2, centroid[1] - 1.1*h/2 ,1.1*w, 1.1*h]
-        #     roi = self._local_search(predicted_rect)
+        huds = self._get_character_HUDs(frame=frame.image)
+        game_state.hud_states = huds
+
+        # TODO: combine prediction-based local search with global search
+        # local search just uses HSV mask instead of motion.
 
         dimensions = frame.dimensions
         return self._get_candidates(
-            frame=frame, rect=[0, 0, dimensions.w, dimensions.h], debug=game_state.debug
+            frame=frame,
+            rect=[0, 0, dimensions.w, dimensions.h],
+            debug=game_state.debug,
         )

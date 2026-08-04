@@ -13,6 +13,7 @@ import cv2 as cv
 import time
 from datetime import datetime
 from pathlib import Path
+from typing import TextIO
 
 _logger = logging.getLogger(__name__)
 
@@ -56,52 +57,61 @@ class VisionPipeline:
                 break
         return
 
-    def process(self, video_source: VideoSource, output_file_path: Path, debug: bool):
+    def process(self, video_source: VideoSource, output_stream: TextIO, debug: bool):
         game_state = GameState()
         game_state.debug = debug
         start = time.perf_counter()
-        with open(output_file_path, "w", encoding="utf8") as f:
-            while video_source.is_opened():
-                game_state.frame_index += 1
+        while video_source.is_opened():
+            game_state.frame_index += 1
 
-                frame: Frame = video_source.read()
-                if not frame:
-                    break
+            frame: Frame = video_source.read()
+            if not frame:
+                break
 
-                detections = self._detector.detect(frame=frame, game_state=game_state)
-                game_state.raw_detections = detections
+            detections = self._detector.detect(frame=frame, game_state=game_state)
+            game_state.raw_detections = detections
 
-                tracked_actors = self._tracker.track(game_state=game_state)
-                game_state.active_tracks = tracked_actors
+            tracked_actors = self._tracker.track(game_state=game_state)
+            game_state.active_tracks = tracked_actors
 
-                tracks = self._matcher.match(frame=frame, game_state=game_state)
+            tracks = self._matcher.match(frame=frame, game_state=game_state)
 
-                if debug:
-                    self._debug_frame(frame=frame, tracked_objs=tracks)
+            if debug:
+                self._debug_frame(frame=frame, tracked_objs=tracks)
 
-                end = time.perf_counter()
-                actors = []
-                for tracked_actor in tracked_actors:
-                    actors.append(
-                        {
-                            "current_rect": tracked_actor.current_rect,
-                            "predicted_centroid": tracked_actor.predicted_centroid,
-                            "confirmed_character": tracked_actor.confirmed_character,
-                            "age_frames": tracked_actor.age_frames,
-                            "time_since_update": tracked_actor.time_since_update,
-                            "is_active": tracked_actor.is_active,
-                        }
-                    )
-                result = {
-                    "frame": game_state.frame_index,
-                    "expected_player_count": game_state.expected_player_count,
-                    "actors": actors,
-                    "timestamp": end,
-                    "elapsed_frame_time": end - start,
-                }
-                json.dump(result, f, indent=4)
-                # _logger.debug(json.dumps(result))
-                start = end
+            end = time.perf_counter()
+            actors = []
+            for tracked_actor in tracked_actors:
+                actors.append(
+                    {
+                        "current_rect": tracked_actor.current_rect,
+                        "predicted_centroid": tracked_actor.predicted_centroid,
+                        "confirmed_character": tracked_actor.confirmed_character,
+                        "age_frames": tracked_actor.age_frames,
+                        "time_since_update": tracked_actor.time_since_update,
+                        "is_active": tracked_actor.is_active,
+                    }
+                )
+            huds = []
+            for hud in game_state.hud_states:
+                huds.append(
+                    {   
+                        "player_slot": hud.player_slot,
+                        "rect": hud.hud_rect,
+                        "character_id": hud.icon_character_id
+                    }
+                )
+            result = {
+                "frame": game_state.frame_index,
+                "expected_player_count": game_state.expected_player_count,
+                "actors": actors,
+                "HUDs": huds,
+                "timestamp": end,
+                "elapsed_frame_time": end - start,
+            }
+            json.dump(result, output_stream, indent=4)
+            start = end
 
         video_source.release()
-        cv.destroyAllWindows()
+        if debug:
+            cv.destroyAllWindows()
