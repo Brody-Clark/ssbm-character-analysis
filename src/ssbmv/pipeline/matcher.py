@@ -1,10 +1,10 @@
 import logging
 import numpy as np
 import cv2 as cv
-from skimage.feature.texture import local_binary_pattern
+from skimage.feature import local_binary_pattern, hog
 from scipy.spatial.distance import cdist
 from ssbmv.domain.sprite_database import SpriteDatabase, SpriteSheet
-from ssbmv.domain.models import GameState, TrackedActor, Frame, HUDState
+from ssbmv.domain.models import GameState, TrackedActor, Frame, HUDState, HUDDetection, DetectionCandidate, Track
 
 _logger = logging.getLogger(__name__)
 
@@ -12,7 +12,11 @@ _logger = logging.getLogger(__name__)
 class Matcher:
     def __init__(self, sprite_database: SpriteDatabase):
         # Load Character sprite templates
-        templates: dict[str, list[list[np.float32]]] = self._load_character_template(sprite_database)
+        self._flat_templates = []
+        templates: dict[str, list[list[np.float32]]] = self._load_character_template(
+            sprite_database
+        )
+        self._temps = sprite_database.character_sprite_db
         flat_templates = []
         flat_characters = []
         for character, sprites in templates.items():
@@ -39,8 +43,8 @@ class Matcher:
         hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         mask = (cv.cvtColor(image, cv.COLOR_BGR2GRAY) > 0).astype(np.uint8)
 
-        # 4 bins for Saturation
-        hist = cv.calcHist([hsv], [1], mask, [8], [0, 256])
+        # Saturation
+        hist = cv.calcHist([hsv], [1], mask, [10], [0, 256])
         hist = hist.flatten()
 
         hist_sum = hist.sum()
@@ -58,7 +62,7 @@ class Matcher:
         if distances is None:
             return False, []
         desc = self._get_fourier_descriptors(
-            distances=distances, num_descriptors=32, sample_size=256
+            distances=distances, num_descriptors=42, sample_size=256
         )
 
         # LBP
@@ -67,16 +71,28 @@ class Matcher:
         # HSV Saturation
         hist_hsv_sat = self._extract_color_histogram(image)
 
+        # HOG
+        hog_feats, _ = hog(
+            image, 
+            orientations=6, 
+            pixels_per_cell=(16, 16),
+            cells_per_block=(1, 1), 
+            visualize=True, 
+            channel_axis=-1
+        )
+
         # Normalize
         hist = hist / (np.linalg.norm(hist) + 1e-7)
         desc = desc / (np.linalg.norm(desc) + 1e-7)
         color_norm = hist_hsv_sat / (np.linalg.norm(hist_hsv_sat) + 1e-7)
-
-        features = np.hstack((hist, desc, color_norm)).astype(np.float32)
+        hog_norm = hog_feats / (np.linalg.norm(hog_feats) + 1e-7)
+        hog_norm = hog_norm[:14] # 32 + 8 + 10 + 78 = 128
+        hog_norm = np.pad(hog_norm, (0, 14 - len(hog_norm)))
+        features = np.hstack((hist, desc, color_norm, hog_norm)).astype(np.float32)
         return True, features
 
     def _extract_character_lbp(
-        self, roi_masked_bgr: cv.typing.MatLike, P: int = 8, R: int = 1
+        self, roi_masked_bgr: cv.typing.MatLike, P: int = 10, R: int = 2
     ):
         gray = cv.cvtColor(roi_masked_bgr, cv.COLOR_BGR2GRAY)
         character_mask = (gray > 0).astype(np.uint8)
@@ -91,31 +107,36 @@ class Matcher:
 
         return hist
 
-    def _load_character_template(self, sprite_database: SpriteDatabase)-> dict[str, list[list[np.float32]]]:
+    def _load_character_template(
+        self, sprite_database: SpriteDatabase
+    ) -> dict[str, list[list[np.float32]]]:
         sprite_sheets = sprite_database.character_sprite_db.items()
         templates = {}
         for char, sprite_sheet in sprite_sheets:
             features = []
             for s in sprite_sheet.sprite_imgs:
+                self._flat_templates.append(s)
                 success, feats = self._get_features(image=s)
                 if not success:
-                    _logger.error(f"Failed to extract features from image")
+                    _logger.error("Failed to extract features from image.")
                     continue
                 features.append(feats)
             templates[char] = features
         return templates
-    
-    def _load_character_hud_template(self, sprite_database: SpriteDatabase)-> dict[str, list[np.float32]]:
+
+    def _load_character_hud_template(
+        self, sprite_database: SpriteDatabase
+    ) -> dict[str, list[np.float32]]:
         hud_sheets = sprite_database.character_hud_db
         templates = {}
         for char, hud_img in hud_sheets.items():
             success, feats = self._get_features(image=hud_img)
             if not success:
-                _logger.error(f"Failed to extract features from image")
+                _logger.error("Failed to extract features from image")
                 continue
             templates[char] = feats
         return templates
-    
+
     def _get_shape_contour(self, image: cv.typing.MatLike):
         img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         _, thresh = cv.threshold(img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
@@ -164,16 +185,16 @@ class Matcher:
     def _distance_to_confidence(self, dist: float, scale: float = 1.0) -> float:
         return 1 / (1 + dist)
 
-    def _match_huds(self, frame: Frame, huds: list[HUDState]):
-        """Matches hud elements with templates."""
-
+    # TODO: decide to use HUDDetections or HUDStates
+    def match_huds(self, frame: Frame, huds: list[HUDDetection]) -> list[HUDState]:
+        """Matches HUD elements with templates."""
         query_features = []
         matched_huds: list[HUDState] = []
         for i, hud in enumerate(huds):
             x, y, w, h = hud.hud_rect
             masked_img = frame.image[y : y + h, x : x + w]
             cv.imshow(f"hud bin mask {i}", hud.binary_mask)
-            
+
             masked_img = cv.bitwise_and(masked_img, masked_img, mask=hud.binary_mask)
             cv.imshow(f"masked img {i}", masked_img)
             success, features = self._get_features(image=masked_img)
@@ -182,7 +203,7 @@ class Matcher:
                 matched_huds.append(hud)
 
         if not query_features:
-            return 
+            return
 
         query_matrix = np.array(query_features, dtype=np.float32)
 
@@ -198,45 +219,47 @@ class Matcher:
             score = self._distance_to_confidence(min_dist)
             if score > 0.5:
                 hud.icon_character_id = self._hud_characters[best_idx]
-                count+=1
-    
-    def match(self, frame: Frame, game_state: GameState) -> list[TrackedActor]:
-        self._match_huds(frame, game_state.hud_states)
-        if not game_state.active_tracks:
+                count += 1
+        return matched_huds
+
+    # TODO: MATCHER ONLY NEEDS DETECIONS, NOT TRACKS!!!!!!!
+    def match(self, frame: Frame, active_tracks: list[Track], matched_detections: list[DetectionCandidate]) -> list[TrackedActor]:
+        """Matches active tracked actors and HUD elements in the current frame with precompiled templates."""
+
+        if not active_tracks:
             return []
 
         matched_actors = []
         query_features = []
 
-        # Keep actors and features aligned by tracking valid indices
-        for actor in game_state.active_tracks:
+        # Keep actors and features aligned
+        for actor in active_tracks:
             if actor.is_active:
                 x, y, w, h = actor.current_rect
                 cropped_image = frame.image[y : y + h, x : x + w]
-
                 if cropped_image.size == 0:
                     continue
-
+ 
                 success, features = self._get_features(image=cropped_image)
                 if success:
                     query_features.append(features)
                     matched_actors.append(actor)
 
         if not query_features:
-            return game_state.active_tracks
+            return active_tracks
 
         query_matrix = np.array(query_features, dtype=np.float32)
 
         # Compute pairwise Euclidean distances
         dists = cdist(query_matrix, self._character_template_matrix, metric="euclidean")
 
+        # Set character id and confidence score for matched actors
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
-
         for actor, best_idx, min_dist in zip(
             matched_actors, best_template_indices, min_dists
         ):
             actor.confirmed_character = self._template_characters[best_idx]
-            actor.confidence_score = self._distance_to_confidence(min_dist)
+            actor.confidence_score = self._distance_to_confidence(min_dist) 
 
-        return game_state.active_tracks
+        return active_tracks

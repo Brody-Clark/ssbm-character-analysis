@@ -2,18 +2,15 @@
 _summary_
 """
 
-from collections.abc import Callable
-from ssbmv.pipeline import detector, tracker, matcher
-from ssbmv.domain.models import Frame, TrackedActor, GameState
-from ssbmv.domain.sprite_database import SpriteDatabase
-from ssbmv.source.frame_source import VideoSource
 import logging
 import json
-import cv2 as cv
 import time
-from datetime import datetime
-from pathlib import Path
 from typing import TextIO
+import cv2 as cv
+from ssbmv.pipeline import detector, tracker, matcher
+from ssbmv.domain.models import Frame, Track, Actor, DetectionCandidate, HUDDetection, HUDState, GameState
+from ssbmv.domain.sprite_database import SpriteDatabase
+from ssbmv.source.frame_source import VideoSource
 
 _logger = logging.getLogger(__name__)
 
@@ -24,26 +21,19 @@ class VisionPipeline:
         self._tracker: tracker.Tracker = tracker.Tracker()
         self._matcher: matcher.Matcher = matcher.Matcher(sprite_database=sprite_db)
 
-    def _debug_frame(self, frame: Frame, tracked_objs: list[TrackedActor]):
+    def _debug_frame(self, frame: Frame, tracked_objs: list[Actor]):
         debug_frame = frame.image.copy()
 
         for obj in tracked_objs:
             if obj.age_frames < 5:
                 continue
-            x, y, w, h = obj.current_rect
+            x, y, w, h = obj.rect
             cv.rectangle(
-                debug_frame, rec=obj.current_rect, color=(220, 220, 32), thickness=2
-            )
-            cv.circle(
-                debug_frame,
-                obj.predicted_centroid,
-                radius=8,
-                color=(20, 220, 200),
-                thickness=-1,
+                debug_frame, rec=obj.rect, color=(220, 220, 32), thickness=2
             )
             cv.putText(
                 debug_frame,
-                f"{obj.confirmed_character} - [{obj.confidence_score:.2f}] | predicted: {obj.predicted_centroid[0]:.3f},{obj.predicted_centroid[1]:.3f} ",
+                f"{obj.character_id} - [{obj.confidence_score:.2f}%]",
                 org=(x, y - 10),
                 fontFace=cv.FONT_HERSHEY_SIMPLEX,
                 fontScale=0.7,
@@ -68,13 +58,10 @@ class VisionPipeline:
             if not frame:
                 break
 
-            detections = self._detector.detect(frame=frame, game_state=game_state)
-            game_state.raw_detections = detections
-
-            tracked_actors = self._tracker.track(game_state=game_state)
-            game_state.active_tracks = tracked_actors
-
-            tracks = self._matcher.match(frame=frame, game_state=game_state)
+            detections, huds = self._detector.detect(frame=frame)
+            active_tracks, matched_detections = self._tracker.track(detections)
+            matched_actors = self._matcher.match_actors(frame, game_state, active_tracks,matched_detections)
+            matched_huds = self._matcher.match_huds(frame=frame, huds)
 
             if debug:
                 self._debug_frame(frame=frame, tracked_objs=tracks)
@@ -95,10 +82,10 @@ class VisionPipeline:
             huds = []
             for hud in game_state.hud_states:
                 huds.append(
-                    {   
+                    {
                         "player_slot": hud.player_slot,
                         "rect": hud.hud_rect,
-                        "character_id": hud.icon_character_id
+                        "character_id": hud.icon_character_id,
                     }
                 )
             result = {

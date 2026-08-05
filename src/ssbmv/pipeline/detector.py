@@ -1,3 +1,4 @@
+import logging
 import cv2 as cv
 import numpy as np
 from ssbmv.domain.models import (
@@ -5,18 +6,24 @@ from ssbmv.domain.models import (
     Dimension2D,
     GameState,
     DetectionCandidate,
-    HUDState,
+    HUDDetection
 )
-import logging
-from functools import lru_cache
 from ssbmv.pipeline.stage_hsv_filters import STAGE_HSV_FITLERS
 
 _logger = logging.getLogger(__name__)
 
+_STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF = 25
 _MIN_SPRITE_AREA_RATIO = 0.006
-
+_MIN_SPRITE_AREA_PIXELS = 2000
+_MAX_SPRITE_AREA_PIXELS = 70000
+_MIN_SPRITE_ASPECT_RATIO = 0.35
+_MAX_SPRITE_ASPECT_RATIO = 1.65
+_MIN_SPRITE_DENSITY = 0.3
+_COLOR_WHITE = 255
 
 class Detector:
+    """Detects actors in frames of SSBM gameplay."""
+
     def __init__(self, stage_name: str):
         self._min_roi_area_ratio = 5
         self._motion_sub_learn_rate = 0.5
@@ -29,7 +36,6 @@ class Detector:
         self._mog = cv.createBackgroundSubtractorMOG2(
             history=200, varThreshold=20, detectShadows=False
         )
-        self.max_allowed_diff = 25
         self.min_img = None
         self.max_img = None
         self._static_mask = None
@@ -74,7 +80,7 @@ class Detector:
         # Static pixels: variation <= max_allowed_diff (X)
         # Dynamic pixels: variation > max_allowed_diff (X)
         _, static_ui_mask = cv.threshold(
-            range_img, self.max_allowed_diff, 255, cv.THRESH_BINARY_INV
+            range_img, _STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF, 255, cv.THRESH_BINARY_INV
         )
         return ~static_ui_mask
 
@@ -164,7 +170,10 @@ class Detector:
 
         actor_candidate_mask = hsv_mask_cleaned & fg_mask
         final_actor_mask, rects = self._extract_clean_actors(
-            actor_candidate_mask, hsv_mask_cleaned, hsv_mask_raw, min_actor_area=2000
+            actor_candidate_mask,
+            hsv_mask_cleaned,
+            hsv_mask_raw,
+            min_actor_area=_MIN_SPRITE_AREA_PIXELS,
         )
 
         final_actor_mask = cv.dilate(final_actor_mask, kernel, iterations=1)
@@ -177,12 +186,9 @@ class Detector:
         self,
         frame: Frame,
         rect: cv.typing.Rect,
-        debug: bool = False,
     ) -> list[DetectionCandidate]:
 
         candidate_mask = self._get_candidate_mask(frame=frame, region=rect)
-        if debug:
-            cv.imshow("Detection Candidate Mask", candidate_mask)
 
         contours, _ = cv.findContours(
             candidate_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
@@ -196,9 +202,14 @@ class Detector:
             bbox_area = w * h
             density = area / bbox_area
             aspect_ratio = float(w) / h
-            if area > 2000 and (aspect_ratio <= 1.65 and aspect_ratio >= 0.35):
-                if area < 70000 and density > 0.3:
-                    cv.drawContours(mask, [cnt], -1, color=(255), thickness=cv.FILLED)
+            if area > _MIN_SPRITE_AREA_PIXELS and (
+                aspect_ratio <= _MAX_SPRITE_ASPECT_RATIO
+                and aspect_ratio >= _MIN_SPRITE_ASPECT_RATIO
+            ):
+                if area < _MAX_SPRITE_AREA_PIXELS and density > _MIN_SPRITE_DENSITY:
+                    cv.drawContours(
+                        mask, [cnt], -1, color=_COLOR_WHITE, thickness=cv.FILLED
+                    )
                     r = [x, y, w, h]
                     candidates.append(
                         DetectionCandidate(
@@ -211,16 +222,15 @@ class Detector:
                 else:
                     # TODO: watershed
                     continue
-        if debug:
-            cv.imshow("Filtered mask", mask)
 
         return candidates
 
-    def _get_character_HUDs(self, frame: cv.typing.MatLike) -> list[HUDState]:
-        # Get binary mask of thin slice where HUD elements live
+    def _get_character_HUDs(self, frame: cv.typing.MatLike) -> list[HUDDetection]:
+        """Returns the HUDStates for character HUD icons"""
         frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-        # hud_area = frame[536:586, 230:1080]
         static_mask = self._update_static_mask(frame_gray)
+        # Cut out the slice containing the UI elements, ignoring the letterboxing
+        # for 1280x720 video
         hud_mask = ~static_mask[536:586, 230:1080]
         cv.imshow("HUD MASK", hud_mask)
 
@@ -229,33 +239,33 @@ class Detector:
         hud_mask = cv.morphologyEx(hud_mask, cv.MORPH_OPEN, kernel, iterations=1)
         hud_mask = cv.morphologyEx(hud_mask, cv.MORPH_CLOSE, kernel, iterations=1)
 
-        # Slice out each UI profile sprite rect
+        # Slice out each individual profile sprite
         candidate_huds = []
         x, y, w, h = 0, 0, 50, 50
         for _ in range(4):
-            hud_state = HUDState(
+            hud_state = HUDDetection(
                 0,
-                None,
                 hud_rect=[x + 230, y + 536, w, h],
                 binary_mask=hud_mask[y : y + h, x : x + w],
             )
             candidate_huds.append(hud_state)
-            x += 212
+            x += 212  # HUD element width on 1280x720 footage
         return candidate_huds
 
     def detect(
-        self, frame: Frame, game_state: GameState
-    ) -> tuple[list[DetectionCandidate], list[HUDState]]:
+        self, frame: Frame
+    ) -> tuple[list[DetectionCandidate], list[HUDDetection]]:
+        """Locates regions of interest containing dynamic actors from a frame of SSBM gameplay."""
 
         huds = self._get_character_HUDs(frame=frame.image)
-        game_state.hud_states = huds
 
-        # TODO: combine prediction-based local search with global search
+        # TODO: combine prediction-based local search with global search?
         # local search just uses HSV mask instead of motion.
 
         dimensions = frame.dimensions
-        return self._get_candidates(
+        detections = self._get_candidates(
             frame=frame,
             rect=[0, 0, dimensions.w, dimensions.h],
-            debug=game_state.debug,
         )
+
+        return (detections, huds)

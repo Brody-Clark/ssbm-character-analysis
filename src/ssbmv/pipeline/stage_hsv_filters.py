@@ -68,7 +68,6 @@ STAGE_HSV_FITLERS = {
         {"lower": [4, 229, 88], "upper": [9, 255, 102]},
         {"lower": [2, 143, 17], "upper": [16, 255, 128]},
         {"lower": [13, 155, 66], "upper": [19, 255, 134]},
-        # {"lower": [0, 244, 130], "upper": [179, 255, 191]}, # REMOVES KIRBY RED
     ],
     "corneria": [
         {"lower": [0, 0, 47], "upper": [168, 29, 190]},

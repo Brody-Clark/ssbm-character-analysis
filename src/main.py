@@ -1,12 +1,12 @@
-from ssbmv.pipeline.pipeline import VisionPipeline
-from ssbmv.domain.sprite_database import SpriteDatabase
-from ssbmv.source.frame_source import VideoSource
 import argparse
-from ssbmv.logger import configure_logging
 from pathlib import Path
 import logging
 from contextlib import ExitStack
 import sys
+from ssbmv.pipeline.pipeline import VisionPipeline
+from ssbmv.domain.sprite_database import SpriteDatabase
+from ssbmv.source.frame_source import VideoSource
+# from ssbmv.logger import configure_logging
 
 _logger = logging.getLogger(__name__)
 
@@ -38,7 +38,8 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
 
-    configure_logging(args.debug)
+    # TODO: Remove
+    # configure_logging(args.debug)
 
     input_path = Path(args.input)
     if not input_path.is_absolute():
@@ -61,7 +62,7 @@ if __name__ == "__main__":
                 parser.error("The output file must have a .json extension.")
             try:
                 output_file.parent.mkdir(parents=True, exist_ok=True)
-                stack.enter_context(out_stream=open(args.file, "w", encoding="utf-8"))
+                out_stream=stack.enter_context(open(args.file, "w", encoding="utf-8"))
             except OSError as e:
                 print(f"Error opening file: {e}", file=sys.stderr)
                 sys.exit(1)
@@ -75,7 +76,7 @@ if __name__ == "__main__":
             frame_source = VideoSource(video_frame_source=str(input_path))
         except Exception as e:
             print(f"Initialization failed: {e}")
-            print(f"Aborting.")
+            print("Aborting.")
             stack.close()
             sys.exit(1)
 

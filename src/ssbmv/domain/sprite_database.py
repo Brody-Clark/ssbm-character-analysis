@@ -1,24 +1,11 @@
-from enum import Enum
-from cv2.typing import MatLike
-from cv2 import imread
-from functools import lru_cache
 from pathlib import Path
 import logging
 import re
 from dataclasses import dataclass, field
+from cv2.typing import MatLike
+from cv2 import imread
 
 _logger = logging.getLogger(__name__)
-
-
-class Character(Enum):
-    MARIO = 1
-    KIRBY = 2
-
-
-CHARACTER_NAMES: dict[Character, str] = {
-    Character.MARIO: "mario",
-    Character.KIRBY: "kirby",
-}
 
 VALID_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
@@ -31,16 +18,16 @@ class SpriteSheet:
 class SpriteDatabase:
     def __init__(self):
         self.character_sprite_db: dict[str, SpriteSheet] = {}
+        self.character_hud_db: dict[str, MatLike] = {}
 
     def init(self, asset_path: Path):
+        """Initializes sprite database. Must be called before accessing members."""
         sprite_sheet_root_path = asset_path / "sprites"
         hud_root_path = asset_path / "huds"
         self.character_sprite_db = self._load_character_spritesheets(
             sprite_sheet_root_path
         )
-        self.character_hud_db = self._load_character_huds(
-            hud_root_path
-        )
+        self.character_hud_db = self._load_character_huds(hud_root_path)
 
     def _load_character_huds(self, root_path: str | Path) -> dict[str, MatLike]:
         """Iterates over a root directory structured as `{character}/{animation}/{num}.jpg`
@@ -88,7 +75,7 @@ class SpriteDatabase:
                 int(text) if text.isdigit() else text.lower()
                 for text in re.split(r"(\d+)", file_path.name)
             ]
-        
+
         # Iterate through character folders
         for char_dir in sorted(root.iterdir()):
             if not char_dir.is_dir():
@@ -126,14 +113,3 @@ class SpriteDatabase:
             character_db[char_name] = sprite_sheet
 
         return character_db
-
-    @lru_cache(maxsize=4)
-    def get_sprites_by_character(
-        self, character: Character
-    ) -> list[SpriteSheet] | None:
-        sprites = self.character_sprite_db.get(character, None)
-        return sprites
-
-    @lru_cache(maxsize=4)
-    def get_palette_by_character(self, character: Character) -> MatLike:
-        pass
