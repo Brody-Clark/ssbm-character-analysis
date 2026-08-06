@@ -44,23 +44,21 @@ class Detector:
 
         self._hsv_filters = STAGE_HSV_FITLERS.get(stage_name, None)
         if self._hsv_filters is None:
-            raise (f"Unsupported stage: {stage_name}")
+            raise RuntimeError(f"Unsupported stage: {stage_name}")
+        self._stage_lut = np.zeros((256, 256, 256), dtype=bool)
+
+        for item in self._hsv_filters:
+            l = item["lower"]
+            u = item["upper"]
+            # Mark valid background slots as True
+            self._stage_lut[l[0]:u[0]+1, l[1]:u[1]+1, l[2]:u[2]+1] = True
 
     def _get_hsv_mask(self, img: cv.typing.MatLike) -> cv.typing.MatLike:
         img_temp = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-        h, w = img_temp.shape[:2]
 
-        combined_mask = np.zeros((h, w), dtype=np.uint8)
-        for item in self._hsv_filters:
-            lower = np.array(item["lower"], dtype=np.uint8)
-            upper = np.array(item["upper"], dtype=np.uint8)
-
-            hsv_mask = cv.inRange(img_temp, lower, upper)
-            combined_mask = cv.bitwise_or(combined_mask, hsv_mask)
-
-        # Invert to get remaining elements in scene
-        combined_mask = ~combined_mask
-        return combined_mask
+        h, s, v = cv.split(img_temp)
+        combined_mask = self._stage_lut[h, s, v].astype(np.uint8) * 255
+        return ~combined_mask
 
     def _update_static_mask(self, frame_gray: cv.typing.MatLike) -> cv.typing.MatLike:
         """
@@ -78,12 +76,11 @@ class Detector:
         # Compute max variation per pixel across all observed frames
         range_img = cv.subtract(self.max_img, self.min_img)
 
-        # Static pixels: variation <= max_allowed_diff (X)
-        # Dynamic pixels: variation > max_allowed_diff (X)
+        # Static pixels: variation <= max allowed difference
         _, static_ui_mask = cv.threshold(
             range_img, _STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF, 255, cv.THRESH_BINARY_INV
         )
-        return ~static_ui_mask
+        return ~static_ui_mask # Invert to mask out dynamic pixels
 
     def _get_min_area(self, dim: Dimension2D) -> int:
         return int(_MIN_SPRITE_AREA_RATIO * dim.w * dim.h)
@@ -211,17 +208,15 @@ class Detector:
                     cv.drawContours(
                         mask, [cnt], -1, color=_COLOR_WHITE, thickness=cv.FILLED
                     )
-                    r = [x, y, w, h]
                     candidates.append(
                         DetectionCandidate(
-                            rect=r,
+                            rect=[x,y,w,h],
                             contour=cnt,
                             binary_mask=mask[y : y + h, x : x + w],
                         )
                     )
 
                 else:
-                    # TODO: watershed
                     continue
 
         return candidates

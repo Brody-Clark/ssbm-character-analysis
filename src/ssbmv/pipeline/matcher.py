@@ -60,8 +60,9 @@ class Matcher:
         return hist
 
     def _get_features(self, image: cv.typing.MatLike):
+        img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         # Fourier descriptors
-        contour = self._get_shape_contour(image=image)
+        contour = self._get_shape_contour(image=img_gray)
         if contour is None:
             return False, []
         distances = self._compute_centroid_distances(contour=contour)
@@ -72,7 +73,7 @@ class Matcher:
         )
 
         # LBP
-        hist = self._extract_character_lbp(image)
+        hist = self._extract_character_lbp(img_gray)
 
         # HSV Saturation
         hist_hsv_sat = self._extract_color_histogram(image)
@@ -98,11 +99,10 @@ class Matcher:
         return True, features
 
     def _extract_character_lbp(
-        self, roi_masked_bgr: cv.typing.MatLike, P: int = 10, R: int = 2
+        self, img_gray: cv.typing.MatLike, P: int = 10, R: int = 2
     ):
-        gray = cv.cvtColor(roi_masked_bgr, cv.COLOR_BGR2GRAY)
-        character_mask = (gray > 0).astype(np.uint8)
-        lbp = local_binary_pattern(gray, P, R, method="uniform").astype(np.float32)
+        character_mask = (img_gray > 0).astype(np.uint8)
+        lbp = local_binary_pattern(img_gray, P, R, method="uniform").astype(np.float32)
 
         n_bins = P + 2
         hist = cv.calcHist([lbp], [0], character_mask, [n_bins], [0, n_bins])
@@ -143,8 +143,7 @@ class Matcher:
             templates[char] = feats
         return templates
 
-    def _get_shape_contour(self, image: cv.typing.MatLike):
-        img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    def _get_shape_contour(self, img_gray: cv.typing.MatLike):
         _, thresh = cv.threshold(img_gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
 
         contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)

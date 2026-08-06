@@ -27,7 +27,8 @@
                 "--output",
                 "file",
                 "--file",
-                "./results.jsonl"
+                "./results.jsonl",
+                "--debug"
             ],
             "justMyCode": false
         },

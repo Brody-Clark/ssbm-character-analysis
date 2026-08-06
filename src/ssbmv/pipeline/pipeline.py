@@ -8,7 +8,7 @@ import time
 from typing import TextIO
 import cv2 as cv
 from ssbmv.pipeline import detector, tracker, matcher
-from ssbmv.domain.models import Frame, Actor, GameState
+from ssbmv.domain.models import Frame, Actor, GameState, Dimension2D
 from ssbmv.domain.sprite_database import SpriteDatabase
 from ssbmv.source.frame_source import VideoSource
 from dataclasses import asdict
@@ -61,7 +61,26 @@ class VisionPipeline:
             if not frame:
                 break
 
+            # Pass small copy for faster processing
+            small_img = cv.resize(
+                frame.image, (0, 0), fx=0.5, fy=0.5, interpolation=cv.INTER_LINEAR
+            )
+            small_w = int(frame.dimensions.w * 0.5)
+            small_h = int(frame.dimensions.h * 0.5)
+            small_frame = Frame(
+                frame_id=frame.frame_id,
+                image=small_img,
+                dimensions=Dimension2D(w=small_w, h=small_h),
+                timestamp=frame.timestamp,
+            )
+
             detections, huds = self._detector.detect(frame=frame)
+            inv_scale = 2.0
+            for det in detections:
+                det.rect = [int(coord * inv_scale) for coord in det.rect]
+            for hud in huds:
+                hud.hud_rect = [int(coord * inv_scale) for coord in hud.hud_rect]
+
             active_tracks, matched_detections = self._tracker.track(detections)
             game_state.hud_states = self._matcher.match_huds(frame=frame, huds=huds)
             matched_actors = self._matcher.match_actors(frame, matched_detections)
@@ -85,8 +104,8 @@ class VisionPipeline:
             end = time.perf_counter()
             game_state.timestamp_s = end
             game_state.elapsed_frame_time_s = end - start
-            
-            json.dump(asdict(game_state), output_stream, separators=(',', ':'))
+
+            json.dump(asdict(game_state), output_stream, separators=(",", ":"))
             output_stream.write("\n")
 
             start = end
