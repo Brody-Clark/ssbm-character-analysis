@@ -6,7 +6,7 @@ from ssbmv.domain.models import (
     Dimension2D,
     GameState,
     DetectionCandidate,
-    HUDDetection
+    HUDDetection,
 )
 from ssbmv.pipeline.stage_hsv_filters import STAGE_HSV_FITLERS
 
@@ -20,6 +20,7 @@ _MIN_SPRITE_ASPECT_RATIO = 0.35
 _MAX_SPRITE_ASPECT_RATIO = 1.65
 _MIN_SPRITE_DENSITY = 0.3
 _COLOR_WHITE = 255
+
 
 class Detector:
     """Detects actors in frames of SSBM gameplay."""
@@ -195,7 +196,7 @@ class Detector:
         )
 
         candidates: list[DetectionCandidate] = []
-        mask = np.zeros_like(frame.image)
+        mask = np.zeros(frame.image.shape[:2], dtype=np.uint8)
         for cnt in contours:
             area = cv.contourArea(cnt)
             x, y, w, h = cv.boundingRect(cnt)
@@ -232,7 +233,6 @@ class Detector:
         # Cut out the slice containing the UI elements, ignoring the letterboxing
         # for 1280x720 video
         hud_mask = ~static_mask[536:586, 230:1080]
-        cv.imshow("HUD MASK", hud_mask)
 
         # Clean up mask
         kernel = cv.getStructuringElement(cv.MORPH_RECT, (3, 3))

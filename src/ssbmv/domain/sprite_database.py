@@ -9,6 +9,7 @@ _logger = logging.getLogger(__name__)
 
 VALID_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
+
 @dataclass(slots=True)
 class SpriteSheet:
     sprite_names: list[str] = field(default_factory=list)

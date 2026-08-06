@@ -19,7 +19,42 @@
                 "PYTHONPATH": "${workspaceFolder}/src",
                 "PYTHONUNBUFFERED": "1"
             },
-            "args": ["--input", "${workspaceFolder}/data/recordings/corneria.mp4", "--debug", "--stage", "corneria"],
+            "args": [
+                "--input",
+                "${workspaceFolder}/data/recordings/corneria.mp4",
+                "--stage",
+                "corneria",
+                "--output",
+                "file",
+                "--file",
+                "./results.jsonl"
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Profile Pipeline with Video",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "cProfile",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+                "PYTHONUNBUFFERED": "1"
+            },
+            "args": [
+                "-o",
+                "${workspaceFolder}/pipeline.prof",
+                "${workspaceFolder}/src/main.py",
+                "--input",
+                "${workspaceFolder}/data/recordings/corneria.mp4",
+                "--stage",
+                "corneria",
+                "--output",
+                "file",
+                "--file",
+                "${workspaceFolder}/results.jsonl"
+            ],
             "justMyCode": false
         }
     ]

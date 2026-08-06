@@ -12,6 +12,7 @@ from ssbmv.domain.models import (
 _logger = logging.getLogger(__name__)
 
 MAX_DISTANCE = 200
+MIN_FRAMES_ACTIVE = 4
 
 
 class Tracker:
@@ -62,7 +63,7 @@ class Tracker:
             track.predicted_centroid = (pred_x, pred_y)
 
             track.age_frames += 1
-            if track.age_frames > 3:
+            if track.age_frames > MIN_FRAMES_ACTIVE:
                 track.is_active = True
                 active_tracks.append(track)
                 matched_detections.append(detection)

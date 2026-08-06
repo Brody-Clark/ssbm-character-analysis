@@ -6,9 +6,15 @@ import sys
 from ssbmv.pipeline.pipeline import VisionPipeline
 from ssbmv.domain.sprite_database import SpriteDatabase
 from ssbmv.source.frame_source import VideoSource
-# from ssbmv.logger import configure_logging
+import cProfile
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    stream=sys.stdout,
+)
 _logger = logging.getLogger(__name__)
+
 
 if __name__ == "__main__":
     project_root = Path(__file__).resolve().parent.parent
@@ -38,15 +44,12 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
 
-    # TODO: Remove
-    # configure_logging(args.debug)
-
+    # Validate inputs
     input_path = Path(args.input)
     if not input_path.is_absolute():
         input_path = (project_root / input_path).resolve()
     if not input_path.exists():
         parser.error(f"Input video not found: {input_path}")
-
     if args.output == "file" and not args.file:
         parser.error("--file is required when --output is set to 'file'.")
 
@@ -57,30 +60,33 @@ if __name__ == "__main__":
     with ExitStack() as stack:
         # Determine the output stream
         if args.output == "file":
-            output_file = Path(args.output)
-            if output_file.suffix.lower() != ".json":
-                parser.error("The output file must have a .json extension.")
+            output_file = Path(args.file)
+            if output_file.suffix.lower() != ".jsonl":
+                parser.error("The output file must have a .jsonl extension.")
             try:
                 output_file.parent.mkdir(parents=True, exist_ok=True)
-                out_stream=stack.enter_context(open(args.file, "w", encoding="utf-8"))
+                out_stream = stack.enter_context(open(args.file, "w", encoding="utf-8"))
             except OSError as e:
                 print(f"Error opening file: {e}", file=sys.stderr)
                 sys.exit(1)
         else:
             out_stream = sys.stdout
 
-        try:
-            sprite_db = SpriteDatabase()
-            sprite_db.init(sprite_path)
-            pipeline = VisionPipeline(sprite_db, stage=args.stage)
-            frame_source = VideoSource(video_frame_source=str(input_path))
-        except Exception as e:
-            print(f"Initialization failed: {e}")
-            print("Aborting.")
-            stack.close()
-            sys.exit(1)
+        _logger.info("Intializing...")
+        sprite_db = SpriteDatabase()
+        sprite_db.init(sprite_path)
+        pipeline = VisionPipeline(sprite_db, stage=args.stage)
+        frame_source = VideoSource(video_frame_source=str(input_path))
+
+        _logger.info("Initialization complete, beginning processing.")
 
         # Process video
-        pipeline.process(
-            video_source=frame_source, output_stream=out_stream, debug=args.debug
-        )
+        profiler = cProfile.Profile()
+        profiler.enable()
+        try:
+            pipeline.process(video_source=frame_source, output_stream=out_stream, debug=args.debug)
+        finally:
+            profiler.disable()
+            # Save output to a .prof file in your workspace root
+            profiler.dump_stats("pipeline.prof")
+        _logger.info("Processing complete.")

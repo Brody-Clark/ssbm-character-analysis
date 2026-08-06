@@ -23,12 +23,21 @@ class Track:
             self.current_rect[1] + self.current_rect[3] // 2,
         )
 
+
 @dataclass
 class Actor:
     """"""
-    rect: Rect
+
+    rect: Rect = field(default_factory=list)
     character_id: str = "Unknown"
     confidence_score: float = 0.0
+
+
+@dataclass
+class Match:
+    character_id: str = "Unknown"
+    confidence_score: float = 0.0
+
 
 @dataclass
 class DetectionCandidate:
@@ -45,19 +54,24 @@ class DetectionCandidate:
             self.rect[1] + self.rect[3] // 2,
         )
 
+
 @dataclass
 class HUDDetection:
     """"""
+
     player_slot: int
     hud_rect: Rect
     binary_mask: MatLike
 
+
 @dataclass
 class HUDState:
     """"""
+
     player_slot: int
     icon_character_id: Optional[str]
     hud_rect: Rect
+
 
 @dataclass
 class GameState:
@@ -66,6 +80,8 @@ class GameState:
     frame_index: int = 0
     hud_states: List[HUDState] = field(default_factory=list)
     actors: List[Actor] = field(default_factory=list)
+    timestamp_s: float = 0
+    elapsed_frame_time_s: float = 0
     debug: bool = False
 
     @property

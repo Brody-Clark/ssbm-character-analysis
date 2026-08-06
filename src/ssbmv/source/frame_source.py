@@ -4,6 +4,7 @@ from ssbmv.domain.models import Frame, Dimension2D
 
 class VideoSource:
     """Source of video data."""
+
     def __init__(self, video_frame_source: str):
         super().__init__()
         self._capture = cv2.VideoCapture(video_frame_source)
