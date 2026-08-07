@@ -18,13 +18,11 @@ _logger = logging.getLogger(__name__)
 class Matcher:
     def __init__(self, sprite_database: SpriteDatabase):
         # Load Character sprite templates
-        self._flat_templates = []
         templates: dict[str, list[list[np.float32]]] = self._load_character_template(
             sprite_database
         )
         self._temps = sprite_database.character_sprite_db
-        flat_templates = []
-        flat_characters = []
+        flat_templates, flat_characters = [], []
         for character, sprites in templates.items():
             for feature_vector in sprites:
                 flat_templates.append(feature_vector)
@@ -36,8 +34,7 @@ class Matcher:
 
         # Load HUD templates
         hud_templates = self._load_character_hud_template(sprite_database)
-        flat_hud_templates = []
-        flat_hud_characters = []
+        flat_hud_templates, flat_hud_characters = [], []
         for character, hud_features in hud_templates.items():
             flat_hud_templates.append(hud_features)
             flat_hud_characters.append(character)
@@ -62,7 +59,7 @@ class Matcher:
     def _get_features(self, image: cv.typing.MatLike):
         img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         # Fourier descriptors
-        contour = self._get_shape_contour(image=img_gray)
+        contour = self._get_shape_contour(img_gray=img_gray)
         if contour is None:
             return False, []
         distances = self._compute_centroid_distances(contour=contour)
@@ -121,7 +118,6 @@ class Matcher:
         for char, sprite_sheet in sprite_sheets:
             features = []
             for s in sprite_sheet.sprite_imgs:
-                self._flat_templates.append(s)
                 success, feats = self._get_features(image=s)
                 if not success:
                     _logger.error("Failed to extract features from image.")

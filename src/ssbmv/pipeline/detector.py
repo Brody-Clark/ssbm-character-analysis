@@ -26,55 +26,44 @@ class Detector:
     """Detects actors in frames of SSBM gameplay."""
 
     def __init__(self, stage_name: str):
-        self._min_roi_area_ratio = 5
-        self._motion_sub_learn_rate = 0.5
-        self._vertical_closing_kernel = cv.getStructuringElement(cv.MORPH_RECT, (1, 4))
-        self._horizontal_erase_kernel = cv.getStructuringElement(cv.MORPH_RECT, (3, 1))
-        self._square_kernel = np.ones((8, 8), np.uint8)
         self._edge_dilation_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (8, 8))
-        self._line_erase_kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
-        self._small_square_kernel = cv.getStructuringElement(cv.MORPH_RECT, (3, 3))
         self._mog = cv.createBackgroundSubtractorMOG2(
             history=200, varThreshold=20, detectShadows=False
         )
-        self.min_img = None
-        self.max_img = None
+        self._min_img = None
+        self._max_img = None
         self._static_mask = None
         self._prev_frame = None
 
         self._hsv_filters = STAGE_HSV_FITLERS.get(stage_name, None)
         if self._hsv_filters is None:
             raise RuntimeError(f"Unsupported stage: {stage_name}")
-        self._stage_lut = np.zeros((256, 256, 256), dtype=bool)
-
-        for item in self._hsv_filters:
-            l = item["lower"]
-            u = item["upper"]
-            # Mark valid background slots as True
-            self._stage_lut[l[0]:u[0]+1, l[1]:u[1]+1, l[2]:u[2]+1] = True
-
+       
     def _get_hsv_mask(self, img: cv.typing.MatLike) -> cv.typing.MatLike:
-        img_temp = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-
-        h, s, v = cv.split(img_temp)
-        combined_mask = self._stage_lut[h, s, v].astype(np.uint8) * 255
-        return ~combined_mask
+        img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+        combined_mask = np.zeros(img_hsv.shape[:2], dtype=np.uint8)
+        for item in self._hsv_filters:
+            lower = np.array(item["lower"], dtype=np.uint8)
+            upper = np.array(item["upper"], dtype=np.uint8)            
+            mask = cv.inRange(img_hsv, lower, upper)
+            combined_mask = cv.bitwise_or(combined_mask, mask)
+        return cv.bitwise_not(combined_mask)
 
     def _update_static_mask(self, frame_gray: cv.typing.MatLike) -> cv.typing.MatLike:
         """
         Updates pixel ranges and returns static UI mask (255 = Static UI, 0 = Gameplay).
         """
         # Lazy initialization to guarantee exact shape matching on Frame 1
-        if self.min_img is None or self.min_img.shape != frame_gray.shape:
-            self.min_img = frame_gray.copy()
-            self.max_img = frame_gray.copy()
+        if self._min_img is None or self._min_img.shape != frame_gray.shape:
+            self._min_img = frame_gray.copy()
+            self._max_img = frame_gray.copy()
 
         # Update minimum and maximum seen values at each pixel coordinate
-        np.minimum(self.min_img, frame_gray, out=self.min_img)
-        np.maximum(self.max_img, frame_gray, out=self.max_img)
+        np.minimum(self._min_img, frame_gray, out=self._min_img)
+        np.maximum(self._max_img, frame_gray, out=self._max_img)
 
         # Compute max variation per pixel across all observed frames
-        range_img = cv.subtract(self.max_img, self.min_img)
+        range_img = cv.subtract(self._max_img, self._min_img)
 
         # Static pixels: variation <= max allowed difference
         _, static_ui_mask = cv.threshold(
@@ -187,13 +176,11 @@ class Detector:
     ) -> list[DetectionCandidate]:
 
         candidate_mask = self._get_candidate_mask(frame=frame, region=rect)
-
         contours, _ = cv.findContours(
             candidate_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
         )
 
         candidates: list[DetectionCandidate] = []
-        mask = np.zeros(frame.image.shape[:2], dtype=np.uint8)
         for cnt in contours:
             area = cv.contourArea(cnt)
             x, y, w, h = cv.boundingRect(cnt)
@@ -205,14 +192,15 @@ class Detector:
                 and aspect_ratio >= _MIN_SPRITE_ASPECT_RATIO
             ):
                 if area < _MAX_SPRITE_AREA_PIXELS and density > _MIN_SPRITE_DENSITY:
+                    mask = np.zeros((h, w), dtype=np.uint8)
                     cv.drawContours(
-                        mask, [cnt], -1, color=_COLOR_WHITE, thickness=cv.FILLED
+                        mask, [cnt], -1, color=_COLOR_WHITE, thickness=cv.FILLED, offset=(-x,-y)
                     )
                     candidates.append(
                         DetectionCandidate(
                             rect=[x,y,w,h],
                             contour=cnt,
-                            binary_mask=mask[y : y + h, x : x + w],
+                            binary_mask=mask,
                         )
                     )
 
@@ -253,7 +241,7 @@ class Detector:
         """Locates regions of interest containing dynamic actors from a frame of SSBM gameplay."""
 
         huds = self._get_character_HUDs(frame=frame.image)
-
+    
         # TODO: combine prediction-based local search with global search?
         # local search just uses HSV mask instead of motion.
 

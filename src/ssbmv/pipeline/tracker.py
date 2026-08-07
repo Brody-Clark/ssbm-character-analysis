@@ -2,6 +2,7 @@ import logging
 import uuid
 import numpy as np
 from scipy.optimize import linear_sum_assignment
+from scipy.spatial.distance import cdist
 from cv2.typing import Rect, Point
 from cv2 import KalmanFilter
 from ssbmv.domain.models import (
@@ -21,17 +22,12 @@ class Tracker:
     def __init__(self, max_unmatched_frames: int = 4):
         self._max_unmatched_frames = max_unmatched_frames
         self._tracks: list[Track] = []
-        self._unmatched_frames: list[int] = 0
         self._kalman_filters: dict[int, KalmanFilter] = {}
 
     def _compute_distance_matrix(self, trackers: list[Point], detections: list[Point]):
-        rows, cols = len(trackers), len(detections)
-        matrix = np.zeros((rows, cols))
-        for i, track in enumerate(trackers):
-            for j, det in enumerate(detections):
-                matrix[i][j] = np.linalg.norm(np.array(det) - np.array(track))
-
-        return matrix
+        if not trackers or not detections:
+            return np.zeros((len(trackers), len(detections)))
+        return cdist(trackers, detections, metric='euclidean')
 
     def _update_tracks(
         self,
@@ -51,12 +47,8 @@ class Tracker:
                 continue
             detection = detections[int(detection_idx)]
             centroid = np.array(detection.centroid)
-            kf.correct(
-                np.array(
-                    [[np.float32(centroid[0])], [np.float32(centroid[1])]],
-                    dtype=np.float32,
-                )
-            )
+            measurement = np.array([[np.float32(centroid[0])], [np.float32(centroid[1])]], dtype=np.float32)
+            kf.correct(measurement)
 
             prediction = kf.predict()
             pred_x, pred_y = int(prediction[0][0]), int(prediction[1][0])
@@ -123,6 +115,12 @@ class Tracker:
             new_track.predicted_centroid = (pred_x, pred_y)
             new_tracks.append(new_track)
             self._kalman_filters[new_track.track_id] = kf
+
+        # Remove filters for tracks that were dropped
+        active_track_ids = {track.track_id for track in new_tracks}
+        self._kalman_filters = {
+            tid: kf for tid, kf in self._kalman_filters.items() if tid in active_track_ids
+        }
 
         self._tracks = new_tracks
         return (active_tracks, matched_detections)

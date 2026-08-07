@@ -28,7 +28,6 @@
                 "file",
                 "--file",
                 "./results.jsonl",
-                "--debug"
             ],
             "justMyCode": false
         },

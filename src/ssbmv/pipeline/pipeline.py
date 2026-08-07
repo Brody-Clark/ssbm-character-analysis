@@ -62,24 +62,24 @@ class VisionPipeline:
                 break
 
             # Pass small copy for faster processing
-            small_img = cv.resize(
-                frame.image, (0, 0), fx=0.5, fy=0.5, interpolation=cv.INTER_LINEAR
-            )
-            small_w = int(frame.dimensions.w * 0.5)
-            small_h = int(frame.dimensions.h * 0.5)
-            small_frame = Frame(
-                frame_id=frame.frame_id,
-                image=small_img,
-                dimensions=Dimension2D(w=small_w, h=small_h),
-                timestamp=frame.timestamp,
-            )
+            # small_img = cv.resize(
+            #     frame.image, (0, 0), fx=0.5, fy=0.5, interpolation=cv.INTER_LINEAR
+            # )
+            # small_w = int(frame.dimensions.w * 0.5)
+            # small_h = int(frame.dimensions.h * 0.5)
+            # small_frame = Frame(
+            #     frame_id=frame.frame_id,
+            #     image=small_img,
+            #     dimensions=Dimension2D(w=small_w, h=small_h),
+            #     timestamp=frame.timestamp,
+            # )
 
             detections, huds = self._detector.detect(frame=frame)
-            inv_scale = 2.0
-            for det in detections:
-                det.rect = [int(coord * inv_scale) for coord in det.rect]
-            for hud in huds:
-                hud.hud_rect = [int(coord * inv_scale) for coord in hud.hud_rect]
+            # inv_scale = 2.0
+            # for det in detections:
+            #     det.rect = [int(coord * inv_scale) for coord in det.rect]
+            # for hud in huds:
+            #     hud.hud_rect = [int(coord * inv_scale) for coord in hud.hud_rect]
 
             active_tracks, matched_detections = self._tracker.track(detections)
             game_state.hud_states = self._matcher.match_huds(frame=frame, huds=huds)
