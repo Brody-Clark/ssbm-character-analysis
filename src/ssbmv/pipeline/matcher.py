@@ -23,12 +23,11 @@ class Matcher:
         templates: dict[str, list[list[np.float32]]] = self._load_character_template(
             sprite_database
         )
-        self._temps = sprite_database.character_sprite_db
         flat_templates, flat_characters = [], []
-        for character, sprites in templates.items():
-            for feature_vector in sprites:
+        for character_anim, features in templates.items():
+            for feature_vector in features:
                 flat_templates.append(feature_vector)
-                flat_characters.append(character)
+                flat_characters.append(character_anim)
 
         # Shape: (Total number of templates across all characters, feature_dimension)
         self._character_template_matrix = np.array(flat_templates, dtype=np.float32)
@@ -61,7 +60,7 @@ class Matcher:
     def _get_features(self, image: cv.typing.MatLike):
         img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-        # 1. Fourier descriptors
+        # Fourier descriptors
         contour = self._get_shape_contour(img_gray=img_gray)
         if contour is None:
             return False, []
@@ -72,20 +71,20 @@ class Matcher:
             distances=distances, num_descriptors=42, sample_size=256
         )
 
-        # 2. LBP
+        # LBP
         lbp_hist = self._extract_character_lbp(img_gray)
 
-        # 3. HSV Saturation
+        # HSV Saturation
         hist_hsv_sat = self._extract_color_histogram(image)
 
-        # 4. Aspect Ratio
+        # Aspect Ratio
         x, y, w, h = cv.boundingRect(contour)
         aspect_ratio = float(w) / h
 
-        # 5. HOG (Histogram of Oriented Gradients)
+        # HOG 
         # Resize to a fixed window size so output vector length is constant
-        hog_input_size = (64, 64)
-        img_hog_input = cv.resize(img_gray, hog_input_size, interpolation=cv.INTER_AREA)
+        # hog_input_size = (64, 64)
+        # img_hog_input = cv.resize(img_gray, hog_input_size, interpolation=cv.INTER_AREA)
 
         # hog_feats = hog(
         #     img_hog_input,
@@ -96,7 +95,7 @@ class Matcher:
         #     feature_vector=True,  # Ensure 1D numpy array output
         # )
 
-        # 6. Feature Normalization & Weighting
+        # Feature Normalization & Weighting
         log_ar = np.log(aspect_ratio + 1e-5)
         ar_weight = 0.2
         aspect_feat = np.array([log_ar * ar_weight], dtype=np.float32)
@@ -148,14 +147,18 @@ class Matcher:
         sprite_sheets = sprite_database.character_sprite_db.items()
         templates = {}
         for char, sprite_sheet in sprite_sheets:
-            features = []
-            for s in sprite_sheet.sprite_imgs:
+            for i, s in enumerate(sprite_sheet.sprite_imgs):
                 success, feats = self._get_features(image=s)
                 if not success:
                     _logger.error("Failed to extract features from image.")
                     continue
+
+                anim = sprite_sheet.sprite_names[i]
+                name = f"{char}_{anim}"
+                if templates.get(name, None) is None:
+                    templates[name] = []
+                features = templates[name]
                 features.append(feats)
-            templates[char] = features
         return templates
 
     def _load_character_hud_template(
@@ -198,22 +201,25 @@ class Matcher:
         N = len(distances)
         if N < 2:
             return None
+            
         # Resample distances to a fixed size for uniform FFT size
         xp = np.linspace(0, N - 1, N)
         x = np.linspace(0, N - 1, sample_size)
         resampled_distances = np.interp(x, xp, distances)
 
-        # Compute FFT
+        # Compute complex FFT coefficients
         fft_coeffs = np.fft.fft(resampled_distances)
-        fft_lengths = np.abs(fft_coeffs)
-        if fft_lengths[0] < 1e-7:
+        dc_component = np.abs(fft_coeffs[0])
+        if dc_component < 1e-7:
             return None
 
-        # Normalize by the DC component for scale invariance.
-        normalized_fds = (fft_lengths[1 : num_descriptors + 1] / fft_lengths[0]).astype(
-            np.float32
-        )
-        return normalized_fds
+        # Extract raw coefficients keeping both real/imaginary.
+        # Since characters' sprite aniamtions are fixed and don't rotate,
+        # rotation invariance is not needed.
+        coeffs = fft_coeffs[1 : num_descriptors + 1]
+        normalized_fds = np.concatenate([np.real(coeffs), np.imag(coeffs)]) / dc_component
+        
+        return normalized_fds.astype(np.float32)
 
     def _distance_to_confidence(self, dist: float) -> float:
         return max(0.0, 1.0 - dist)
