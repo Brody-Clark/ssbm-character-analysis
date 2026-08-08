@@ -29,23 +29,38 @@ class Detector:
         self._mog = cv.createBackgroundSubtractorMOG2(
             history=200, varThreshold=20, detectShadows=False
         )
+
+        # Static mask setup
         self._min_img = None
         self._max_img = None
         self._static_mask = None
-        self._prev_frame = None
+
+        # Scale factors for operating on smaller image
         self._scale_factor = scale_factor
         self._scale_up_factor = 1.0 / scale_factor
-        self._scaled_min_sprite_area = int(round(_MIN_SPRITE_AREA_PIXELS * scale_factor * scale_factor))
-        self._scaled_max_sprite_area = int(round(_MAX_SPRITE_AREA_PIXELS * scale_factor * scale_factor))
-       
+        self._scaled_min_sprite_area = int(
+            round(_MIN_SPRITE_AREA_PIXELS * scale_factor * scale_factor)
+        )
+        self._scaled_max_sprite_area = int(
+            round(_MAX_SPRITE_AREA_PIXELS * scale_factor * scale_factor)
+        )
+
+        # Load HSV filters for specified stage
         self._hsv_filters = STAGE_HSV_FITLERS.get(stage_name, None)
         if self._hsv_filters is None:
             raise RuntimeError(f"Unsupported stage: {stage_name}")
-        self._hsv_lower = np.array([item["lower"] for item in self._hsv_filters], dtype=np.uint8)
-        self._hsv_upper = np.array([item["upper"] for item in self._hsv_filters], dtype=np.uint8)
+
+        # Pre-compile HSV mask lists to reduce runtime allocation
+        self._hsv_lower = np.array(
+            [item["lower"] for item in self._hsv_filters], dtype=np.uint8
+        )
+        self._hsv_upper = np.array(
+            [item["upper"] for item in self._hsv_filters], dtype=np.uint8
+        )
         self._hsv_count = len(self._hsv_upper)
-        
+
     def _get_hsv_mask(self, img: cv.typing.MatLike) -> cv.typing.MatLike:
+        """Removes stage geometry using HSV masking and leaves isolated character masks."""
         img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
         combined_mask = np.zeros(img_hsv.shape[:2], dtype=np.uint8)
         for i in range(self._hsv_count):
@@ -154,6 +169,7 @@ class Detector:
         frame: Frame,
         region: cv.typing.Rect,
     ) -> cv.typing.MatLike:
+        """Combines multiple methods to create a clean candidate actor mask from the input image."""
         x, y, w, h = region
         img = frame.image[y : y + h, x : x + w]
 
@@ -191,12 +207,14 @@ class Detector:
         frame: Frame,
         rect: cv.typing.Rect,
     ) -> list[DetectionCandidate]:
+        """Gets candidate mask, then applies geometric thresholds to create final detection candidates."""
 
         candidate_mask = self._get_candidate_mask(frame=frame, region=rect)
         contours, _ = cv.findContours(
             candidate_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
         )
 
+        # Apply geometric thresholds to remove small or poorly shaped detections
         candidates: list[DetectionCandidate] = []
         for cnt in contours:
             area = cv.contourArea(cnt)
@@ -208,7 +226,11 @@ class Detector:
                 aspect_ratio <= _MAX_SPRITE_ASPECT_RATIO
                 and aspect_ratio >= _MIN_SPRITE_ASPECT_RATIO
             ):
-                if area < self._scaled_max_sprite_area and density > _MIN_SPRITE_DENSITY:
+                if (
+                    area < self._scaled_max_sprite_area
+                    and density > _MIN_SPRITE_DENSITY
+                ):
+                    # Fill in mask for just this candidate
                     mask = np.zeros((h, w), dtype=np.uint8)
                     cv.drawContours(
                         mask,
@@ -229,7 +251,7 @@ class Detector:
         return candidates
 
     def _get_character_HUDs(self, frame: cv.typing.MatLike) -> list[HUDDetection]:
-        """Returns the HUDStates for character HUD icons"""
+        """Returns the HUDStates for character HUD icons using temporal masking."""
         # Cut out the slice containing the UI elements, ignoring the pillar boxes
         # for 1280x720 video
         hud_slice = frame[536:586, 230:1080]

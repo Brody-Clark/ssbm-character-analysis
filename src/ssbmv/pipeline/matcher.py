@@ -268,6 +268,7 @@ class Matcher:
         matches = [None] * len(tracked_detections)
         matched_detection_indices = []
         query_features = []
+
         # Keep actors and features aligned
         for i, detection in enumerate(tracked_detections):
             if detection is None:
@@ -278,6 +279,7 @@ class Matcher:
             if cropped_image.size == 0:
                 continue
 
+            # Isolate character in RGB image to match template format
             masked_img = cv.bitwise_and(
                 cropped_image, cropped_image, mask=detection.binary_mask
             )
@@ -289,9 +291,8 @@ class Matcher:
         if not query_features:
             return matches
 
+        # Compute pairwise cosine distances
         query_matrix = np.array(query_features, dtype=np.float32)
-
-        # Compute pairwise Euclidean distances
         dists = cdist(query_matrix, self._character_template_matrix, metric="cosine")
 
         # Set character id and confidence score for matched actors

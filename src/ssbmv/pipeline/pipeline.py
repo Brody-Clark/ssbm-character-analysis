@@ -17,6 +17,7 @@ _logger = logging.getLogger(__name__)
 
 MIN_HUD_MATCH_CONFIDENCE = 0.50
 MIN_ACTOR_MATCH_CONFIDENCE = 0.50
+_DEBUG_FRAME_NAME = "SSBMV DEBUG"
 
 
 class VisionPipeline:
@@ -58,7 +59,7 @@ class VisionPipeline:
                 color=(0, 255, 0),
                 thickness=2,
             )
-        cv.imshow("debug frame", debug_frame)
+        cv.imshow(_DEBUG_FRAME_NAME, debug_frame)
         while True:
             key = cv.waitKey()
             if key == ord(" "):
@@ -77,31 +78,15 @@ class VisionPipeline:
             if not frame:
                 break
 
-            # Pass small copy for faster processing
-            # small_img = cv.resize(
-            #     frame.image, (0, 0), fx=0.5, fy=0.5, interpolation=cv.INTER_LINEAR
-            # )
-            # small_w = int(frame.dimensions.w * 0.5)
-            # small_h = int(frame.dimensions.h * 0.5)
-            # small_frame = Frame(
-            #     frame_id=frame.frame_id,
-            #     image=small_img,
-            #     dimensions=Dimension2D(w=small_w, h=small_h),
-            #     timestamp=frame.timestamp,
-            # )
             start = time.perf_counter()
+            # Run detection -> Tracking -> Matching
             detections, huds = self._detector.detect(frame=frame)
-            # inv_scale = 2.0
-            # for det in detections:
-            #     det.rect = [int(coord * inv_scale) for coord in det.rect]
-            # for hud in huds:
-            #     hud.hud_rect = [int(coord * inv_scale) for coord in hud.hud_rect]
-
             active_tracks, matched_detections = self._tracker.track(detections)
             game_state.hud_states = self._matcher.match_huds(frame=frame, huds=huds)
             matched_actors = self._matcher.match_actors(frame, matched_detections)
-            game_state.actors.clear()
 
+            # Set current frame predictions based on results
+            game_state.actors.clear()
             for i, actor in enumerate(matched_actors):
                 a = Actor()
                 if actor is None:
@@ -129,4 +114,4 @@ class VisionPipeline:
 
         video_source.release()
         if debug:
-            cv.destroyAllWindows()
+            cv.destroyWindow(_DEBUG_FRAME_NAME)
