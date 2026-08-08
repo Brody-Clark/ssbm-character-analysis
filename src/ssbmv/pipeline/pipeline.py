@@ -93,10 +93,12 @@ class VisionPipeline:
                     a.character_id = "Unknown"
                     a.rect = active_tracks[i].current_rect
                     a.confidence_score = 0
+                    a.track_id = active_tracks[i].track_id
                 else:
                     a.character_id = actor.character_id
                     a.confidence_score = actor.confidence_score
                     a.rect = matched_detections[i].rect
+                    a.track_id = active_tracks[i].track_id
                 game_state.actors.append(a)
 
             end = time.perf_counter()

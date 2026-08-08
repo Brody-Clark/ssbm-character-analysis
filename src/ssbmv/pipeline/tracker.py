@@ -157,9 +157,16 @@ class Tracker:
 
     def track(
         self, detections: list[DetectionCandidate]
-    ) -> tuple[list[Track], list[DetectionCandidate]]:
+    ) -> tuple[list[Track], list[DetectionCandidate | None]]:
         """
         Matches detections with nearest active track and creates new tracks for new detections.
+
+
+        Args:
+            detections (list[DetectionCandidate]): List of detections from detector
+
+        Returns:
+            tuple[list[Track], list[DetectionCandidate | None]]: Matching list of tracklets to detections or None
         """
         matches, unmatched_tracker_ids, unmatched_detection_ids = self._match_tracks(
             detections=detections

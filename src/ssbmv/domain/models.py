@@ -26,11 +26,12 @@ class Track:
 
 @dataclass
 class Actor:
-    """"""
+    """Character being tracked and identified in a frame"""
 
     rect: Rect = field(default_factory=list)
     character_id: str = "Unknown"
     confidence_score: float = 0.0
+    track_id: int = 0
 
 
 @dataclass

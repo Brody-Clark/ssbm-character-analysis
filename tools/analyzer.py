@@ -151,8 +151,8 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     elapsed_times: List[float] = []
     timestamps: List[float] = []
 
-    # Track assignment of GT actor_id -> predicted identifier (approx by centroid)
-    prev_assignment: Dict[int, Optional[Tuple[int, int]]] = {}
+    # Track assignment of GT actor_id -> predicted track_id
+    prev_assignment: Dict[int, Optional[object]] = {}
 
     def split_pred_label(label: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
         if not label:
@@ -201,23 +201,21 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
                 anim_correct += 1
             class_total += 1
 
-        # ID switch approx: for each matched gt actor, derive predicted identifier
+        # ID switch: use stable predicted track_id from the results
         for g, p in matches:
             gt_id = g.get("actor_id")
             if gt_id is None:
                 continue
-            # predicted identifier: centroid of predicted rect
-            rx, ry, rw, rh = p.get("rect")
-            centroid = (int(rx + rw / 2), int(ry + rh / 2))
+            pred_track_id = p.get("track_id")
             prev = prev_assignment.get(gt_id)
             if prev is None:
                 # first observation
-                prev_assignment[gt_id] = centroid
+                prev_assignment[gt_id] = pred_track_id
             else:
-                if centroid != prev:
-                    # Count switch only if previous was matched in previous frame
+                if pred_track_id is not None and pred_track_id != prev:
+                    # Count switch only when the predicted track identity changes
                     idsw += 1
-                    prev_assignment[gt_id] = centroid
+                    prev_assignment[gt_id] = pred_track_id
 
         # For GT actors not matched this frame, set their prev_assignment to None (missed)
         for g in unmatched_gts:
