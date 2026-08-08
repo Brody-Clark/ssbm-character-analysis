@@ -266,9 +266,9 @@ class Detector:
         # Slice out each individual profile sprite
         candidate_huds = []
         x, y, w, h = 0, 0, 50, 50
-        for _ in range(4):
+        for i in range(4):
             hud_state = HUDDetection(
-                0,
+                i+1,
                 hud_rect=[x + 230, y + 536, w, h],
                 binary_mask=hud_mask[y : y + h, x : x + w],
             )
