@@ -1,7 +1,6 @@
 import argparse
 import json
 import statistics
-from pathlib import Path
 from typing import List, Tuple, Dict, Optional
 
 
@@ -87,7 +86,7 @@ def match_frame(
     if not gt_actors and not pred_actors:
         return 0, 0, 0, [], [], []
 
-    gt_boxes = [g.get("bounding_rect") for g in gt_actors]
+    gt_boxes = [g.get("bounding_rect") for g in gt_actors if g.get("bounding_rect") is not None]
     pred_boxes = [p.get("rect") for p in pred_actors]
 
     gt_matched = [False] * len(gt_boxes)
@@ -253,7 +252,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
 
     mota = 1.0 - (total_fn + total_fp + idsw) / total_gt if total_gt > 0 else 0.0
 
-    print("--- Evaluation Summary ---")
+    print("Evaluation Summary:")
     print(f"Frames evaluated        : {len(all_frames)}")
     print(f"Ground-truth objects    : {total_gt}")
     print(f"TP                      : {total_tp}")
