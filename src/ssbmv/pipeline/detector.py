@@ -7,7 +7,7 @@ from ssbmv.domain.models import (
     DetectionCandidate,
     HUDDetection,
 )
-from ssbmv.domain.stage_hsv_filters import STAGE_HSV_FITLERS
+from ssbmv.domain.stage_hsv_filters import STAGE_HSV_FILTERS
 
 _logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class Detector:
         )
 
         # Load HSV filters for specified stage
-        self._hsv_filters = STAGE_HSV_FITLERS.get(stage_name, None)
+        self._hsv_filters = STAGE_HSV_FILTERS.get(stage_name, None)
         if self._hsv_filters is None:
             raise RuntimeError(f"Unsupported stage: {stage_name}")
 
