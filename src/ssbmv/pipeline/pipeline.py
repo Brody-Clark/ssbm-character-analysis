@@ -42,6 +42,22 @@ class VisionPipeline:
                 color=(0, 255, 0),
                 thickness=2,
             )
+        for hud in game_state.hud_states:
+            if hud is None:
+                continue
+            x, y, w, h = hud.hud_rect
+            cv.rectangle(
+                debug_frame, rec=[x, y, w, h], color=(158, 200, 22), thickness=2
+            )
+            cv.putText(
+                debug_frame,
+                f"{hud.icon_character_id}",
+                org=(x, y - 10),
+                fontFace=cv.FONT_HERSHEY_SIMPLEX,
+                fontScale=0.7,
+                color=(0, 255, 0),
+                thickness=2,
+            )
         cv.imshow("debug frame", debug_frame)
         while True:
             key = cv.waitKey()
@@ -53,7 +69,7 @@ class VisionPipeline:
         """"""
         game_state = GameState()
         game_state.debug = debug
-        start = time.perf_counter()
+
         while video_source.is_opened():
             game_state.frame_index += 1
 
@@ -73,7 +89,7 @@ class VisionPipeline:
             #     dimensions=Dimension2D(w=small_w, h=small_h),
             #     timestamp=frame.timestamp,
             # )
-
+            start = time.perf_counter()
             detections, huds = self._detector.detect(frame=frame)
             # inv_scale = 2.0
             # for det in detections:
@@ -98,12 +114,13 @@ class VisionPipeline:
                     a.rect = matched_detections[i].rect
                 game_state.actors.append(a)
 
-            if debug:
-                self._debug_frame(frame=frame, game_state=game_state)
-
             end = time.perf_counter()
+
             game_state.timestamp_s = end
             game_state.elapsed_frame_time_s = end - start
+
+            if debug:
+                self._debug_frame(frame=frame, game_state=game_state)
 
             json.dump(asdict(game_state), output_stream, separators=(",", ":"))
             output_stream.write("\n")

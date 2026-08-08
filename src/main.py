@@ -72,7 +72,7 @@ if __name__ == "__main__":
         else:
             out_stream = sys.stdout
 
-        _logger.info("Intializing...")
+        _logger.info("Intializing asset database...")
         sprite_db = SpriteDatabase()
         sprite_db.init(sprite_path)
         pipeline = VisionPipeline(sprite_db, stage=args.stage)
@@ -84,9 +84,10 @@ if __name__ == "__main__":
         profiler = cProfile.Profile()
         profiler.enable()
         try:
-            pipeline.process(video_source=frame_source, output_stream=out_stream, debug=args.debug)
+            pipeline.process(
+                video_source=frame_source, output_stream=out_stream, debug=args.debug
+            )
         finally:
             profiler.disable()
-            # Save output to a .prof file in your workspace root
             profiler.dump_stats("pipeline.prof")
         _logger.info("Processing complete.")

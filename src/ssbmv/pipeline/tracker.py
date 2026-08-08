@@ -27,7 +27,7 @@ class Tracker:
     def _compute_distance_matrix(self, trackers: list[Point], detections: list[Point]):
         if not trackers or not detections:
             return np.zeros((len(trackers), len(detections)))
-        return cdist(trackers, detections, metric='euclidean')
+        return cdist(trackers, detections, metric="euclidean")
 
     def _update_tracks(
         self,
@@ -47,7 +47,9 @@ class Tracker:
                 continue
             detection = detections[int(detection_idx)]
             centroid = np.array(detection.centroid)
-            measurement = np.array([[np.float32(centroid[0])], [np.float32(centroid[1])]], dtype=np.float32)
+            measurement = np.array(
+                [[np.float32(centroid[0])], [np.float32(centroid[1])]], dtype=np.float32
+            )
             kf.correct(measurement)
 
             prediction = kf.predict()
@@ -119,7 +121,9 @@ class Tracker:
         # Remove filters for tracks that were dropped
         active_track_ids = {track.track_id for track in new_tracks}
         self._kalman_filters = {
-            tid: kf for tid, kf in self._kalman_filters.items() if tid in active_track_ids
+            tid: kf
+            for tid, kf in self._kalman_filters.items()
+            if tid in active_track_ids
         }
 
         self._tracks = new_tracks

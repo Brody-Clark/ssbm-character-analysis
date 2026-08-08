@@ -4,11 +4,10 @@ import numpy as np
 from ssbmv.domain.models import (
     Frame,
     Dimension2D,
-    GameState,
     DetectionCandidate,
     HUDDetection,
 )
-from ssbmv.pipeline.stage_hsv_filters import STAGE_HSV_FITLERS
+from ssbmv.domain.stage_hsv_filters import STAGE_HSV_FITLERS
 
 _logger = logging.getLogger(__name__)
 
@@ -38,13 +37,13 @@ class Detector:
         self._hsv_filters = STAGE_HSV_FITLERS.get(stage_name, None)
         if self._hsv_filters is None:
             raise RuntimeError(f"Unsupported stage: {stage_name}")
-       
+
     def _get_hsv_mask(self, img: cv.typing.MatLike) -> cv.typing.MatLike:
         img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
         combined_mask = np.zeros(img_hsv.shape[:2], dtype=np.uint8)
         for item in self._hsv_filters:
             lower = np.array(item["lower"], dtype=np.uint8)
-            upper = np.array(item["upper"], dtype=np.uint8)            
+            upper = np.array(item["upper"], dtype=np.uint8)
             mask = cv.inRange(img_hsv, lower, upper)
             combined_mask = cv.bitwise_or(combined_mask, mask)
         return cv.bitwise_not(combined_mask)
@@ -69,7 +68,7 @@ class Detector:
         _, static_ui_mask = cv.threshold(
             range_img, _STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF, 255, cv.THRESH_BINARY_INV
         )
-        return ~static_ui_mask # Invert to mask out dynamic pixels
+        return ~static_ui_mask  # Invert to mask out dynamic pixels
 
     def _get_min_area(self, dim: Dimension2D) -> int:
         return int(_MIN_SPRITE_AREA_RATIO * dim.w * dim.h)
@@ -194,11 +193,16 @@ class Detector:
                 if area < _MAX_SPRITE_AREA_PIXELS and density > _MIN_SPRITE_DENSITY:
                     mask = np.zeros((h, w), dtype=np.uint8)
                     cv.drawContours(
-                        mask, [cnt], -1, color=_COLOR_WHITE, thickness=cv.FILLED, offset=(-x,-y)
+                        mask,
+                        [cnt],
+                        -1,
+                        color=_COLOR_WHITE,
+                        thickness=cv.FILLED,
+                        offset=(-x, -y),
                     )
                     candidates.append(
                         DetectionCandidate(
-                            rect=[x,y,w,h],
+                            rect=[x, y, w, h],
                             contour=cnt,
                             binary_mask=mask,
                         )
@@ -212,10 +216,10 @@ class Detector:
     def _get_character_HUDs(self, frame: cv.typing.MatLike) -> list[HUDDetection]:
         """Returns the HUDStates for character HUD icons"""
         frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-        static_mask = self._update_static_mask(frame_gray)
+        static_mask = self._update_static_mask(frame_gray[536:586, 230:1080])
         # Cut out the slice containing the UI elements, ignoring the letterboxing
         # for 1280x720 video
-        hud_mask = ~static_mask[536:586, 230:1080]
+        hud_mask = ~static_mask
 
         # Clean up mask
         kernel = cv.getStructuringElement(cv.MORPH_RECT, (3, 3))
@@ -241,7 +245,7 @@ class Detector:
         """Locates regions of interest containing dynamic actors from a frame of SSBM gameplay."""
 
         huds = self._get_character_HUDs(frame=frame.image)
-    
+
         # TODO: combine prediction-based local search with global search?
         # local search just uses HSV mask instead of motion.
 
