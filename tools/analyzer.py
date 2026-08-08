@@ -86,7 +86,8 @@ def match_frame(
     if not gt_actors and not pred_actors:
         return 0, 0, 0, [], [], []
 
-    gt_boxes = [g.get("bounding_rect") for g in gt_actors if g.get("bounding_rect") is not None]
+    visible_gt_actors = [g for g in gt_actors if g.get("bounding_rect") is not None]
+    gt_boxes = [g.get("bounding_rect") for g in visible_gt_actors]
     pred_boxes = [p.get("rect") for p in pred_actors]
 
     gt_matched = [False] * len(gt_boxes)
@@ -95,9 +96,9 @@ def match_frame(
 
     # Build IoU matrix
     iou_mat = []
-    for gi, gb in enumerate(gt_boxes):
+    for gb in gt_boxes:
         row = []
-        for pj, pb in enumerate(pred_boxes):
+        for pb in pred_boxes:
             row.append(iou(gb, pb))
         iou_mat.append(row)
 
@@ -128,7 +129,7 @@ def match_frame(
     fp = sum(1 for m in pred_matched if not m)
     fn = sum(1 for m in gt_matched if not m)
     unmatched_preds = [pred_actors[i] for i, m in enumerate(pred_matched) if not m]
-    unmatched_gts = [gt_actors[i] for i, m in enumerate(gt_matched) if not m]
+    unmatched_gts = [visible_gt_actors[i] for i, m in enumerate(gt_matched) if not m]
     return tp, fp, fn, matches, unmatched_preds, unmatched_gts
 
 
@@ -167,6 +168,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
 
     for fi in all_frames:
         gt_actors = gt.get(fi, [])
+        visible_gt_actors = [g for g in gt_actors if g.get("bounding_rect") is not None]
         pred_record = results.get(fi, {}) or {}
         pred_actors = pred_record.get("actors", [])
         # collect timing if available
@@ -179,10 +181,10 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
         ):
             timestamps.append(pred_record.get("timestamp_s"))
 
-        total_gt += len(gt_actors)
+        total_gt += len(visible_gt_actors)
 
         tp, fp, fn, matches, unmatched_preds, unmatched_gts = match_frame(
-            gt_actors, pred_actors, iou_thresh=iou_thresh
+            visible_gt_actors, pred_actors, iou_thresh=iou_thresh
         )
 
         total_tp += tp
@@ -224,6 +226,11 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
 
     precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0.0
     recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0.0
+    matching_accuracy = (
+        total_tp / (total_tp + total_fp + total_fn)
+        if (total_tp + total_fp + total_fn) > 0
+        else 0.0
+    )
     f1 = (
         2 * (precision * recall) / (precision + recall)
         if (precision + recall) > 0
@@ -254,13 +261,16 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
 
     print("Evaluation Summary:")
     print(f"Frames evaluated        : {len(all_frames)}")
-    print(f"Ground-truth objects    : {total_gt}")
+    print("Tracking:")
+    print(f"Visible ground-truth objects: {total_gt}")
     print(f"TP                      : {total_tp}")
     print(f"FP                      : {total_fp}")
     print(f"FN                      : {total_fn}")
+    print(f"Matching accuracy       : {matching_accuracy:.4f}")
     print(f"Precision               : {precision:.4f}")
     print(f"Recall                  : {recall:.4f}")
     print(f"F1                      : {f1:.4f}")
+    print("Classification:")
     print(f"Character accuracy      : {char_accuracy:.4f} ({char_correct}/{class_total})")
     print(f"Animation accuracy      : {anim_accuracy:.4f} ({anim_correct}/{class_total})")
     if elapsed_times:

@@ -1,4 +1,4 @@
-STAGE_HSV_FITLERS = {
+STAGE_HSV_FILTERS = {
     "temple": [
         {"lower": [3, 16, 111], "upper": [31, 146, 205]},
         {"lower": [0, 15, 89], "upper": [177, 48, 166]},
