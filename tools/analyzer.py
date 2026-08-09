@@ -5,7 +5,7 @@ from typing import List, Tuple, Dict, Optional
 
 
 def iou(rect_a: List[int], rect_b: List[int]) -> float:
-    """Compute IoU for rects in [x,y,w,h] format."""
+    """Compute IoU for openCV rects."""
     ax, ay, aw, ah = rect_a
     bx, by, bw, bh = rect_b
     a_x1, a_y1, a_x2, a_y2 = ax, ay, ax + aw, ay + ah
@@ -29,10 +29,7 @@ def iou(rect_a: List[int], rect_b: List[int]) -> float:
 
 
 def load_results(results_path: str) -> Dict[int, List[Dict]]:
-    """Load pipeline results (jsonl) and return map frame_index -> record dict.
-
-    Each value is a dict with keys: `actors` (list), optional `timestamp_s` (float),
-    and optional `elapsed_frame_time_s` (float).
+    """Load pipeline results from jsonl and return map frame_index -> record dict.
     """
     frames: Dict[int, Dict] = {}
     with open(results_path, "r", encoding="utf-8") as f:
@@ -64,7 +61,7 @@ def load_ground_truth(gt_path: str) -> Dict[int, List[Dict]]:
 
     frames: Dict[int, List[Dict]] = {}
     for k, v in data.items():
-        # Support either numeric keys or 'frame_0001' style
+        # Support both numeric keys or 'frame_0001' style
         frame_num = v.get("frame_number") if isinstance(v, dict) else None
         if frame_num is None:
             try:
@@ -134,6 +131,7 @@ def match_frame(
 
 
 def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
+    """Compares ground truth to predicted results and prints analysis metrics."""
     results = load_results(results_path)
     gt = load_ground_truth(gt_path)
 
@@ -141,6 +139,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
 
     total_tp = total_fp = total_fn = 0
     total_gt = 0
+
     # classification broken into two metrics: character vs animation
     char_correct = 0
     anim_correct = 0
@@ -154,6 +153,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     # Track assignment of GT actor_id -> predicted track_id
     prev_assignment: Dict[int, Optional[object]] = {}
 
+    # Prediction lables are in the form {name}_{animation}
     def split_pred_label(label: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
         if not label:
             return None, None
@@ -176,10 +176,6 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
             pred_record.get("elapsed_frame_time_s"), (int, float)
         ):
             elapsed_times.append(pred_record.get("elapsed_frame_time_s"))
-        if "timestamp_s" in pred_record and isinstance(
-            pred_record.get("timestamp_s"), (int, float)
-        ):
-            timestamps.append(pred_record.get("timestamp_s"))
 
         total_gt += len(visible_gt_actors)
 
@@ -239,8 +235,11 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     char_accuracy = char_correct / class_total if class_total > 0 else 0.0
     anim_accuracy = anim_correct / class_total if class_total > 0 else 0.0
 
-    # FPS metrics: processing FPS (based on elapsed_frame_time_s) and observed FPS (timestamps)
-    proc_fps = obs_fps = 0.0
+    # Multi Obj Tracking Acc metric
+    mota = 1.0 - (total_fn + total_fp + idsw) / total_gt if total_gt > 0 else 0.0
+
+    # FPS metrics: processing FPS based on elapsed_frame_time_s
+    proc_fps  = 0.0
     mean_elapsed = median_elapsed = 0.0
     if elapsed_times:
         total_elapsed = sum(elapsed_times)
@@ -251,18 +250,9 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
         except Exception:
             median_elapsed = mean_elapsed
 
-    if len(timestamps) >= 2:
-        timestamps_sorted = sorted(timestamps)
-        span = timestamps_sorted[-1] - timestamps_sorted[0]
-        if span > 0:
-            obs_fps = (len(timestamps_sorted) - 1) / span
-
-    mota = 1.0 - (total_fn + total_fp + idsw) / total_gt if total_gt > 0 else 0.0
-
     print("Evaluation Summary:")
     print(f"Frames evaluated        : {len(all_frames)}")
-    print("Tracking:")
-    print(f"Visible ground-truth objects: {total_gt}")
+    print(f"Detection:")
     print(f"TP                      : {total_tp}")
     print(f"FP                      : {total_fp}")
     print(f"FN                      : {total_fn}")
@@ -270,17 +260,19 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     print(f"Precision               : {precision:.4f}")
     print(f"Recall                  : {recall:.4f}")
     print(f"F1                      : {f1:.4f}")
-    print("Classification:")
-    print(f"Character accuracy      : {char_accuracy:.4f} ({char_correct}/{class_total})")
-    print(f"Animation accuracy      : {anim_accuracy:.4f} ({anim_correct}/{class_total})")
-    if elapsed_times:
-        print(f"Avg elapsed/frame (s)   : {mean_elapsed:.4f}")
-        print(f"Median elapsed/frame (s): {median_elapsed:.4f}")
-        print(f"Processing FPS (frames/total_time): {proc_fps:.2f}")
-    if obs_fps:
-        print(f"Observed FPS (timestamps): {obs_fps:.2f}")
+    print("\nTracking:")
+    print(f"Visible GT objects      : {total_gt}")
     print(f"ID switches (approx)    : {idsw}")
     print(f"MOTA (approx)           : {mota:.4f}")
+    print("\nClassification:")
+    print(f"Character accuracy      : {char_accuracy:.4f} ({char_correct}/{class_total})")
+    print(f"Animation accuracy      : {anim_accuracy:.4f} ({anim_correct}/{class_total})")
+    print(f"\nPerformance:")
+    if elapsed_times:
+        print(f"Avg time/frame (s)     : {mean_elapsed:.4f}")
+        print(f"Median time/frame (s)  : {median_elapsed:.4f}")
+        print(f"Average FPS            : {proc_fps:.2f}")
+    
 
 
 if __name__ == "__main__":
