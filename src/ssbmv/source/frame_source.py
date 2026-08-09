@@ -1,3 +1,4 @@
+"""Source of video playback"""
 import cv2
 from ssbmv.domain.models import Frame, Dimension2D
 

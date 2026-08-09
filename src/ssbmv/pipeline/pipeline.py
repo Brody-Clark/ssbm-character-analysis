@@ -1,27 +1,23 @@
-"""
-_summary_
-"""
+"""End-to-end vision pipeline for actor detection, tracking, and matching."""
 
-import logging
 import json
+import logging
 import time
 from dataclasses import asdict
 from typing import TextIO
 import cv2 as cv
-from ssbmv.pipeline import detector, tracker, matcher
-from ssbmv.domain.models import Frame, Actor, GameState
+from ssbmv.domain.models import Actor, Frame, GameState
 from ssbmv.domain.sprite_database import SpriteDatabase
+from ssbmv.pipeline import detector, matcher, tracker
 from ssbmv.source.frame_source import VideoSource
 
 _logger = logging.getLogger(__name__)
 
-MIN_HUD_MATCH_CONFIDENCE = 0.50
-MIN_ACTOR_MATCH_CONFIDENCE = 0.50
 _DEBUG_FRAME_NAME = "SSBMV DEBUG"
 
 
 class VisionPipeline:
-    """"""
+    """Game state prediction pipeline for Super Smash Bros Melee gameplay."""
 
     def __init__(self, sprite_db: SpriteDatabase, stage: str):
         self._detector: detector.Detector = detector.Detector(stage_name=stage)
@@ -67,7 +63,7 @@ class VisionPipeline:
         return
 
     def process(self, video_source: VideoSource, output_stream: TextIO, debug: bool):
-        """"""
+        """Runs pipeline for SSBM gameplay source and prints game state results"""
         game_state = GameState()
         game_state.debug = debug
 
@@ -76,6 +72,7 @@ class VisionPipeline:
 
             frame: Frame = video_source.read()
             if not frame:
+                _logger.error("Failed to read frame from video.")
                 break
 
             start = time.perf_counter()
@@ -114,6 +111,7 @@ class VisionPipeline:
 
             start = end
 
+        # Cleanup
         video_source.release()
         if debug:
             cv.destroyWindow(_DEBUG_FRAME_NAME)

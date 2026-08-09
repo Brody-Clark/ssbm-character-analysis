@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Optional, List
-from cv2.typing import MatLike, Rect, Point
+from typing import Optional
+from cv2.typing import MatLike, Point, Rect
 from numpy import ndarray
 
 
 @dataclass(slots=True)
 class Track:
-    """The persistent state of a fighter tracked across frames."""
+    """Persistent state for one fighter tracked across frames."""
 
     track_id: int
     current_rect: Rect
@@ -17,16 +17,14 @@ class Track:
 
     @property
     def centroid(self) -> Point:
-        """Returns centroid (x,y) of current bounding rect."""
-        return (
-            self.current_rect[0] + self.current_rect[2] // 2,
-            self.current_rect[1] + self.current_rect[3] // 2,
-        )
+        """Return the center of the current bounding rectangle."""
+        x, y, w, h = self.current_rect
+        return (x + w // 2, y + h // 2)
 
 
 @dataclass(slots=True)
 class Actor:
-    """Character being tracked and identified in a frame"""
+    """The character prediction produced for a tracked actor in a frame."""
 
     rect: Rect = field(default_factory=list)
     character_id: str = "Unknown"
@@ -36,13 +34,15 @@ class Actor:
 
 @dataclass(slots=True)
 class Match:
+    """A candidate character identity with a confidence score."""
+
     character_id: str = "Unknown"
     confidence_score: float = 0.0
 
 
 @dataclass(slots=True)
 class DetectionCandidate:
-    """Ephemeral candidate region found by Detector on current frame."""
+    """An ephemeral actor region found by the detector in the current frame."""
 
     rect: Rect
     contour: ndarray
@@ -50,15 +50,14 @@ class DetectionCandidate:
 
     @property
     def centroid(self) -> Point:
-        return (
-            self.rect[0] + self.rect[2] // 2,
-            self.rect[1] + self.rect[3] // 2,
-        )
+        """Return the center of the detection bounding box."""
+        x, y, w, h = self.rect
+        return (x + w // 2, y + h // 2)
 
 
 @dataclass(slots=True)
 class HUDDetection:
-    """"""
+    """A candidate HUD region detected from the current frame."""
 
     player_slot: int
     hud_rect: Rect
@@ -67,7 +66,7 @@ class HUDDetection:
 
 @dataclass(slots=True)
 class HUDState:
-    """"""
+    """The resolved HUD assignment for one player slot."""
 
     player_slot: int
     icon_character_id: Optional[str]
@@ -76,29 +75,33 @@ class HUDState:
 
 @dataclass(slots=True)
 class GameState:
-    """Master frame-level container passed down the pipeline."""
+    """Frame-level state passed through the pipeline."""
 
     frame_index: int = 0
-    hud_states: List[HUDState] = field(default_factory=list)
-    actors: List[Actor] = field(default_factory=list)
+    hud_states: list[HUDState] = field(default_factory=list)
+    actors: list[Actor] = field(default_factory=list)
     timestamp_s: float = 0
     elapsed_frame_time_s: float = 0
     debug: bool = False
 
     @property
     def expected_player_count(self) -> int:
-        """Helper to tell pipeline how many active fighters should exist."""
-        return sum([1 for h in self.hud_states if h is not None])
+        """Return the number of non-empty HUD slots in the current frame."""
+        return sum(h is not None for h in self.hud_states)
 
 
 @dataclass(slots=True)
 class Dimension2D:
+    """Image dimensions in pixels."""
+
     w: int
     h: int
 
 
 @dataclass(slots=True)
 class Frame:
+    """A single video frame with metadata."""
+
     frame_id: int
     image: MatLike
     dimensions: Dimension2D
