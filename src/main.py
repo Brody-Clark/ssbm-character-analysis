@@ -39,7 +39,7 @@ if __name__ == "__main__":
         "-s",
         required=True,
         help="name of stage.",
-        choices=["final_destination", "temple", "corneria", "venom"],
+        choices=["temple", "corneria", "venom"],
     )
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
@@ -72,22 +72,16 @@ if __name__ == "__main__":
         else:
             out_stream = sys.stdout
 
-        _logger.info("Intializing asset database...")
+        _logger.info("Initializing template database...")
         sprite_db = SpriteDatabase()
         sprite_db.init(sprite_path)
         pipeline = VisionPipeline(sprite_db, stage=args.stage)
         frame_source = VideoSource(video_frame_source=str(input_path))
 
-        _logger.info("Initialization complete, beginning processing.")
+        _logger.info("Initialization complete, beginning processing")
 
         # Process video
-        profiler = cProfile.Profile()
-        profiler.enable()
-        try:
-            pipeline.process(
-                video_source=frame_source, output_stream=out_stream, debug=args.debug
-            )
-        finally:
-            profiler.disable()
-            profiler.dump_stats("pipeline.prof")
-        _logger.info("Processing complete.")
+        pipeline.process(
+            video_source=frame_source, output_stream=out_stream, debug=args.debug
+        )
+        _logger.info("Processing complete")

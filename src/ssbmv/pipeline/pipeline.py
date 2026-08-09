@@ -68,13 +68,11 @@ class VisionPipeline:
         game_state.debug = debug
 
         while video_source.is_opened():
-            game_state.frame_index += 1
-
             frame: Frame = video_source.read()
             if not frame:
-                _logger.error("Failed to read frame from video.")
                 break
-
+            game_state.frame_index += 1
+            
             start = time.perf_counter()
             # Run detection -> Tracking -> Matching
             detections, huds = self._detector.detect(frame=frame)

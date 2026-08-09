@@ -115,7 +115,7 @@ def match_frame(
         if best_val >= iou_thresh and best_g >= 0 and best_p >= 0:
             gt_matched[best_g] = True
             pred_matched[best_p] = True
-            matches.append((gt_actors[best_g], pred_actors[best_p]))
+            matches.append((visible_gt_actors[best_g], pred_actors[best_p]))
         else:
             break
 
@@ -201,20 +201,12 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
                 continue
             pred_track_id = p.get("track_id")
             prev = prev_assignment.get(gt_id)
-            if prev is None:
-                # first observation
+            if prev is not None and pred_track_id is not None and pred_track_id != prev:
+                idsw += 1
+            
+            if pred_track_id is not None:
                 prev_assignment[gt_id] = pred_track_id
-            else:
-                if pred_track_id is not None and pred_track_id != prev:
-                    # Count switch only when the predicted track identity changes
-                    idsw += 1
-                    prev_assignment[gt_id] = pred_track_id
 
-        # For GT actors not matched this frame, set their prev_assignment to None (missed)
-        for g in unmatched_gts:
-            gid = g.get("actor_id")
-            if gid is not None:
-                prev_assignment[gid] = None
 
     precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0.0
     recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0.0
@@ -248,7 +240,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
 
     print("Evaluation Summary:")
     print(f"Frames evaluated        : {len(all_frames)}")
-    print(f"Detection:")
+    print("Detection:")
     print(f"TP                      : {total_tp}")
     print(f"FP                      : {total_fp}")
     print(f"FN                      : {total_fn}")
@@ -267,7 +259,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     print(
         f"Animation accuracy      : {anim_accuracy:.4f} ({anim_correct}/{class_total})"
     )
-    print(f"\nPerformance:")
+    print("\nPerformance:")
     if elapsed_times:
         print(f"Avg time/frame (s)     : {mean_elapsed:.4f}")
         print(f"Median time/frame (s)  : {median_elapsed:.4f}")

@@ -4,20 +4,29 @@ Super Smash Bros Melee Vision (SSBMV) is a computer vision pipeline designed to 
 
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-- [Command Line Options](#command-line-options)
-- [Running with Test Videos](#running-with-test-videos)
-- [Analyzing Results](#analyzing-results)
+- [Super Smash Bros Melee Vision](#super-smash-bros-melee-vision)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Command Line Options](#command-line-options)
+    - [Options](#options)
+  - [Running with Test Videos](#running-with-test-videos)
+    - [Quick Start Example](#quick-start-example)
+    - [Visualizing with Debug](#visualizing-with-debug)
+  - [Analyzing Results](#analyzing-results)
 
-## Getting Started
+## Prerequisites
 
-This project is built using `OpenCV`, `scipy`, and `numpy`. These modules can be installed by running:
+This program is built with Python, to install python download the latest version of Python 3 from `https://www.python.org/`.
+
+**Python Version:** Python 3.10 or higher recommended.
+
+This project uses using `OpenCV`, `scipy`, `scikit-image`, and `numpy`. These modules can be installed directly by running:
 
 ```bash
 python -m pip install opencv-python numpy scipy scikit-image
 ```
 
-Alternatively, the necessary modules can be installed using the supplied `requirements.txt`:
+or by using the supplied `requirements.txt`:
 
 ```bash
 python -m pip install -r ./requirements.txt
@@ -28,40 +37,65 @@ in the same root as the `/src/` directory to be detectable.
 
 ## Command Line Options
 
+```bash
+python ./src/ssbmv/main.py -i <path_to_video> -s <stage> [--output {stdout,file}] [--file <output_file>] [--debug]
+
+```
+
+### Options
+
+| Argument | Short | Required | Type | Default | Choices / Format | Description |
+| --- | --- | --- | --- | --- | --- | --- |
+| `--input` | `-i` | **Yes** | `str` | *None* | File path | Path to the input video file to analyze. Relative paths are resolved against the project root. |
+| `--stage` | `-s` | **Yes** | `str` | *None* | `temple`, `corneria`, `venom` | Name of the stage to use for analysis. |
+| `--output` |  | No | `str` | `stdout` | `stdout`, `file` | Destination for the analysis output stream. |
+| `--file` |  | Conditional | `str` | *None* | Must end in `.jsonl` | File path for output destination. **Required** if `--output` is set to `file`. |
+| `--debug` |  | No | Flag | `False` | N/A | Enables debug mode during pipeline processing. Video is advanced by pressing the `Space` key. |
 
 ## Running with Test Videos
 
 Three test recordings are provided and located in `\test\recordings` including `corneria.mp4`, `temple.mp4`, and `venom.mp4`.
-To run the pipeline for a video, make sure the stage name matches the file name of the vide (e.g., `--stage corneria` for video file `corneria.mp4`).
-Output can be chosen between `stdout` and a `jsonl` file. See [Command Line Arguments]() for more information. 
+To run the pipeline for a video, make sure the stage name matches the file name of the video (e.g., `--stage corneria` for video file `corneria.mp4`).
+Output can be chosen between `stdout` and a `jsonl` file. See [Command Line Options](#command-line-options) for more information.
 
 ```bash
-python src/ssbmv/main.py --input <path-to-video> --output "stdout" --stage <name-of-stage>
+python ./src/ssbmv/main.py --input <path-to-video> --output "stdout" --stage <name-of-stage>
 ```
 
-Detection is dependent on stage masking, however automated stage detection is beyond the scope of this project, so the stage name must be specified as a program argument.
+Detection is dependent on stage-specific masking, however automated stage detection is beyond the scope of this project, so the stage name must be specified as a program argument.
 Supported stage names include:
 
 - temple
 - corneria
 - venom
 
-**NOTE:** If using the provided test files, the stage name is the same as the file name without the extension.
+### Quick Start Example
 
 Below is an example command to run the pipeline on the provided `temple.mp4` gameplay video and write the results to a json-lines file for analysis:
 ```bash
-# Run the pipeline for the provided gameplay in the 'temple' stage
-python ./src/ssbmv/main.py --input ./test/recordings/temple.mp4 --stage 'temple' --output file --file=./results.jsonl
+# From the root directory, run the pipeline for the provided gameplay in the 'temple' stage
+python ./src/ssbmv/main.py --input ./test/recordings/temple.mp4 --stage temple --output file --file=./results.jsonl
+```
+
+### Visualizing with Debug
+
+The `--debug` flag allows you to run the pipeline with debug visuals enabled which display a window with characters and HUD elements
+visualized.
+
+**NOTE:** Frames can be advanced by clicking the `Space` key:
+
+```bash
+python ./src/ssbmv/main.py -i path/to/match.mp4 -s <stage-name> --debug
+
 ```
 
 ## Analyzing Results
 
-The results can be analyzed using the provided `analyzer.py` file located in the `/tools/` folder. The analysis requires a valid results file produced by the pipeline and the corresponding ground truth file for that video located in `./tests/labels/`.
+Logged results can be analyzed using the provided `analyzer.py` file located in the `/tools/` folder. The analysis requires a valid results file produced by the pipeline and the corresponding ground truth file for that video located in `./tests/labels/`.
 Example:
 ```bash
-# Analyze results for the 'temple.mp4' video against the ground truth
+# Analyze results.jsonl produced for the 'temple.mp4' video against the ground truth
 python ./tools/analyzer.py --results ./results.jsonl --ground-truth ./tests/labels/temple.json
 ```
 
-This will provide the performance and accuracy results found in the supporting paper. 
-
+This will print the performance and accuracy metrics found in the supporting paper to the console.
