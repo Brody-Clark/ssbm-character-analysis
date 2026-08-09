@@ -4,7 +4,7 @@ from cv2.typing import MatLike, Rect, Point
 from numpy import ndarray
 
 
-@dataclass
+@dataclass(slots=True)
 class Track:
     """The persistent state of a fighter tracked across frames."""
 
@@ -24,7 +24,7 @@ class Track:
         )
 
 
-@dataclass
+@dataclass(slots=True)
 class Actor:
     """Character being tracked and identified in a frame"""
 
@@ -34,13 +34,13 @@ class Actor:
     track_id: int = 0
 
 
-@dataclass
+@dataclass(slots=True)
 class Match:
     character_id: str = "Unknown"
     confidence_score: float = 0.0
 
 
-@dataclass
+@dataclass(slots=True)
 class DetectionCandidate:
     """Ephemeral candidate region found by Detector on current frame."""
 
@@ -56,7 +56,7 @@ class DetectionCandidate:
         )
 
 
-@dataclass
+@dataclass(slots=True)
 class HUDDetection:
     """"""
 
@@ -65,7 +65,7 @@ class HUDDetection:
     binary_mask: MatLike
 
 
-@dataclass
+@dataclass(slots=True)
 class HUDState:
     """"""
 
@@ -74,7 +74,7 @@ class HUDState:
     hud_rect: Rect
 
 
-@dataclass
+@dataclass(slots=True)
 class GameState:
     """Master frame-level container passed down the pipeline."""
 

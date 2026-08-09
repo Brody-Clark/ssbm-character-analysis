@@ -5,13 +5,13 @@ _summary_
 import logging
 import json
 import time
+from dataclasses import asdict
 from typing import TextIO
 import cv2 as cv
 from ssbmv.pipeline import detector, tracker, matcher
-from ssbmv.domain.models import Frame, Actor, GameState, Dimension2D
+from ssbmv.domain.models import Frame, Actor, GameState
 from ssbmv.domain.sprite_database import SpriteDatabase
 from ssbmv.source.frame_source import VideoSource
-from dataclasses import asdict
 
 _logger = logging.getLogger(__name__)
 
