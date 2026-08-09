@@ -29,8 +29,7 @@ def iou(rect_a: List[int], rect_b: List[int]) -> float:
 
 
 def load_results(results_path: str) -> Dict[int, List[Dict]]:
-    """Load pipeline results from jsonl and return map frame_index -> record dict.
-    """
+    """Load pipeline results from jsonl and return map frame_index -> record dict."""
     frames: Dict[int, Dict] = {}
     with open(results_path, "r", encoding="utf-8") as f:
         for line in f:
@@ -47,9 +46,7 @@ def load_results(results_path: str) -> Dict[int, List[Dict]]:
             if "timestamp_s" in data:
                 record["timestamp_s"] = data.get("timestamp_s")
             if "elapsed_frame_time_s" in data:
-                record["elapsed_frame_time_s"] = data.get(
-                    "elapsed_frame_time_s"
-                )
+                record["elapsed_frame_time_s"] = data.get("elapsed_frame_time_s")
             frames[fi] = record
     return frames
 
@@ -165,7 +162,6 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
             return parts[0], parts[1]
         return label, None
 
-
     for fi in all_frames:
         gt_actors = gt.get(fi, [])
         visible_gt_actors = [g for g in gt_actors if g.get("bounding_rect") is not None]
@@ -239,7 +235,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     mota = 1.0 - (total_fn + total_fp + idsw) / total_gt if total_gt > 0 else 0.0
 
     # FPS metrics: processing FPS based on elapsed_frame_time_s
-    proc_fps  = 0.0
+    proc_fps = 0.0
     mean_elapsed = median_elapsed = 0.0
     if elapsed_times:
         total_elapsed = sum(elapsed_times)
@@ -265,14 +261,17 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     print(f"ID switches (approx)    : {idsw}")
     print(f"MOTA (approx)           : {mota:.4f}")
     print("\nClassification:")
-    print(f"Character accuracy      : {char_accuracy:.4f} ({char_correct}/{class_total})")
-    print(f"Animation accuracy      : {anim_accuracy:.4f} ({anim_correct}/{class_total})")
+    print(
+        f"Character accuracy      : {char_accuracy:.4f} ({char_correct}/{class_total})"
+    )
+    print(
+        f"Animation accuracy      : {anim_accuracy:.4f} ({anim_correct}/{class_total})"
+    )
     print(f"\nPerformance:")
     if elapsed_times:
         print(f"Avg time/frame (s)     : {mean_elapsed:.4f}")
         print(f"Median time/frame (s)  : {median_elapsed:.4f}")
         print(f"Average FPS            : {proc_fps:.2f}")
-    
 
 
 if __name__ == "__main__":
