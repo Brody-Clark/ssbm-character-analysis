@@ -1,3 +1,5 @@
+"""HSV mask upper and lower thresholds for each stage."""
+
 STAGE_HSV_FILTERS = {
     "temple": [
         {"lower": [3, 16, 111], "upper": [31, 146, 205]},

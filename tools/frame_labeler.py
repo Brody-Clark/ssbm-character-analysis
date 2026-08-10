@@ -5,8 +5,8 @@ import glob
 from pathlib import Path
 
 # --- CONFIGURATION ---
-IMAGE_DIR = str(Path.cwd() / "data" /  "recordings" / "final_destination")    # Path to extracted FFMPEG frames
-OUTPUT_JSON = str(Path.cwd() / "data" /  "recordings" /"labels"/"final_destination.json")
+IMAGE_DIR = str(Path.cwd() / "data"  / "venom")    # Path to extracted FFMPEG frames
+OUTPUT_JSON = str(Path.cwd() / "data" /  "recordings" /"venom_test.json")
 NUM_ACTORS = 2              # 2 characters per frame
 
 # --- HOTKEY MAPPING (Single Character -> Label) ---
