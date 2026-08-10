@@ -4,8 +4,8 @@ import numpy as np
 from pathlib import Path
 
 # Global state
-frame_dir = Path.cwd() / 'data' / 'recordings' /'corneria'
-frame_file = str(frame_dir / 'frame_0055.png')
+frame_dir = Path.cwd() / 'data' /'venom'
+frame_file = str(frame_dir / 'frame_0156.jpg')
 image_path = frame_file
 original_img = None
 hsv_img = None
