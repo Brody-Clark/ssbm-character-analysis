@@ -1,12 +1,9 @@
 """Detect actor candidates and HUD regions in Super Smash Bros. Melee frames."""
 
-import logging
 import cv2 as cv
 import numpy as np
 from ssbmv.domain.models import DetectionCandidate, Dimension2D, Frame, HUDDetection
 from ssbmv.domain.stage_hsv_filters import STAGE_HSV_FILTERS
-
-_logger = logging.getLogger(__name__)
 
 _STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF = 25
 _MIN_SPRITE_AREA_RATIO = 0.006

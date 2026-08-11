@@ -84,11 +84,6 @@ class GameState:
     elapsed_frame_time_s: float = 0
     debug: bool = False
 
-    @property
-    def expected_player_count(self) -> int:
-        """Return the number of non-empty HUD slots in the current frame."""
-        return sum(h is not None for h in self.hud_states)
-
 
 @dataclass(slots=True)
 class Dimension2D:

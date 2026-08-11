@@ -38,7 +38,7 @@ in the same root as the `/src/` directory to be detectable.
 ## Command Line Options
 
 ```bash
-python ./src/ssbmv/main.py -i <path_to_video> -s <stage> [--output {stdout,file}] [--file <output_file>] [--debug]
+python ./src/main.py -i <path_to_video> -s <stage> [--output {stdout,file}] [--file <output_file>] [--debug]
 
 ```
 
@@ -59,7 +59,7 @@ To run the pipeline for a video, make sure the stage name matches the file name 
 Output can be chosen between `stdout` and a `jsonl` file. See [Command Line Options](#command-line-options) for more information.
 
 ```bash
-python ./src/ssbmv/main.py --input <path-to-video> --output "stdout" --stage <name-of-stage>
+python ./src/main.py --input <path-to-video> --output "stdout" --stage <name-of-stage>
 ```
 
 Detection is dependent on stage-specific masking, however automated stage detection is beyond the scope of this project, so the stage name must be specified as a program argument.
@@ -71,10 +71,16 @@ Supported stage names include:
 
 ### Quick Start Example
 
+Below is an example command to run the pipeline on the provided `temple.mp4` gameplay video and print the results to the console:
+```bash
+# From the root directory, run the pipeline for the provided gameplay in the 'temple' stage
+python ./src/main.py --input ./test/recordings/temple.mp4 --stage temple
+```
+
 Below is an example command to run the pipeline on the provided `temple.mp4` gameplay video and write the results to a json-lines file for analysis:
 ```bash
 # From the root directory, run the pipeline for the provided gameplay in the 'temple' stage
-python ./src/ssbmv/main.py --input ./test/recordings/temple.mp4 --stage temple --output file --file=./results.jsonl
+python ./src/main.py --input ./test/recordings/temple.mp4 --stage temple --output file --file=./results.jsonl
 ```
 
 ### Visualizing with Debug
@@ -85,7 +91,8 @@ visualized.
 **NOTE:** Frames can be advanced by clicking the `Space` key:
 
 ```bash
-python ./src/ssbmv/main.py -i path/to/match.mp4 -s <stage-name> --debug
+# Visualize results of game state prediction. Press Spacebar to advance frames
+python ./src/main.py -i path/to/match.mp4 -s <stage-name> --debug
 
 ```
 

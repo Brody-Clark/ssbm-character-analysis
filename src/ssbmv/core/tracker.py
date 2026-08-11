@@ -1,6 +1,5 @@
 """Track detections across frames with a simple Kalman filter-based tracker."""
 
-import logging
 import uuid
 import numpy as np
 from cv2 import KalmanFilter
@@ -8,8 +7,6 @@ from cv2.typing import Point, Rect
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 from ssbmv.domain.models import DetectionCandidate, Track
-
-_logger = logging.getLogger(__name__)
 
 MAX_DISTANCE = 200
 MIN_FRAMES_ACTIVE = 4

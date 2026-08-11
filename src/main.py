@@ -3,10 +3,9 @@ from pathlib import Path
 import logging
 from contextlib import ExitStack
 import sys
-from ssbmv.pipeline.pipeline import VisionPipeline
+from ssbmv.core.pipeline import VisionPipeline
 from ssbmv.domain.sprite_database import SpriteDatabase
 from ssbmv.source.frame_source import VideoSource
-import cProfile
 
 logging.basicConfig(
     level=logging.INFO,
@@ -72,14 +71,16 @@ if __name__ == "__main__":
         else:
             out_stream = sys.stdout
 
+        frame_source = VideoSource(video_frame_source=str(input_path))
+
         _logger.info("Initializing template database...")
+        
         sprite_db = SpriteDatabase()
         sprite_db.init(sprite_path)
         pipeline = VisionPipeline(sprite_db, stage=args.stage)
-        frame_source = VideoSource(video_frame_source=str(input_path))
 
         _logger.info("Initialization complete, beginning processing")
-
+        
         # Process video
         pipeline.process(
             video_source=frame_source, output_stream=out_stream, debug=args.debug

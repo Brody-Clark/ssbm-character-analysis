@@ -46,7 +46,7 @@ class SpriteDatabase:
                 not img_path.is_file()
                 or img_path.suffix.lower() not in VALID_EXTENSIONS
             ):
-                _logger.debug("File %s is not a valid file. Skipping.", img_path)
+                _logger.debug("File %s is not valid. Skipping.", str(img_path))
                 continue
 
             img = imread(str(img_path))

@@ -1,17 +1,14 @@
 """End-to-end vision pipeline for actor detection, tracking, and matching."""
 
 import json
-import logging
 import time
 from dataclasses import asdict
 from typing import TextIO
 import cv2 as cv
 from ssbmv.domain.models import Actor, Frame, GameState
 from ssbmv.domain.sprite_database import SpriteDatabase
-from ssbmv.pipeline import detector, matcher, tracker
+from ssbmv.core import detector, matcher, tracker
 from ssbmv.source.frame_source import VideoSource
-
-_logger = logging.getLogger(__name__)
 
 _DEBUG_FRAME_NAME = "SSBMV DEBUG"
 

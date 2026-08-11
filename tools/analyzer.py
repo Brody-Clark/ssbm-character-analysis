@@ -183,7 +183,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
         total_fp += fp
         total_fn += fn
 
-        # Classification accuracy: split predicted label into character and animation
+        # Classification accuracy - split predicted label into character and animation
         for g, p in matches:
             pred_label = p.get("character_id")
             gt_labels = g.get("labels", [])
@@ -194,7 +194,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
                 anim_correct += 1
             class_total += 1
 
-        # ID switch: use stable predicted track_id from the results
+        # ID switch count
         for g, p in matches:
             gt_id = g.get("actor_id")
             if gt_id is None:
