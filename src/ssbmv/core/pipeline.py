@@ -6,8 +6,9 @@ from dataclasses import asdict
 from typing import TextIO
 import cv2 as cv
 from ssbmv.domain.models import Actor, Frame, GameState
-from ssbmv.domain.sprite_database import SpriteDatabase
-from ssbmv.core import detector, matcher, tracker
+from ssbmv.core.detector import Detector
+from ssbmv.core.tracker import Tracker
+from ssbmv.core.matcher import Matcher
 from ssbmv.source.frame_source import VideoSource
 
 _DEBUG_FRAME_NAME = "SSBMV DEBUG"
@@ -16,10 +17,10 @@ _DEBUG_FRAME_NAME = "SSBMV DEBUG"
 class VisionPipeline:
     """Game state prediction pipeline for Super Smash Bros Melee gameplay."""
 
-    def __init__(self, sprite_db: SpriteDatabase, stage: str):
-        self._detector: detector.Detector = detector.Detector(stage_name=stage)
-        self._tracker: tracker.Tracker = tracker.Tracker()
-        self._matcher: matcher.Matcher = matcher.Matcher(sprite_database=sprite_db)
+    def __init__(self, detector: Detector, tracker: Tracker, matcher: Matcher ):
+        self._detector = detector
+        self._tracker = tracker
+        self._matcher = matcher
 
     def _debug_frame(self, frame: Frame, game_state: GameState):
         debug_frame = frame.image.copy()
@@ -106,7 +107,6 @@ class VisionPipeline:
 
             start = end
 
-        # Cleanup
         video_source.release()
         if debug:
             cv.destroyWindow(_DEBUG_FRAME_NAME)

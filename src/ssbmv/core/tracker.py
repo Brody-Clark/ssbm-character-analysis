@@ -49,7 +49,7 @@ class Tracker:
         kf.processNoiseCov = np.eye(4, dtype=np.float32) * 1e-2
         kf.measurementNoiseCov = np.eye(2, dtype=np.float32) * 1e-1
         kf.errorCovPost = np.eye(4, dtype=np.float32)
-        _ = kf.predict() # Needed to establish initial state
+        _ = kf.predict()  # Needed to establish initial state
         return kf
 
     def _update_tracks(
@@ -112,9 +112,7 @@ class Tracker:
                 current_rect=detection.rect,
                 is_active=False,
             )
-            new_track.predicted_centroid = self._get_centroid(
-                detection.rect
-            )
+            new_track.predicted_centroid = self._get_centroid(detection.rect)
             new_tracks.append(new_track)
             self._kalman_filters[new_track.track_id] = self._build_kalman_filter(
                 self._get_centroid(detection.rect)
@@ -129,7 +127,7 @@ class Tracker:
 
         self._tracks = new_tracks
         return active_tracks, matched_detections
-    
+
     def _match_tracks(self, detections: list[DetectionCandidate]):
         """Match the current detection set to existing tracks using Hungarian assignment."""
         track_centroids = [track.centroid for track in self._tracks]

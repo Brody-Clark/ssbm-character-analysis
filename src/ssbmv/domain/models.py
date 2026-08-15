@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Optional
 from cv2.typing import MatLike, Point, Rect
-from numpy import ndarray
+from numpy import ndarray, float32
+import numpy.typing as npt
 
 
 @dataclass(slots=True)
@@ -92,7 +93,6 @@ class Dimension2D:
     w: int
     h: int
 
-
 @dataclass(slots=True)
 class Frame:
     """A single video frame with metadata."""
@@ -101,3 +101,20 @@ class Frame:
     image: MatLike
     dimensions: Dimension2D
     timestamp: int
+
+@dataclass(slots=True)
+class ActorSprites:
+    character_name: list[str]
+    animation_name: list[str]
+    features: npt.NDArray[float32]
+
+@dataclass(slots=True)
+class HUDSprites:
+    character_name: list[str]
+    features: npt.NDArray[float32]
+
+@dataclass(slots=True)
+class SpriteDatabase:
+    """Load and expose sprite assets used by the matching pipeline."""
+    actor_sprites: ActorSprites
+    hud_sprites: HUDSprites
