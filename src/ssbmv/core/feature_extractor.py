@@ -18,7 +18,7 @@ class FeatureExtractor:
         hist = cv.calcHist([hsv], [1], mask, [10], [0, 256]).flatten()
         return hist / (hist.sum() + 1e-7) if hist.sum() > 0 else hist
 
-    def get_features(
+    def get_character_features(
         self, image: cv.typing.MatLike
     ) -> tuple[bool, np.typing.NDArray[np.float32]]:
         """Extract a combined feature vector for a candidate sprite image."""
@@ -36,96 +36,27 @@ class FeatureExtractor:
             distances=distances, num_descriptors=24, sample_size=256
         )
         lbp_hist = self._extract_character_lbp(img_gray)
-        hist_hsv_sat = self._extract_saturation_histogram(image)
+        # hist_hsv_sat = self._extract_saturation_histogram(image)
         _, _, w, h = cv.boundingRect(contour)
         hu_feats = self._extract_hu_moments_feature(contour=contour)
-        # keys, orb_features = self._extract_orb_features(crop_img=image)
-
-        # hsv_hist = self._extract_hsv_histogram_feature(image)
+        hsv_hist = self._extract_hsv_histogram_feature(image)
 
         features = np.hstack(
             (
-                # self._normalize(hsv_hist),
+                # self._normalize(aspect_feat),
                 self._normalize(lbp_hist),
                 self._normalize(desc),
-                self._normalize(hist_hsv_sat),
-                # self._normalize(hu_feats)
+                self._normalize(hsv_hist),
+                self._normalize(hu_feats)
             )
         ).astype(np.float32)
         return True, features
 
-    def _extract_orb_features(
-    self, 
-    crop_img: cv.typing.MatLike,
-    nfeatures: int = 500,
-    ):
-        """Extract ORB keypoints and binary descriptors from a masked character image.
-
-        Args:
-            crop_img: Input BGR image crop with a black background ([0, 0, 0]).
-            nfeatures: Maximum number of keypoints to retain.
-
-        Returns:
-            A tuple of (keypoints, descriptors).
-            - keypoints: Tuple of cv.KeyPoint objects.
-            - descriptors: 2D uint8 numpy array of shape (N, 32), or None if no keypoints found.
-        """
-        # 1. Convert to grayscale for feature detection
-        gray = cv.cvtColor(crop_img, cv.COLOR_BGR2GRAY)
-
-        # 2. Create foreground mask (non-black pixels)
-        crop_array=np.asarray(crop_img)
-        mask = (np.any(crop_img != 0, axis=2)).astype(np.uint8) * 255
-
-        # Short-circuit if mask is completely empty
-        if cv.countNonZero(mask) == 0:
-            return (), None
-
-        # 3. Crop tightly to the character bounding box
-        # ORB pyramid scaling works significantly better without surrounding black padding
-        y_indices, x_indices = np.where(mask > 0)
-        y_min, y_max = y_indices.min(), y_indices.max()
-        x_min, x_max = x_indices.min(), x_indices.max()
-
-        gray_tight = gray[y_min : y_max + 1, x_min : x_max + 1]
-        mask_tight = mask[y_min : y_max + 1, x_min : x_max + 1]
-
-        # 4. Initialize ORB Detector
-        # fastThreshold is slightly lowered to capture fine features on smooth retro sprites
-        orb = cv.ORB_create(
-            nfeatures=nfeatures,
-            scaleFactor=1.2,
-            nlevels=8,
-            edgeThreshold=15,
-            firstLevel=0,
-            WTA_K=2,
-            scoreType=cv.ORB_HARRIS_SCORE,
-            patchSize=31,
-            fastThreshold=10,
-        )
-
-        # 5. Detect keypoints and compute descriptors within the masked foreground
-        keypoints, descriptors = orb.detectAndCompute(gray_tight, mask=mask_tight)
-
-        # Adjust keypoint coordinates back to the original un-cropped crop_img space
-        if keypoints:
-            for kp in keypoints:
-                pt = list(kp.pt)
-                pt[0] += x_min
-                pt[1] += y_min
-                kp.pt = tuple(pt)
-
-        return keypoints, descriptors
-
     def _extract_hu_moments_feature(self, contour: cv.typing.MatLike):
         """Extract scale, translation, and rotation invariant shape features from a contour."""
-        # 1. Calculate spatial and central moments
         moments = cv.moments(contour)
-
-        # 2. Calculate 7 Hu Invariant Moments
         hu_moments = cv.HuMoments(moments).flatten()
 
-        # 3. Log-transform to bring values into a comparable numerical scale
         # Hu moments span vastly different orders of magnitude (e.g. 1e-3 to 1e-15)
         for i in range(7):
             if hu_moments[i] != 0:
@@ -166,7 +97,7 @@ class FeatureExtractor:
 
         feature_vector = hist.flatten()
 
-        # L1-normalize so feature values sum to 1.0 (invariant to image/crop size)
+        # Normalize so feature values sum to 1.0
         total_count = feature_vector.sum()
         if total_count > 0:
             feature_vector /= total_count
@@ -174,7 +105,7 @@ class FeatureExtractor:
         return feature_vector.astype(np.float32)
 
     def _extract_color_structure_feature(self, crop_img, k=5, max_pixels=1000):
-        # 1. Resize crop_img to cap max pixel count before HSV conversion
+        # Resize crop_img to cap max pixel count before HSV conversion
         # Downscaling to e.g. max 100x100 preserves color ratio while cutting 90%+ pixels
         h, w = crop_img.shape[:2]
         if h * w > 10000:
@@ -190,12 +121,12 @@ class FeatureExtractor:
         if len(valid_pixels) < k:
             return np.zeros(k, dtype=np.float32)
 
-        # 2. Subsample valid pixels randomly if still above threshold
+        # Subsample valid pixels randomly if still above threshold
         if len(valid_pixels) > max_pixels:
             idx = np.random.choice(len(valid_pixels), max_pixels, replace=False)
             valid_pixels = valid_pixels[idx]
 
-        # 3. K-Means with 1 attempt instead of 10
+        # K-Means with 1 attempt
         criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
         _, labels, _ = cv.kmeans(
             valid_pixels, k, None, criteria, attempts=1, flags=cv.KMEANS_PP_CENTERS

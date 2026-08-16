@@ -41,7 +41,7 @@ class Matcher:
             x, y, w, h = hud.hud_rect
             masked_img = frame.image[y : y + h, x : x + w]
             masked_img = cv.bitwise_and(masked_img, masked_img, mask=hud.binary_mask)
-            success, features = self._extractor.get_features(image=masked_img)
+            success, features = self._extractor.get_character_features(image=masked_img)
             if success:
                 query_features.append(features)
                 matched_hud_indices.append(idx)
@@ -92,7 +92,7 @@ class Matcher:
             masked_img = cv.bitwise_and(
                 cropped_image, cropped_image, mask=detection.binary_mask
             )
-            success, features = self._extractor.get_features(image=masked_img)
+            success, features = self._extractor.get_character_features(image=masked_img)
             if success:
                 query_features.append(features)
                 matched_detection_indices.append(idx)

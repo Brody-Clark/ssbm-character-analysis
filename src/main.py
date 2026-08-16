@@ -45,7 +45,7 @@ def _load_character_huds(
         img = imread(str(img_path))
         if img is not None:
             hud_sprites.character_names.append(img_path.stem)
-            success, features = extractor.get_features(img)
+            success, features = extractor.get_character_features(img)
             if not success:
                 _logger.warning(
                     "Failed to extract features from %s. Skipping.", img_path
@@ -90,7 +90,7 @@ def _load_character_spritesheets(
                 continue
             actor_sprites.character_names.append(img_path.parent.parent.name)
             actor_sprites.animation_names.append(img_path.parent.name)
-            success, features = extractor.get_features(img)
+            success, features = extractor.get_character_features(img)
             if not success:
                 _logger.warning(
                     "Failed to extract features from %s. Skipping.", img_path
