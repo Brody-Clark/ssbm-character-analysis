@@ -2,6 +2,7 @@
 
 import json
 import time
+from collections import deque, Counter
 from dataclasses import asdict
 from typing import TextIO
 import cv2 as cv
@@ -30,7 +31,7 @@ class VisionPipeline:
             cv.rectangle(debug_frame, rec=obj.rect, color=(220, 220, 32), thickness=2)
             cv.putText(
                 debug_frame,
-                f"{obj.character_id} - [{obj.confidence_score:.2f}%]",
+                f"{obj.character_id}",
                 org=(x, y - 10),
                 fontFace=cv.FONT_HERSHEY_SIMPLEX,
                 fontScale=0.7,
@@ -60,11 +61,17 @@ class VisionPipeline:
                 break
         return
 
+    def _get_best_match(self, matches: list[str]) -> str:
+        """Returns most frequent character match or Unknown"""
+        if not matches:
+            return "Unknown"
+        return Counter(matches).most_common(1)[0][0]
+    
     def process(self, video_source: VideoSource, output_stream: TextIO, debug: bool):
         """Runs pipeline for SSBM gameplay source and prints game state results"""
         game_state = GameState()
         game_state.debug = debug
-
+        tracked_matches = {}
         while video_source.is_opened():
             frame: Frame = video_source.read()
             if not frame:
@@ -78,20 +85,40 @@ class VisionPipeline:
             game_state.hud_states = self._matcher.match_huds(frame=frame, huds=huds)
             matched_actors = self._matcher.match_actors(frame, matched_detections)
 
+            # Temporal consistency check:
+            # keep the most frequent character id for a tracked actor (last 6 frames)
+            new_tracked_matches = {}
+            for i,track in enumerate(active_tracks):
+                prev_matches = tracked_matches.get(track.track_id)
+                if prev_matches:    
+                    cur_match = matched_actors[i]
+                    if cur_match is None:
+                        # prev_matches.append('Unknown') # TODO: could call _get_best_match here and add that instead? 
+                        prev_matches.append(self._get_best_match(prev_matches))
+                    else:
+                        prev_matches.append(cur_match.character_id)
+                    new_tracked_matches[track.track_id] = prev_matches
+                else:
+                    new_matches = deque(maxlen=8)
+                    cur_match = matched_actors[i]
+                    if cur_match is None:
+                        new_matches.append('Unknown')
+                    else:
+                        new_matches.append(cur_match.character_id)
+                    new_tracked_matches[track.track_id] = new_matches
+            tracked_matches = new_tracked_matches
+
             # Set current frame predictions based on results
             game_state.actors.clear()
-            for i, actor in enumerate(matched_actors):
+            for i, track in enumerate(active_tracks):
+                uid = track.track_id
+                prev_matches = tracked_matches[uid]
+                actor_name = self._get_best_match(prev_matches)
+
                 a = Actor()
-                if actor is None:
-                    a.character_id = "Unknown"
-                    a.rect = active_tracks[i].current_rect
-                    a.confidence_score = 0
-                    a.track_id = active_tracks[i].track_id
-                else:
-                    a.character_id = actor.character_id
-                    a.confidence_score = actor.confidence_score
-                    a.rect = matched_detections[i].rect
-                    a.track_id = active_tracks[i].track_id
+                a.character_id = actor_name
+                a.rect = active_tracks[i].current_rect
+                a.track_id = active_tracks[i].track_id
                 game_state.actors.append(a)
 
             end = time.perf_counter()

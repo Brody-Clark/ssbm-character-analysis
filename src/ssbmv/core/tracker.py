@@ -9,14 +9,13 @@ from scipy.spatial.distance import cdist
 from ssbmv.domain.models import DetectionCandidate, Track
 
 MAX_DISTANCE = 200
-MIN_FRAMES_ACTIVE = 4
-
+MIN_FRAMES_ACTIVE = 6
+MAX_UNMATCHED_FRAMES = 5
 
 class Tracker:
     """Track actors and predict their next centroid location."""
 
-    def __init__(self, max_unmatched_frames: int = 4):
-        self._max_unmatched_frames = max_unmatched_frames
+    def __init__(self):
         self._tracks: list[Track] = []
         self._kalman_filters: dict[int, KalmanFilter] = {}
 
@@ -97,7 +96,7 @@ class Tracker:
         for unmatched_id in unmatched_tracker_ids:
             track = self._tracks[unmatched_id]
             track.time_since_update += 1
-            if track.time_since_update > self._max_unmatched_frames:
+            if track.time_since_update > MAX_UNMATCHED_FRAMES:
                 continue
 
             new_tracks.append(track)

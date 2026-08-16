@@ -4,8 +4,6 @@ from skimage.feature import local_binary_pattern
 
 
 class FeatureExtractor:
-    def __init__(self):
-        pass
 
     @staticmethod
     def _normalize(vector: np.ndarray) -> np.ndarray:
@@ -19,10 +17,10 @@ class FeatureExtractor:
         mask = (cv.cvtColor(image, cv.COLOR_BGR2GRAY) > 0).astype(np.uint8)
         hist = cv.calcHist([hsv], [1], mask, [10], [0, 256]).flatten()
         return hist / (hist.sum() + 1e-7) if hist.sum() > 0 else hist
-    
+
     def get_features(
         self, image: cv.typing.MatLike
-    ) -> tuple[bool, np.ndarray[np._AnyShape, np.dtype[np.floating[np._32Bit]]]]:
+    ) -> tuple[bool, np.typing.NDArray[np.float32]]:
         """Extract a combined feature vector for a candidate sprite image."""
         img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
@@ -43,40 +41,106 @@ class FeatureExtractor:
         aspect_ratio = float(w) / h
         aspect_feat = np.array([np.log(aspect_ratio + 1e-5) * 0.2], dtype=np.float32)
 
-        color_struct = self._extract_color_structure_feature(image)
+        # color_struct = self._extract_color_structure_feature(img_gray)
+        # hsv_hist = self._extract_hsv_histogram_feature(crop_img=image)
 
         features = np.hstack(
             (
                 self._normalize(lbp_hist),
                 self._normalize(desc),
+                # self._normalize(hsv_hist),
                 self._normalize(hist_hsv_sat),
-                self._normalize(color_struct),
                 aspect_feat,
             )
         ).astype(np.float32)
         return True, features
 
-    def _extract_color_structure_feature(self, crop_img, k=5):
+    def _extract_hsv_histogram_feature(
+        self,
+        crop_img: cv.typing.MatLike,
+        bins: tuple[int, int, int] = (8, 4, 4),
+    ):
+        """Extract a 1D normalized HSV histogram feature vector from a masked BGR sprite.
+
+        Black pixels ([0, 0, 0]) are excluded from the feature calculation.
+
+        Args:
+            crop_img: Input BGR image crop with a black background.
+            bins: Bin counts for (Hue, Saturation, Value). Default is (8, 4, 4) -> 128 features.
+
+        Returns:
+            1D float32 normalized feature vector summing to 1.0 (or all zeros if empty).
+        """
+        # 1. Convert BGR to HSV space
         hsv = cv.cvtColor(crop_img, cv.COLOR_BGR2HSV)
-        pixels = hsv.reshape(-1, 3).astype(np.float32)
 
-        # 2. Filter out transparent/background pixels if masked
-        # pixels = pixels[mask > 0]
+        img_array = np.asarray(crop_img)
+        # 2. Create a 2D boolean mask where foreground pixels are non-black
+        # uint8 mask: 255 for object pixels, 0 for background
+        mask = (np.any(img_array != 0, axis=2)).astype(np.uint8) * 255
 
-        # K-Means clustering to find major color proportions
-        criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-        _, labels, _ = cv.kmeans(
-            pixels, k, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS
+        # Short-circuit if there are no valid foreground pixels
+        if cv.countNonZero(mask) == 0:
+            total_bins = bins[0] * bins[1] * bins[2]
+            return np.zeros(total_bins, dtype=np.float32)
+
+        # 3. Calculate 3D Histogram for (H, S, V) over valid foreground pixels
+        # Ranges: Hue in [0, 180), Saturation in [0, 256), Value in [0, 256)
+        hist = cv.calcHist(
+            images=[hsv],
+            channels=[0, 1, 2],
+            mask=mask,
+            histSize=list(bins),
+            ranges=[0, 180, 0, 256, 0, 256],
         )
 
-        # Count proportions of each cluster & sort descending
+        # 4. Flatten 3D histogram tensor to a 1D feature vector
+        feature_vector = hist.flatten()
+
+        # 5. L1-normalize so feature values sum to 1.0 (invariant to image/crop size)
+        total_count = feature_vector.sum()
+        if total_count > 0:
+            feature_vector /= total_count
+
+        return feature_vector.astype(np.float32)
+
+    def _extract_color_structure_feature(self, crop_img, k=5, max_pixels=1000):
+        # 1. Resize crop_img to cap max pixel count before HSV conversion
+        # Downscaling to e.g. max 100x100 preserves color ratio while cutting 90%+ pixels
+        h, w = crop_img.shape[:2]
+        if h * w > 10000:
+            scale = (10000 / (h * w)) ** 0.5
+            crop_img = cv.resize(
+                crop_img, (0, 0), fx=scale, fy=scale, interpolation=cv.INTER_NEAREST
+            )
+
+        hsv = cv.cvtColor(crop_img, cv.COLOR_BGR2HSV)
+        mask = np.any(crop_img != 0, axis=2)
+        valid_pixels = hsv[mask].astype(np.float32)
+
+        if len(valid_pixels) < k:
+            return np.zeros(k, dtype=np.float32)
+
+        # 2. Subsample valid pixels randomly if still above threshold
+        if len(valid_pixels) > max_pixels:
+            idx = np.random.choice(len(valid_pixels), max_pixels, replace=False)
+            valid_pixels = valid_pixels[idx]
+
+        # 3. K-Means with 1 attempt instead of 10
+        criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+        _, labels, _ = cv.kmeans(
+            valid_pixels, k, None, criteria, attempts=1, flags=cv.KMEANS_PP_CENTERS
+        )
+
         _, counts = np.unique(labels, return_counts=True)
-        proportions = np.sort(counts / counts.sum())[::-1]
+        proportions = np.zeros(k, dtype=np.float32)
+        sorted_counts = np.sort(counts / counts.sum())[::-1]
+        proportions[: len(sorted_counts)] = sorted_counts
 
         return proportions
 
     def _extract_character_lbp(
-        self, img_gray: cv.typing.MatLike, P: int = 8, R: int = 2
+        self, img_gray: cv.typing.MatLike, P: int = 4, R: int = 2
     ):
         """Compute a normalized local binary pattern histogram for the input image."""
         character_mask = (img_gray > 0).astype(np.uint8)

@@ -14,6 +14,7 @@ from ssbmv.core.tracker import Tracker
 from ssbmv.core.matcher import Matcher
 from ssbmv.domain.models import SpriteDatabase, ActorSprites, HUDSprites
 from ssbmv.source.frame_source import VideoSource
+import cProfile
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,7 +44,7 @@ def _load_character_huds(
 
         img = imread(str(img_path))
         if img is not None:
-            hud_sprites.character_name.append(img_path.stem)
+            hud_sprites.character_names.append(img_path.stem)
             success, features = extractor.get_features(img)
             if not success:
                 _logger.warning(
@@ -73,11 +74,11 @@ def _load_character_spritesheets(
             if not anim_dir.is_dir():
                 continue
 
-            image_files.extend = [
+            image_files.extend([
                 path
                 for path in anim_dir.iterdir()
                 if path.is_file() and path.suffix.lower() in VALID_EXTENSIONS
-            ]
+            ])
 
     features_list = (
         []
@@ -87,8 +88,8 @@ def _load_character_spritesheets(
             img = imread(str(img_path))
             if img is None:
                 continue
-            actor_sprites.character_name.append(img_path.parent.parent.name)
-            actor_sprites.animation_name.append(img_path.parent.name)
+            actor_sprites.character_names.append(img_path.parent.parent.name)
+            actor_sprites.animation_names.append(img_path.parent.name)
             success, features = extractor.get_features(img)
             if not success:
                 _logger.warning(
@@ -103,6 +104,13 @@ def _load_character_spritesheets(
 
     return actor_sprites
 
+def _numpy_json_encoder(obj):
+    """Convert NumPy arrays and scalars to JSON-serializable Python types."""
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, np.generic):
+        return obj.item()
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 def handle_init(args, parser):
     """Generates feature index file from provided templates"""
@@ -111,12 +119,13 @@ def handle_init(args, parser):
         parser.error("The output file must have a .json extension.")
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    sprite_path = args.sprite_dir
+    sprite_path = Path(args.sprites_dir)
     if not sprite_path.is_absolute():
         sprite_path = (PROJECT_ROOT / sprite_path).resolve()
     if not sprite_path.exists():
         raise RuntimeError(f"Invalid sprite data root path {sprite_path}")
 
+    _logger.info("Generating feature index.")
     extractor = FeatureExtractor()
     actor_sprites = _load_character_spritesheets(
         sprite_path / "sprites", extractor=extractor
@@ -126,12 +135,38 @@ def handle_init(args, parser):
     db = SpriteDatabase(actor_sprites=actor_sprites, hud_sprites=hud_sprites)
 
     with open(str(output_file), "w", encoding="utf8") as file:
-        json.dump(asdict(db), file)
+        json.dump(asdict(db), file, default=_numpy_json_encoder, indent=2)
+
+    _logger.info(f"Initilization complete. Index file created at {str(output_file)}")
 
 
 def _sprite_db_decoder(obj_dict):
+    
     return SpriteDatabase(**obj_dict)
 
+def _load_sprite_database(json_path: str | Path) -> SpriteDatabase:
+    """Load and parse a SpriteDatabase from a JSON index file."""
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    actor_data = data.get("actor_sprites", {})
+    hud_data = data.get("hud_sprites", {})
+
+    actor_sprites = ActorSprites(
+        character_names=actor_data.get("character_names", []),
+        animation_names=actor_data.get("animation_names", []),
+        features=np.array(actor_data.get("features", []), dtype=np.float32)
+    )
+
+    hud_sprites = HUDSprites(
+        character_names=hud_data.get("character_names", []),
+        features=np.array(hud_data.get("features", []), dtype=np.float32)
+    )
+
+    return SpriteDatabase(
+        actor_sprites=actor_sprites,
+        hud_sprites=hud_sprites
+    )
 
 def handle_run(args, parser):
     """Loads index and runs pipeline"""
@@ -148,14 +183,15 @@ def handle_run(args, parser):
     if args.output == "file" and not args.file:
         parser.error("--file is required when --output is set to 'file'.")
 
+    _logger.info("Loading index file.")
     try:
-        _logger.info("Loading index file")
-        with open(str(index), "r", encoding="utf-8") as file:
-            sprite_db = json.load(file, object_hook=_sprite_db_decoder)
+        sprite_db = _load_sprite_database(index)
     except FileNotFoundError:
         parser.error("The specified index file does not exist.")
     except json.JSONDecodeError:
         parser.error("The index file contains invalid JSON syntax.")
+    except KeyError:
+        parser.error("The index JSON file is invalid or corrupt.")
 
     with ExitStack() as stack:
         # Determine the output stream
@@ -177,15 +213,20 @@ def handle_run(args, parser):
         frame_source = VideoSource(video_frame_source=str(input_path))
         detector = Detector(stage_name=args.stage)
         tracker = Tracker()
-        matcher = Matcher(sprite_database=sprite_db)
+        matcher = Matcher(feature_extractor=FeatureExtractor(), sprite_database=sprite_db)
         pipeline = VisionPipeline(detector=detector, tracker=tracker, matcher=matcher)
 
         _logger.info("Initialization complete, beginning processing.")
 
         # Process video
+        profiler = cProfile.Profile()
+        profiler.enable()
         pipeline.process(
             video_source=frame_source, output_stream=out_stream, debug=args.debug
         )
+        profiler.disable()
+        # Save output to a .prof file in your workspace root
+        profiler.dump_stats("pipeline.prof")
         _logger.info("Processing complete.")
 
 

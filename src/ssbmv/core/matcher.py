@@ -23,27 +23,27 @@ MATCH_CONFIDENCE_THRESHOLD = 0.50
 class Matcher:
     """Build feature templates and match detections against them."""
 
-    def __init__(self, feature_extractor: FeatureExtractor, sprite_db: SpriteDatabase):
+    def __init__(self, feature_extractor: FeatureExtractor, sprite_database: SpriteDatabase):
         self._extractor = feature_extractor
-        
+        self._sprite_db = sprite_database
         # TODO: update to use sprite_db
-        templates = self._load_character_template(sprite_database)
-        flat_templates, flat_characters = [], []
-        for character_anim, features in templates.items():
-            flat_templates.extend(features)
-            flat_characters.extend([character_anim] * len(features))
+        # templates = self._load_character_template(sprite_database)
+        # flat_templates, flat_characters = [], []
+        # for character_anim, features in templates.items():
+        #     flat_templates.extend(features)
+        #     flat_characters.extend([character_anim] * len(features))
 
-        self._character_template_matrix = np.array(flat_templates, dtype=np.float32)
-        self._template_characters = flat_characters
+        # self._character_template_matrix = np.array(flat_templates, dtype=np.float32)
+        # self._template_characters = flat_characters
 
-        hud_templates = self._load_character_hud_template(sprite_database)
-        flat_hud_templates, flat_hud_characters = [], []
-        for character, hud_features in hud_templates.items():
-            flat_hud_templates.append(hud_features)
-            flat_hud_characters.append(character)
+        # hud_templates = self._load_character_hud_template(sprite_database)
+        # flat_hud_templates, flat_hud_characters = [], []
+        # for character, hud_features in hud_templates.items():
+        #     flat_hud_templates.append(hud_features)
+        #     flat_hud_characters.append(character)
 
-        self._hud_template_matrix = np.array(flat_hud_templates, dtype=np.float32)
-        self._hud_characters = flat_hud_characters
+        # self._hud_template_matrix = np.array(flat_hud_templates, dtype=np.float32)
+        # self._hud_characters = flat_hud_characters
 
     def _load_character_template(
         self, sprite_database: SpriteDatabase
@@ -98,7 +98,7 @@ class Matcher:
             return matched_huds
 
         query_matrix = np.array(query_features, dtype=np.float32)
-        dists = cdist(query_matrix, self._hud_template_matrix, metric="cosine")
+        dists = cdist(query_matrix, self._sprite_db.hud_sprites.features, metric="cosine")
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
 
@@ -107,7 +107,7 @@ class Matcher:
         ):
             score = self._distance_to_confidence(min_dist)
             icon_character_id = (
-                self._hud_characters[best_idx]
+                self._sprite_db.hud_sprites.character_names[best_idx]
                 if score > MATCH_CONFIDENCE_THRESHOLD
                 else "Unknown"
             )
@@ -149,7 +149,7 @@ class Matcher:
             return matches
 
         query_matrix = np.array(query_features, dtype=np.float32)
-        dists = cdist(query_matrix, self._character_template_matrix, metric="cosine")
+        dists = cdist(query_matrix, self._sprite_db.actor_sprites.features, metric="cosine")
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
 
@@ -158,8 +158,11 @@ class Matcher:
         ):
             confidence = self._distance_to_confidence(min_dist)
             if confidence >= MATCH_CONFIDENCE_THRESHOLD:
+                # TODO: use fields for name and anim instead of combine
+                name = self._sprite_db.actor_sprites.character_names[best_idx]
+                # name = f"{self._sprite_db.actor_sprites.character_names[best_idx]}_{self._sprite_db.actor_sprites.animation_names[best_idx]}"
                 matches[match_index] = Match(
-                    character_id=self._template_characters[best_idx],
+                    character_id=name,
                     confidence_score=confidence,
                 )
 
