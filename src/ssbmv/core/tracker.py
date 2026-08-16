@@ -8,7 +8,7 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 from ssbmv.domain.models import DetectionCandidate, Track
 
-MAX_DISTANCE = 200
+MAX_DISTANCE = 120
 MIN_FRAMES_ACTIVE = 6
 MAX_UNMATCHED_FRAMES = 5
 
