@@ -9,6 +9,26 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Debug Init",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+                "PYTHONUNBUFFERED": "1"
+            },
+            "args": [
+                "init",
+                "--output",
+                "./features.json",
+                "--sprites-dir",
+                "${workspaceFolder}/data/templates/"
+            ],
+            "justMyCode": false
+        },
+        {
             "name": "Debug Pipeline with Video",
             "type": "debugpy",
             "request": "launch",
@@ -20,14 +40,18 @@
                 "PYTHONUNBUFFERED": "1"
             },
             "args": [
+                "run",
                 "--input",
-                "${workspaceFolder}/data/recordings/corneria.mp4",
+                "${workspaceFolder}/tests/recordings/temple.mp4",
                 "--stage",
-                "corneria",
+                "temple",
                 "--output",
                 "file",
                 "--file",
                 "./results.jsonl",
+                "--index",
+                "./features.json",
+                // "--debug"
             ],
             "justMyCode": false
         },
@@ -47,9 +71,9 @@
                 "${workspaceFolder}/pipeline.prof",
                 "${workspaceFolder}/src/main.py",
                 "--input",
-                "${workspaceFolder}/data/recordings/corneria.mp4",
+                "${workspaceFolder}/data/recordings/temple.mp4",
                 "--stage",
-                "corneria",
+                "temple",
                 "--output",
                 "file",
                 "--file",

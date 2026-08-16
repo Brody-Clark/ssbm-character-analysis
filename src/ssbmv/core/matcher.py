@@ -110,9 +110,7 @@ class Matcher:
         ):
             confidence = self._distance_to_confidence(min_dist)
             if confidence >= MATCH_CONFIDENCE_THRESHOLD:
-                # TODO: use fields for name and anim instead of combine
                 name = self._sprite_db.actor_sprites.character_names[best_idx]
-                # name = f"{self._sprite_db.actor_sprites.character_names[best_idx]}_{self._sprite_db.actor_sprites.animation_names[best_idx]}"
                 matches[match_index] = Match(
                     character_id=name,
                     confidence_score=confidence,

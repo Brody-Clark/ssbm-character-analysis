@@ -11,7 +11,7 @@ class FeatureExtractor:
         norm = np.linalg.norm(vector)
         return vector if norm < 1e-7 else vector / norm
 
-    def _extract_color_histogram(self, image: cv.typing.MatLike) -> np.ndarray:
+    def _extract_saturation_histogram(self, image: cv.typing.MatLike) -> np.ndarray:
         """Extract a saturation histogram feature vector."""
         hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         mask = (cv.cvtColor(image, cv.COLOR_BGR2GRAY) > 0).astype(np.uint8)
@@ -36,19 +36,19 @@ class FeatureExtractor:
             distances=distances, num_descriptors=24, sample_size=256
         )
         lbp_hist = self._extract_character_lbp(img_gray)
-        hist_hsv_sat = self._extract_color_histogram(image)
+        hist_hsv_sat = self._extract_saturation_histogram(image)
         _, _, w, h = cv.boundingRect(contour)
         hu_feats = self._extract_hu_moments_feature(contour=contour)
         # keys, orb_features = self._extract_orb_features(crop_img=image)
 
-        hsv_hist = self._extract_hsv_histogram_feature(image)
+        # hsv_hist = self._extract_hsv_histogram_feature(image)
 
         features = np.hstack(
             (
-                self._normalize(hsv_hist)
-                # self._normalize(lbp_hist),
-                # self._normalize(desc),
-                # self._normalize(hist_hsv_sat),
+                # self._normalize(hsv_hist),
+                self._normalize(lbp_hist),
+                self._normalize(desc),
+                self._normalize(hist_hsv_sat),
                 # self._normalize(hu_feats)
             )
         ).astype(np.float32)
