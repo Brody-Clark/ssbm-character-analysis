@@ -38,31 +38,107 @@ class FeatureExtractor:
         lbp_hist = self._extract_character_lbp(img_gray)
         hist_hsv_sat = self._extract_color_histogram(image)
         _, _, w, h = cv.boundingRect(contour)
-        aspect_ratio = float(w) / h
-        aspect_feat = np.array([np.log(aspect_ratio + 1e-5) * 0.2], dtype=np.float32)
+        hu_feats = self._extract_hu_moments_feature(contour=contour)
+        # keys, orb_features = self._extract_orb_features(crop_img=image)
 
-        # color_struct = self._extract_color_structure_feature(img_gray)
-        # hsv_hist = self._extract_hsv_histogram_feature(crop_img=image)
+        hsv_hist = self._extract_hsv_histogram_feature(image)
 
         features = np.hstack(
             (
-                self._normalize(lbp_hist),
-                self._normalize(desc),
-                # self._normalize(hsv_hist),
-                self._normalize(hist_hsv_sat),
-                aspect_feat,
+                self._normalize(hsv_hist)
+                # self._normalize(lbp_hist),
+                # self._normalize(desc),
+                # self._normalize(hist_hsv_sat),
+                # self._normalize(hu_feats)
             )
         ).astype(np.float32)
         return True, features
 
+    def _extract_orb_features(
+    self, 
+    crop_img: cv.typing.MatLike,
+    nfeatures: int = 500,
+    ):
+        """Extract ORB keypoints and binary descriptors from a masked character image.
+
+        Args:
+            crop_img: Input BGR image crop with a black background ([0, 0, 0]).
+            nfeatures: Maximum number of keypoints to retain.
+
+        Returns:
+            A tuple of (keypoints, descriptors).
+            - keypoints: Tuple of cv.KeyPoint objects.
+            - descriptors: 2D uint8 numpy array of shape (N, 32), or None if no keypoints found.
+        """
+        # 1. Convert to grayscale for feature detection
+        gray = cv.cvtColor(crop_img, cv.COLOR_BGR2GRAY)
+
+        # 2. Create foreground mask (non-black pixels)
+        crop_array=np.asarray(crop_img)
+        mask = (np.any(crop_img != 0, axis=2)).astype(np.uint8) * 255
+
+        # Short-circuit if mask is completely empty
+        if cv.countNonZero(mask) == 0:
+            return (), None
+
+        # 3. Crop tightly to the character bounding box
+        # ORB pyramid scaling works significantly better without surrounding black padding
+        y_indices, x_indices = np.where(mask > 0)
+        y_min, y_max = y_indices.min(), y_indices.max()
+        x_min, x_max = x_indices.min(), x_indices.max()
+
+        gray_tight = gray[y_min : y_max + 1, x_min : x_max + 1]
+        mask_tight = mask[y_min : y_max + 1, x_min : x_max + 1]
+
+        # 4. Initialize ORB Detector
+        # fastThreshold is slightly lowered to capture fine features on smooth retro sprites
+        orb = cv.ORB_create(
+            nfeatures=nfeatures,
+            scaleFactor=1.2,
+            nlevels=8,
+            edgeThreshold=15,
+            firstLevel=0,
+            WTA_K=2,
+            scoreType=cv.ORB_HARRIS_SCORE,
+            patchSize=31,
+            fastThreshold=10,
+        )
+
+        # 5. Detect keypoints and compute descriptors within the masked foreground
+        keypoints, descriptors = orb.detectAndCompute(gray_tight, mask=mask_tight)
+
+        # Adjust keypoint coordinates back to the original un-cropped crop_img space
+        if keypoints:
+            for kp in keypoints:
+                pt = list(kp.pt)
+                pt[0] += x_min
+                pt[1] += y_min
+                kp.pt = tuple(pt)
+
+        return keypoints, descriptors
+
+    def _extract_hu_moments_feature(self, contour: cv.typing.MatLike):
+        """Extract scale, translation, and rotation invariant shape features from a contour."""
+        # 1. Calculate spatial and central moments
+        moments = cv.moments(contour)
+
+        # 2. Calculate 7 Hu Invariant Moments
+        hu_moments = cv.HuMoments(moments).flatten()
+
+        # 3. Log-transform to bring values into a comparable numerical scale
+        # Hu moments span vastly different orders of magnitude (e.g. 1e-3 to 1e-15)
+        for i in range(7):
+            if hu_moments[i] != 0:
+                hu_moments[i] = -1.0 * np.copysign(1.0, hu_moments[i]) * np.log10(np.abs(hu_moments[i]))
+
+        return hu_moments.astype(np.float32)
+
     def _extract_hsv_histogram_feature(
         self,
         crop_img: cv.typing.MatLike,
-        bins: tuple[int, int, int] = (8, 4, 4),
+        bins: tuple[int, int, int] = (4, 2, 2),
     ):
         """Extract a 1D normalized HSV histogram feature vector from a masked BGR sprite.
-
-        Black pixels ([0, 0, 0]) are excluded from the feature calculation.
 
         Args:
             crop_img: Input BGR image crop with a black background.
@@ -71,20 +147,14 @@ class FeatureExtractor:
         Returns:
             1D float32 normalized feature vector summing to 1.0 (or all zeros if empty).
         """
-        # 1. Convert BGR to HSV space
         hsv = cv.cvtColor(crop_img, cv.COLOR_BGR2HSV)
 
         img_array = np.asarray(crop_img)
-        # 2. Create a 2D boolean mask where foreground pixels are non-black
-        # uint8 mask: 255 for object pixels, 0 for background
         mask = (np.any(img_array != 0, axis=2)).astype(np.uint8) * 255
-
-        # Short-circuit if there are no valid foreground pixels
         if cv.countNonZero(mask) == 0:
             total_bins = bins[0] * bins[1] * bins[2]
             return np.zeros(total_bins, dtype=np.float32)
 
-        # 3. Calculate 3D Histogram for (H, S, V) over valid foreground pixels
         # Ranges: Hue in [0, 180), Saturation in [0, 256), Value in [0, 256)
         hist = cv.calcHist(
             images=[hsv],
@@ -94,10 +164,9 @@ class FeatureExtractor:
             ranges=[0, 180, 0, 256, 0, 256],
         )
 
-        # 4. Flatten 3D histogram tensor to a 1D feature vector
         feature_vector = hist.flatten()
 
-        # 5. L1-normalize so feature values sum to 1.0 (invariant to image/crop size)
+        # L1-normalize so feature values sum to 1.0 (invariant to image/crop size)
         total_count = feature_vector.sum()
         if total_count > 0:
             feature_vector /= total_count

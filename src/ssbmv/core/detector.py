@@ -141,13 +141,14 @@ class Detector:
         """Create a clean candidate mask for a region by combining motion and HSV cues."""
         x, y, w, h = region
         img = frame.image[y : y + h, x : x + w]
+        
         # MOG motion mask
         motion_mask = self._mog.apply(frame.image)
         fg_mask = motion_mask[y : y + h, x : x + w]
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
         _, fg_mask = cv.threshold(fg_mask, 125, 255, cv.THRESH_BINARY)
         fg_mask = cv.morphologyEx(fg_mask, cv.MORPH_OPEN, kernel, iterations=2)
-        fg_mask = cv.dilate(fg_mask, kernel=kernel)
+        fg_mask = cv.dilate(fg_mask, kernel=kernel, iterations=2)
 
         # HSV masking
         hsv_mask_raw = self._get_hsv_mask(img=img)

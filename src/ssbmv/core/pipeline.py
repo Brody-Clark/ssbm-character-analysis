@@ -99,7 +99,7 @@ class VisionPipeline:
                         prev_matches.append(cur_match.character_id)
                     new_tracked_matches[track.track_id] = prev_matches
                 else:
-                    new_matches = deque(maxlen=8)
+                    new_matches = deque(maxlen=18)
                     cur_match = matched_actors[i]
                     if cur_match is None:
                         new_matches.append('Unknown')

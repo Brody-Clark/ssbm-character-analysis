@@ -17,7 +17,7 @@ from ssbmv.core.feature_extractor import FeatureExtractor
 
 _logger = logging.getLogger(__name__)
 
-MATCH_CONFIDENCE_THRESHOLD = 0.50
+MATCH_CONFIDENCE_THRESHOLD = 0.65
 
 
 class Matcher:
@@ -26,54 +26,6 @@ class Matcher:
     def __init__(self, feature_extractor: FeatureExtractor, sprite_database: SpriteDatabase):
         self._extractor = feature_extractor
         self._sprite_db = sprite_database
-        # TODO: update to use sprite_db
-        # templates = self._load_character_template(sprite_database)
-        # flat_templates, flat_characters = [], []
-        # for character_anim, features in templates.items():
-        #     flat_templates.extend(features)
-        #     flat_characters.extend([character_anim] * len(features))
-
-        # self._character_template_matrix = np.array(flat_templates, dtype=np.float32)
-        # self._template_characters = flat_characters
-
-        # hud_templates = self._load_character_hud_template(sprite_database)
-        # flat_hud_templates, flat_hud_characters = [], []
-        # for character, hud_features in hud_templates.items():
-        #     flat_hud_templates.append(hud_features)
-        #     flat_hud_characters.append(character)
-
-        # self._hud_template_matrix = np.array(flat_hud_templates, dtype=np.float32)
-        # self._hud_characters = flat_hud_characters
-
-    def _load_character_template(
-        self, sprite_database: SpriteDatabase
-    ) -> dict[str, list[list[np.float32]]]:
-        """Extract feature templates from the character sprite sheets."""
-        templates = {}
-        for char, sprite_sheet in sprite_database.character_sprite_db.items():
-            for idx, sprite_img in enumerate(sprite_sheet.sprite_imgs):
-                success, feats = self._extractor.get_features(image=sprite_img)
-                if not success:
-                    _logger.error("Failed to extract features from image.")
-                    continue
-
-                anim = sprite_sheet.sprite_names[idx]
-                key = f"{char}_{anim}"
-                templates.setdefault(key, []).append(feats)
-        return templates
-
-    def _load_character_hud_template(
-        self, sprite_database: SpriteDatabase
-    ) -> dict[str, list[np.float32]]:
-        """Extract feature templates from the HUD sprite images."""
-        templates = {}
-        for char, hud_img in sprite_database.character_hud_db.items():
-            success, feats = self._extractor.get_features(image=hud_img)
-            if not success:
-                _logger.error("Failed to extract features from image")
-                continue
-            templates[char] = feats
-        return templates
 
     def _distance_to_confidence(self, dist: float) -> float:
         """Convert a cosine distance into a confidence score."""
@@ -152,7 +104,7 @@ class Matcher:
         dists = cdist(query_matrix, self._sprite_db.actor_sprites.features, metric="cosine")
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
-
+        
         for match_index, best_idx, min_dist in zip(
             matched_detection_indices, best_template_indices, min_dists
         ):
@@ -165,5 +117,4 @@ class Matcher:
                     character_id=name,
                     confidence_score=confidence,
                 )
-
         return matches
