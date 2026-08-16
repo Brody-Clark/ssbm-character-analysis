@@ -11,21 +11,21 @@ from ssbmv.domain.models import (
     HUDDetection,
     HUDState,
     Match,
-    SpriteDatabase,
+    FeatureDatabase,
 )
 from ssbmv.core.feature_extractor import FeatureExtractor
 
 _logger = logging.getLogger(__name__)
 
-MATCH_CONFIDENCE_THRESHOLD = 0.65
-
+ACTOR_MATCH_CONFIDENCE_THRESHOLD = 0.60
+HUD_MATCH_CONFIDENCE_THRESHOLD = 0.52
 
 class Matcher:
     """Build feature templates and match detections against them."""
 
-    def __init__(self, feature_extractor: FeatureExtractor, sprite_database: SpriteDatabase):
+    def __init__(self, feature_extractor: FeatureExtractor, feature_database: FeatureDatabase):
         self._extractor = feature_extractor
-        self._sprite_db = sprite_database
+        self._feature_db = feature_database
 
     def _distance_to_confidence(self, dist: float) -> float:
         """Convert a cosine distance into a confidence score."""
@@ -41,7 +41,7 @@ class Matcher:
             x, y, w, h = hud.hud_rect
             masked_img = frame.image[y : y + h, x : x + w]
             masked_img = cv.bitwise_and(masked_img, masked_img, mask=hud.binary_mask)
-            success, features = self._extractor.get_features(image=masked_img)
+            success, features = self._extractor.get_hud_features(image=masked_img)
             if success:
                 query_features.append(features)
                 matched_hud_indices.append(idx)
@@ -50,7 +50,7 @@ class Matcher:
             return matched_huds
 
         query_matrix = np.array(query_features, dtype=np.float32)
-        dists = cdist(query_matrix, self._sprite_db.hud_sprites.features, metric="cosine")
+        dists = cdist(query_matrix, self._feature_db.hud_features.features, metric="cosine")
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
 
@@ -59,8 +59,8 @@ class Matcher:
         ):
             score = self._distance_to_confidence(min_dist)
             icon_character_id = (
-                self._sprite_db.hud_sprites.character_names[best_idx]
-                if score > MATCH_CONFIDENCE_THRESHOLD
+                self._feature_db.hud_features.labels[best_idx]
+                if score > HUD_MATCH_CONFIDENCE_THRESHOLD
                 else "Unknown"
             )
             hud = huds[hud_index]
@@ -76,10 +76,8 @@ class Matcher:
         self, frame: Frame, tracked_detections: list[DetectionCandidate]
     ) -> list[Match | None]:
         """Match tracked actor detections against the precompiled character templates."""
-        matches = [None] * len(tracked_detections)
-        matched_detection_indices = []
-        query_features = []
-
+        masked_imgs = []
+        image_indices = []
         for idx, detection in enumerate(tracked_detections):
             if detection is None:
                 continue
@@ -92,7 +90,15 @@ class Matcher:
             masked_img = cv.bitwise_and(
                 cropped_image, cropped_image, mask=detection.binary_mask
             )
-            success, features = self._extractor.get_features(image=masked_img)
+            masked_imgs.append(masked_img)
+            image_indices.append(idx)
+
+        # Get Character name
+        matches: list[Match | None] = [None] * len(tracked_detections)
+        matched_detection_indices = []
+        query_features = []
+        for idx, masked_img in zip(image_indices, masked_imgs):
+            success, features = self._extractor.get_character_features(image=masked_img)
             if success:
                 query_features.append(features)
                 matched_detection_indices.append(idx)
@@ -101,20 +107,38 @@ class Matcher:
             return matches
 
         query_matrix = np.array(query_features, dtype=np.float32)
-        dists = cdist(query_matrix, self._sprite_db.actor_sprites.features, metric="cosine")
+        dists = cdist(query_matrix, self._feature_db.character_features.features, metric="cosine")
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
-        
+        assigned_match_img_indices = []
         for match_index, best_idx, min_dist in zip(
             matched_detection_indices, best_template_indices, min_dists
         ):
             confidence = self._distance_to_confidence(min_dist)
-            if confidence >= MATCH_CONFIDENCE_THRESHOLD:
-                # TODO: use fields for name and anim instead of combine
-                name = self._sprite_db.actor_sprites.character_names[best_idx]
-                # name = f"{self._sprite_db.actor_sprites.character_names[best_idx]}_{self._sprite_db.actor_sprites.animation_names[best_idx]}"
+            if confidence >= ACTOR_MATCH_CONFIDENCE_THRESHOLD:
+                name = self._feature_db.character_features.labels[best_idx]
                 matches[match_index] = Match(
                     character_id=name,
                     confidence_score=confidence,
                 )
+                assigned_match_img_indices.append(match_index) # Only get animation features for valid matches
+
+        # Get animations
+        for idx in assigned_match_img_indices:
+            masked_img = masked_imgs[idx]
+            match = matches[idx]
+            success, features = self._extractor.get_animation_features(image=masked_img)
+            if not success:
+                continue
+
+            query_matrix = np.array([features], dtype=np.float32)
+            name = match.character_id
+            animation_features = self._feature_db.animation_features.get(name)
+            if animation_features is None:
+                continue
+            dists = cdist(query_matrix, animation_features.features, metric="cosine")
+            # min_dists = np.min(dists, axis=1) # TODO: confidence check?
+            best_template_index = np.argmin(dists, axis=1)[0]
+            match.animation_id = animation_features.labels[best_template_index]
+            matches[idx] = match # TODO: needed?
         return matches

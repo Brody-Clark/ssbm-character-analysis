@@ -5,7 +5,7 @@ import numpy as np
 from ssbmv.domain.models import DetectionCandidate, Dimension2D, Frame, HUDDetection
 from ssbmv.domain.stage_hsv_filters import STAGE_HSV_FILTERS
 
-_STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF = 25
+_STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF = 64
 _MIN_SPRITE_AREA_RATIO = 0.006
 _MIN_SPRITE_AREA_PIXELS = 2000
 _MAX_SPRITE_AREA_PIXELS = 70000
@@ -141,7 +141,7 @@ class Detector:
         """Create a clean candidate mask for a region by combining motion and HSV cues."""
         x, y, w, h = region
         img = frame.image[y : y + h, x : x + w]
-        
+
         # MOG motion mask
         motion_mask = self._mog.apply(frame.image)
         fg_mask = motion_mask[y : y + h, x : x + w]

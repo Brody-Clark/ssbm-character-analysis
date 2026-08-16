@@ -39,6 +39,7 @@ class Match:
     """A candidate character identity with a confidence score."""
 
     character_id: str = "Unknown"
+    animation_id: str = "Unknown"
     confidence_score: float = 0.0
 
 
@@ -115,7 +116,15 @@ class HUDSprites:
     features: npt.NDArray[float32] = field(default_factory=list)
 
 @dataclass(slots=True)
-class SpriteDatabase:
-    """Load and expose sprite assets used by the matching pipeline."""
-    actor_sprites: ActorSprites
-    hud_sprites: HUDSprites
+class LabeledFeatures:
+    labels: list[str] = field(default_factory=list)
+    features: npt.NDArray[float32] = field(default_factory=list)
+
+@dataclass(slots=True)
+class FeatureDatabase:
+    """Stores features for matching."""
+    character_features: LabeledFeatures
+    animation_features: dict[str, LabeledFeatures]
+    hud_features: LabeledFeatures
+
+

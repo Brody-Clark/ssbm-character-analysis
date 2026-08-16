@@ -12,7 +12,10 @@ from ssbmv.core.feature_extractor import FeatureExtractor
 from ssbmv.core.detector import Detector
 from ssbmv.core.tracker import Tracker
 from ssbmv.core.matcher import Matcher
-from ssbmv.domain.models import SpriteDatabase, ActorSprites, HUDSprites
+from ssbmv.domain.models import (
+    FeatureDatabase,
+    LabeledFeatures,
+)
 from ssbmv.source.frame_source import VideoSource
 import cProfile
 
@@ -29,80 +32,142 @@ VALID_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
 def _load_character_huds(
     root_path: str | Path, extractor: FeatureExtractor
-) -> HUDSprites:
+) -> LabeledFeatures:
     """Load HUD icon images from a flat directory of image files."""
     root = Path(root_path)
     if not root.exists() or not root.is_dir():
         raise ValueError(f"Invalid root path: {root_path}")
 
-    hud_sprites = HUDSprites()
-    features_list = []
-    for img_path in sorted(root.iterdir()):
-        if not img_path.is_file() or img_path.suffix.lower() not in VALID_EXTENSIONS:
-            _logger.debug("File %s is not valid. Skipping.", str(img_path))
-            continue
-
-        img = imread(str(img_path))
-        if img is not None:
-            hud_sprites.character_names.append(img_path.stem)
-            success, features = extractor.get_features(img)
-            if not success:
-                _logger.warning(
-                    "Failed to extract features from %s. Skipping.", img_path
-                )
-                continue
-            features_list.append(features)
-        hud_sprites.features = np.array(features_list, dtype=np.float32)
-
-    return hud_sprites
-
-
-def _load_character_spritesheets(
-    root_path: str | Path, extractor: FeatureExtractor
-) -> ActorSprites:
-    """Load character sprite sheets from a directory of per-character animations."""
-    root = Path(root_path)
-    if not root.exists() or not root.is_dir():
-        raise ValueError(f"Invalid root path: {root_path}")
-
-    actor_sprites = ActorSprites()
     image_files: list[Path] = []
     for char_dir in sorted(root.iterdir()):
         if not char_dir.is_dir():
             continue
-        for anim_dir in sorted(char_dir.iterdir()):
-            if not anim_dir.is_dir():
-                continue
 
-            image_files.extend([
+        image_files.extend(
+            [
                 path
-                for path in anim_dir.iterdir()
+                for path in char_dir.iterdir()
                 if path.is_file() and path.suffix.lower() in VALID_EXTENSIONS
-            ])
+            ]
+        )
 
-    features_list = (
-        []
-    )  # TODO: Figure out dimensions of features and use features = np.empty((num_images, feature_dim), dtype=np.float32)
+    features_list = []
+    hud_features = LabeledFeatures()
     try:
         for img_path in image_files:
             img = imread(str(img_path))
             if img is None:
                 continue
-            actor_sprites.character_names.append(img_path.parent.parent.name)
-            actor_sprites.animation_names.append(img_path.parent.name)
-            success, features = extractor.get_features(img)
+            hud_features.labels.append(img_path.parent.name)
+            success, features = extractor.get_hud_features(img)
             if not success:
                 _logger.warning(
                     "Failed to extract features from %s. Skipping.", img_path
                 )
                 continue
             features_list.append(features)
-        actor_sprites.features = np.array(features_list, dtype=np.float32)
+        hud_features.features = np.array(features_list, dtype=np.float32)
     except Exception:
-        _logger.error("Failed to load extract features from templates", exc_info=True)
+        _logger.error("Failed to extract features from templates", exc_info=True)
         sys.exit(1)
 
-    return actor_sprites
+    return hud_features
+
+
+def _load_animation_sprites(
+    root_path: str | Path, extractor: FeatureExtractor
+) -> dict[str, LabeledFeatures]:
+    root = Path(root_path)
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"Invalid root path: {root_path}")
+
+    character_anim_paths = {}
+    for char_dir in sorted(root.iterdir()):
+        if not char_dir.is_dir():
+            continue
+        image_files: list[Path] = []
+        for anim_dir in sorted(char_dir.iterdir()):
+            if not anim_dir.is_dir():
+                continue
+
+            image_files.extend(
+                [
+                    path
+                    for path in anim_dir.iterdir()
+                    if path.is_file() and path.suffix.lower() in VALID_EXTENSIONS
+                ]
+            )
+        character_anim_paths[char_dir.stem] = image_files
+
+    character_features = {}
+    try:
+        for character_name, image_files in character_anim_paths.items():
+            features_list = []
+            labeled_features = LabeledFeatures()
+            for img_path in image_files:
+                img = imread(str(img_path))
+                if img is None:
+                    continue
+                labeled_features.labels.append(img_path.parent.name)
+                success, features = extractor.get_animation_features(img)
+                if not success:
+                    _logger.warning(
+                        "Failed to extract features from %s. Skipping.", img_path
+                    )
+                    continue
+                features_list.append(features)
+            labeled_features.features = np.array(features_list, dtype=np.float32)
+            character_features[character_name] = labeled_features
+    except Exception:
+        _logger.error("Failed to extract features from templates", exc_info=True)
+        sys.exit(1)
+
+    return character_features
+
+
+def _load_character_sprites(
+    root_path: str | Path, extractor: FeatureExtractor
+) -> LabeledFeatures:
+    """Load character features from character templates."""
+    root = Path(root_path)
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"Invalid root path: {root_path}")
+
+    image_files: list[Path] = []
+    for char_dir in sorted(root.iterdir()):
+        if not char_dir.is_dir():
+            continue
+
+        image_files.extend(
+            [
+                path
+                for path in char_dir.iterdir()
+                if path.is_file() and path.suffix.lower() in VALID_EXTENSIONS
+            ]
+        )
+
+    features_list = []
+    character_features = LabeledFeatures()
+    try:
+        for img_path in image_files:
+            img = imread(str(img_path))
+            if img is None:
+                continue
+            character_features.labels.append(img_path.parent.name)
+            success, features = extractor.get_character_features(img)
+            if not success:
+                _logger.warning(
+                    "Failed to extract features from %s. Skipping.", img_path
+                )
+                continue
+            features_list.append(features)
+        character_features.features = np.array(features_list, dtype=np.float32)
+    except Exception:
+        _logger.error("Failed to extract features from templates", exc_info=True)
+        sys.exit(1)
+
+    return character_features
+
 
 def _numpy_json_encoder(obj):
     """Convert NumPy arrays and scalars to JSON-serializable Python types."""
@@ -111,6 +176,7 @@ def _numpy_json_encoder(obj):
     if isinstance(obj, np.generic):
         return obj.item()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
 
 def handle_init(args, parser):
     """Generates feature index file from provided templates"""
@@ -126,13 +192,21 @@ def handle_init(args, parser):
         raise RuntimeError(f"Invalid sprite data root path {sprite_path}")
 
     _logger.info("Generating feature index.")
-    extractor = FeatureExtractor()
-    actor_sprites = _load_character_spritesheets(
-        sprite_path / "sprites", extractor=extractor
-    )
-    hud_sprites = _load_character_huds(sprite_path / "huds", extractor=extractor)
 
-    db = SpriteDatabase(actor_sprites=actor_sprites, hud_sprites=hud_sprites)
+    extractor = FeatureExtractor()
+    character_features = _load_character_sprites(
+        sprite_path / "characters", extractor=extractor
+    )
+    animation_features = _load_animation_sprites(
+        sprite_path / "animations", extractor=extractor
+    )
+    hud_features = _load_character_huds(sprite_path / "huds", extractor=extractor)
+
+    db = FeatureDatabase(
+        character_features=character_features,
+        animation_features=animation_features,
+        hud_features=hud_features,
+    )
 
     with open(str(output_file), "w", encoding="utf8") as file:
         json.dump(asdict(db), file, default=_numpy_json_encoder, indent=2)
@@ -140,33 +214,41 @@ def handle_init(args, parser):
     _logger.info(f"Initilization complete. Index file created at {str(output_file)}")
 
 
-def _sprite_db_decoder(obj_dict):
-    
-    return SpriteDatabase(**obj_dict)
-
-def _load_sprite_database(json_path: str | Path) -> SpriteDatabase:
-    """Load and parse a SpriteDatabase from a JSON index file."""
+def _load_feature_database(json_path: str | Path) -> FeatureDatabase:
+    """Load and parse a FeatureDatabase from a JSON index file."""
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    actor_data = data.get("actor_sprites", {})
-    hud_data = data.get("hud_sprites", {})
+    actor_data = data.get("character_features", {})
+    hud_data = data.get("hud_features", {})
+    animation_data = data.get("animation_features", {})
 
-    actor_sprites = ActorSprites(
-        character_names=actor_data.get("character_names", []),
-        animation_names=actor_data.get("animation_names", []),
-        features=np.array(actor_data.get("features", []), dtype=np.float32)
+    # Parse character features
+    character_features = LabeledFeatures(
+        labels=actor_data.get("labels", []),
+        features=np.array(actor_data.get("features", []), dtype=np.float32),
     )
 
-    hud_sprites = HUDSprites(
-        character_names=hud_data.get("character_names", []),
-        features=np.array(hud_data.get("features", []), dtype=np.float32)
+    # Parse HUD features
+    hud_features = LabeledFeatures(
+        labels=hud_data.get("labels", []),
+        features=np.array(hud_data.get("features", []), dtype=np.float32),
     )
 
-    return SpriteDatabase(
-        actor_sprites=actor_sprites,
-        hud_sprites=hud_sprites
+    # Parse animation features
+    animation_features: dict[str, LabeledFeatures] = {}
+    for char_name, char_anim_data in animation_data.items():
+        animation_features[char_name] = LabeledFeatures(
+            labels=char_anim_data.get("labels", []),
+            features=np.array(char_anim_data.get("features", []), dtype=np.float32),
+        )
+
+    return FeatureDatabase(
+        character_features=character_features,
+        animation_features=animation_features,
+        hud_features=hud_features,
     )
+
 
 def handle_run(args, parser):
     """Loads index and runs pipeline"""
@@ -185,7 +267,7 @@ def handle_run(args, parser):
 
     _logger.info("Loading index file.")
     try:
-        sprite_db = _load_sprite_database(index)
+        feature_db = _load_feature_database(index)
     except FileNotFoundError:
         parser.error("The specified index file does not exist.")
     except json.JSONDecodeError:
@@ -213,7 +295,9 @@ def handle_run(args, parser):
         frame_source = VideoSource(video_frame_source=str(input_path))
         detector = Detector(stage_name=args.stage)
         tracker = Tracker()
-        matcher = Matcher(feature_extractor=FeatureExtractor(), sprite_database=sprite_db)
+        matcher = Matcher(
+            feature_extractor=FeatureExtractor(), feature_database=feature_db
+        )
         pipeline = VisionPipeline(detector=detector, tracker=tracker, matcher=matcher)
 
         _logger.info("Initialization complete, beginning processing.")

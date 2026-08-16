@@ -93,7 +93,6 @@ class VisionPipeline:
                 if prev_matches:    
                     cur_match = matched_actors[i]
                     if cur_match is None:
-                        # prev_matches.append('Unknown') # TODO: could call _get_best_match here and add that instead? 
                         prev_matches.append(self._get_best_match(prev_matches))
                     else:
                         prev_matches.append(cur_match.character_id)

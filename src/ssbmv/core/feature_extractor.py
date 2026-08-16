@@ -11,17 +11,16 @@ class FeatureExtractor:
         norm = np.linalg.norm(vector)
         return vector if norm < 1e-7 else vector / norm
 
-    def _extract_color_histogram(self, image: cv.typing.MatLike) -> np.ndarray:
+    def _extract_saturation_histogram(self, image: cv.typing.MatLike) -> np.ndarray:
         """Extract a saturation histogram feature vector."""
         hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         mask = (cv.cvtColor(image, cv.COLOR_BGR2GRAY) > 0).astype(np.uint8)
         hist = cv.calcHist([hsv], [1], mask, [10], [0, 256]).flatten()
         return hist / (hist.sum() + 1e-7) if hist.sum() > 0 else hist
 
-    def get_features(
+    def get_hud_features(
         self, image: cv.typing.MatLike
     ) -> tuple[bool, np.typing.NDArray[np.float32]]:
-        """Extract a combined feature vector for a candidate sprite image."""
         img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
         contour = self._get_shape_contour(img_gray=img_gray)
@@ -36,9 +35,71 @@ class FeatureExtractor:
             distances=distances, num_descriptors=24, sample_size=256
         )
         lbp_hist = self._extract_character_lbp(img_gray)
-        hist_hsv_sat = self._extract_color_histogram(image)
+        hist_hsv = self._extract_hsv_histogram_feature(image)
+
+        features = np.hstack(
+            (
+                self._normalize(lbp_hist),
+                self._normalize(desc),
+                self._normalize(hist_hsv),
+            )
+        ).astype(np.float32)
+        return True, features
+
+    def get_animation_features(
+        self, image: cv.typing.MatLike
+    ) -> tuple[bool, np.typing.NDArray[np.float32]]:
+        """Extract a combined color-invariant feature vector for a candidate sprite animation."""
+        img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
+        contour = self._get_shape_contour(img_gray=img_gray)
+        if contour is None:
+            return False, []
+
+        distances = self._compute_centroid_distances(contour=contour)
+        if distances is None:
+            return False, []
+
+        desc = self._get_fourier_descriptors(
+            distances=distances, num_descriptors=24, sample_size=256
+        )
+        lbp_hist = self._extract_character_lbp(img_gray)
+        hist_hsv_sat = self._extract_saturation_histogram(image)
         _, _, w, h = cv.boundingRect(contour)
         hu_feats = self._extract_hu_moments_feature(contour=contour)
+
+        features = np.hstack(
+            (
+                self._normalize(lbp_hist),
+                self._normalize(desc),
+                self._normalize(hist_hsv_sat),
+                self._normalize(hu_feats),
+            )
+        ).astype(np.float32)
+
+        return True, features
+
+    def get_character_features(
+        self, image: cv.typing.MatLike
+    ) -> tuple[bool, np.typing.NDArray[np.float32]]:
+        """Extract a combined feature vector for a candidate sprite image."""
+        # img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
+        # contour = self._get_shape_contour(img_gray=img_gray)
+        # if contour is None:
+        #     return False, []
+
+        # distances = self._compute_centroid_distances(contour=contour)
+        # if distances is None:
+        #     return False, []
+
+        # desc = self._get_fourier_descriptors(
+        #     distances=distances, num_descriptors=24, sample_size=256
+        # )
+        # lbp_hist = self._extract_character_lbp(img_gray)
+        # hist_hsv_sat = self._extract_color_histogram(image)
+        # _, _, w, h = cv.boundingRect(contour)
+        # hu_feats = self._extract_hu_moments_feature(contour=contour)
         # keys, orb_features = self._extract_orb_features(crop_img=image)
 
         hsv_hist = self._extract_hsv_histogram_feature(image)
@@ -52,12 +113,13 @@ class FeatureExtractor:
                 # self._normalize(hu_feats)
             )
         ).astype(np.float32)
+
         return True, features
 
     def _extract_orb_features(
-    self, 
-    crop_img: cv.typing.MatLike,
-    nfeatures: int = 500,
+        self,
+        crop_img: cv.typing.MatLike,
+        nfeatures: int = 500,
     ):
         """Extract ORB keypoints and binary descriptors from a masked character image.
 
@@ -74,7 +136,7 @@ class FeatureExtractor:
         gray = cv.cvtColor(crop_img, cv.COLOR_BGR2GRAY)
 
         # 2. Create foreground mask (non-black pixels)
-        crop_array=np.asarray(crop_img)
+        crop_array = np.asarray(crop_img)
         mask = (np.any(crop_img != 0, axis=2)).astype(np.uint8) * 255
 
         # Short-circuit if mask is completely empty
@@ -129,7 +191,11 @@ class FeatureExtractor:
         # Hu moments span vastly different orders of magnitude (e.g. 1e-3 to 1e-15)
         for i in range(7):
             if hu_moments[i] != 0:
-                hu_moments[i] = -1.0 * np.copysign(1.0, hu_moments[i]) * np.log10(np.abs(hu_moments[i]))
+                hu_moments[i] = (
+                    -1.0
+                    * np.copysign(1.0, hu_moments[i])
+                    * np.log10(np.abs(hu_moments[i]))
+                )
 
         return hu_moments.astype(np.float32)
 
