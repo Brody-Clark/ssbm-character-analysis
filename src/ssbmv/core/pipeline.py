@@ -15,10 +15,11 @@ from ssbmv.source.frame_source import VideoSource
 _DEBUG_FRAME_NAME = "SSBMV DEBUG"
 _TEMPORAL_CONSISTENCY_FRAMES = 18
 
+
 class VisionPipeline:
     """Game state prediction pipeline for Super Smash Bros Melee gameplay."""
 
-    def __init__(self, detector: Detector, tracker: Tracker, matcher: Matcher ):
+    def __init__(self, detector: Detector, tracker: Tracker, matcher: Matcher):
         self._detector = detector
         self._tracker = tracker
         self._matcher = matcher
@@ -66,7 +67,7 @@ class VisionPipeline:
         if not matches:
             return "Unknown"
         return Counter(matches).most_common(1)[0][0]
-    
+
     def process(self, video_source: VideoSource, output_stream: TextIO, debug: bool):
         """Runs pipeline for SSBM gameplay source and prints game state results"""
         game_state = GameState()
@@ -77,9 +78,9 @@ class VisionPipeline:
             if not frame:
                 break
             game_state.frame_index += 1
-            
+
             start = time.perf_counter()
-            
+
             detections, huds = self._detector.detect(frame=frame)
             active_tracks, matched_detections = self._tracker.track(detections)
             game_state.hud_states = self._matcher.match_huds(frame=frame, huds=huds)
@@ -88,9 +89,9 @@ class VisionPipeline:
             # Temporal consistency check:
             # keep the most frequent character id for a tracked actor
             new_tracked_matches = {}
-            for i,track in enumerate(active_tracks):
+            for i, track in enumerate(active_tracks):
                 prev_matches = tracked_matches.get(track.track_id)
-                if prev_matches:    
+                if prev_matches:
                     cur_match = matched_actors[i]
                     if cur_match is None:
                         prev_matches.append(self._get_best_match(prev_matches))
@@ -101,7 +102,7 @@ class VisionPipeline:
                     new_matches = deque(maxlen=_TEMPORAL_CONSISTENCY_FRAMES)
                     cur_match = matched_actors[i]
                     if cur_match is None:
-                        new_matches.append('Unknown')
+                        new_matches.append("Unknown")
                     else:
                         new_matches.append(cur_match.character_id)
                     new_tracked_matches[track.track_id] = new_matches

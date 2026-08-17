@@ -60,7 +60,11 @@ class FeatureExtractor:
         # Hu moments span vastly different orders of magnitude (e.g. 1e-3 to 1e-15)
         for i in range(7):
             if hu_moments[i] != 0:
-                hu_moments[i] = -1.0 * np.copysign(1.0, hu_moments[i]) * np.log10(np.abs(hu_moments[i]))
+                hu_moments[i] = (
+                    -1.0
+                    * np.copysign(1.0, hu_moments[i])
+                    * np.log10(np.abs(hu_moments[i]))
+                )
 
         return hu_moments.astype(np.float32)
 

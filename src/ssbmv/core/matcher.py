@@ -23,7 +23,9 @@ MATCH_CONFIDENCE_THRESHOLD = 0.65
 class Matcher:
     """Build feature templates and match detections against them."""
 
-    def __init__(self, feature_extractor: FeatureExtractor, feature_database: FeatureDatabase):
+    def __init__(
+        self, feature_extractor: FeatureExtractor, feature_database: FeatureDatabase
+    ):
         self._extractor = feature_extractor
         self._feature_db = feature_database
 
@@ -50,7 +52,9 @@ class Matcher:
             return matched_huds
 
         query_matrix = np.array(query_features, dtype=np.float32)
-        dists = cdist(query_matrix, self._feature_db.hud_features.features, metric="cosine")
+        dists = cdist(
+            query_matrix, self._feature_db.hud_features.features, metric="cosine"
+        )
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
 
@@ -101,10 +105,12 @@ class Matcher:
             return matches
 
         query_matrix = np.array(query_features, dtype=np.float32)
-        dists = cdist(query_matrix, self._feature_db.actor_features.features, metric="cosine")
+        dists = cdist(
+            query_matrix, self._feature_db.actor_features.features, metric="cosine"
+        )
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
-        
+
         for match_index, best_idx, min_dist in zip(
             matched_detection_indices, best_template_indices, min_dists
         ):

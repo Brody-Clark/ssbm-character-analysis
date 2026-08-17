@@ -15,7 +15,7 @@ class Track:
     age_frames: int = 0
     time_since_update: int = 0
     is_active: bool = True
-    previous_matches = [None]*5
+    previous_matches = [None] * 5
 
     @property
     def centroid(self) -> Point:
@@ -94,6 +94,7 @@ class Dimension2D:
     w: int
     h: int
 
+
 @dataclass(slots=True)
 class Frame:
     """A single video frame with metadata."""
@@ -103,19 +104,23 @@ class Frame:
     dimensions: Dimension2D
     timestamp: int
 
+
 @dataclass(slots=True)
 class ActorFeatures:
     character_names: list[str] = field(default_factory=list)
     animation_names: list[str] = field(default_factory=list)
     features: npt.NDArray[float32] = field(default_factory=list)
 
+
 @dataclass(slots=True)
 class HUDFeatures:
     character_names: list[str] = field(default_factory=list)
     features: npt.NDArray[float32] = field(default_factory=list)
 
+
 @dataclass(slots=True)
 class FeatureDatabase:
     """Load and expose sprite assets used by the matching pipeline."""
+
     actor_features: ActorFeatures
     hud_features: HUDFeatures

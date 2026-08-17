@@ -141,7 +141,7 @@ class Detector:
         """Create a clean candidate mask for a region by combining motion and HSV cues."""
         x, y, w, h = region
         img = frame.image[y : y + h, x : x + w]
-        
+
         # MOG motion mask
         motion_mask = self._mog.apply(frame.image)
         fg_mask = motion_mask[y : y + h, x : x + w]

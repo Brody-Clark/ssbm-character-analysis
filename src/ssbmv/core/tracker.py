@@ -12,6 +12,7 @@ MAX_DISTANCE = 120
 MIN_FRAMES_ACTIVE = 6
 MAX_UNMATCHED_FRAMES = 5
 
+
 class Tracker:
     """Track actors and predict their next centroid location."""
 

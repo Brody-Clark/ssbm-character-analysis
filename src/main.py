@@ -74,11 +74,13 @@ def _load_character_spritesheets(
             if not anim_dir.is_dir():
                 continue
 
-            image_files.extend([
-                path
-                for path in anim_dir.iterdir()
-                if path.is_file() and path.suffix.lower() in VALID_EXTENSIONS
-            ])
+            image_files.extend(
+                [
+                    path
+                    for path in anim_dir.iterdir()
+                    if path.is_file() and path.suffix.lower() in VALID_EXTENSIONS
+                ]
+            )
 
     features_list = []
     try:
@@ -102,6 +104,7 @@ def _load_character_spritesheets(
 
     return actor_sprites
 
+
 def _numpy_json_encoder(obj):
     """Convert NumPy arrays and scalars to JSON-serializable Python types."""
     if isinstance(obj, np.ndarray):
@@ -109,6 +112,7 @@ def _numpy_json_encoder(obj):
     if isinstance(obj, np.generic):
         return obj.item()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
 
 def handle_init(args, parser):
     """Generates feature index file from provided templates"""
@@ -149,18 +153,16 @@ def _load_feature_database(json_path: str | Path) -> FeatureDatabase:
     actor_features = ActorFeatures(
         character_names=actor_data.get("character_names", []),
         animation_names=actor_data.get("animation_names", []),
-        features=np.array(actor_data.get("features", []), dtype=np.float32)
+        features=np.array(actor_data.get("features", []), dtype=np.float32),
     )
 
     hud_features = HUDFeatures(
         character_names=hud_data.get("character_names", []),
-        features=np.array(hud_data.get("features", []), dtype=np.float32)
+        features=np.array(hud_data.get("features", []), dtype=np.float32),
     )
 
-    return FeatureDatabase(
-        actor_features=actor_features,
-        hud_features=hud_features
-    )
+    return FeatureDatabase(actor_features=actor_features, hud_features=hud_features)
+
 
 def handle_run(args, parser):
     """Loads index and runs pipeline"""
@@ -207,7 +209,9 @@ def handle_run(args, parser):
         frame_source = VideoSource(video_frame_source=str(input_path))
         detector = Detector(stage_name=args.stage)
         tracker = Tracker()
-        matcher = Matcher(feature_extractor=FeatureExtractor(), feature_database=sprite_db)
+        matcher = Matcher(
+            feature_extractor=FeatureExtractor(), feature_database=sprite_db
+        )
         pipeline = VisionPipeline(detector=detector, tracker=tracker, matcher=matcher)
 
         _logger.info("Initialization complete, beginning processing.")
