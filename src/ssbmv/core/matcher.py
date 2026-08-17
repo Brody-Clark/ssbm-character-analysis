@@ -11,7 +11,7 @@ from ssbmv.domain.models import (
     HUDDetection,
     HUDState,
     Match,
-    SpriteDatabase,
+    FeatureDatabase,
 )
 from ssbmv.core.feature_extractor import FeatureExtractor
 
@@ -23,9 +23,9 @@ MATCH_CONFIDENCE_THRESHOLD = 0.65
 class Matcher:
     """Build feature templates and match detections against them."""
 
-    def __init__(self, feature_extractor: FeatureExtractor, sprite_database: SpriteDatabase):
+    def __init__(self, feature_extractor: FeatureExtractor, feature_database: FeatureDatabase):
         self._extractor = feature_extractor
-        self._sprite_db = sprite_database
+        self._feature_db = feature_database
 
     def _distance_to_confidence(self, dist: float) -> float:
         """Convert a cosine distance into a confidence score."""
@@ -50,7 +50,7 @@ class Matcher:
             return matched_huds
 
         query_matrix = np.array(query_features, dtype=np.float32)
-        dists = cdist(query_matrix, self._sprite_db.hud_sprites.features, metric="cosine")
+        dists = cdist(query_matrix, self._feature_db.hud_features.features, metric="cosine")
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
 
@@ -59,7 +59,7 @@ class Matcher:
         ):
             score = self._distance_to_confidence(min_dist)
             icon_character_id = (
-                self._sprite_db.hud_sprites.character_names[best_idx]
+                self._feature_db.hud_features.character_names[best_idx]
                 if score > MATCH_CONFIDENCE_THRESHOLD
                 else "Unknown"
             )
@@ -101,7 +101,7 @@ class Matcher:
             return matches
 
         query_matrix = np.array(query_features, dtype=np.float32)
-        dists = cdist(query_matrix, self._sprite_db.actor_sprites.features, metric="cosine")
+        dists = cdist(query_matrix, self._feature_db.actor_features.features, metric="cosine")
         min_dists = np.min(dists, axis=1)
         best_template_indices = np.argmin(dists, axis=1)
         
@@ -110,7 +110,7 @@ class Matcher:
         ):
             confidence = self._distance_to_confidence(min_dist)
             if confidence >= MATCH_CONFIDENCE_THRESHOLD:
-                name = self._sprite_db.actor_sprites.character_names[best_idx]
+                name = self._feature_db.actor_features.character_names[best_idx]
                 matches[match_index] = Match(
                     character_id=name,
                     confidence_score=confidence,

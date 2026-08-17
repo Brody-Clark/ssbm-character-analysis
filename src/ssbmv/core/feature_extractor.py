@@ -37,8 +37,8 @@ class FeatureExtractor:
         )
         lbp_hist = self._extract_character_lbp(img_gray)
         # hist_hsv_sat = self._extract_saturation_histogram(image)
-        _, _, w, h = cv.boundingRect(contour)
-        hu_feats = self._extract_hu_moments_feature(contour=contour)
+        # _, _, w, h = cv.boundingRect(contour)
+        # hu_feats = self._extract_hu_moments_feature(contour=contour)
         hsv_hist = self._extract_hsv_histogram_feature(image)
 
         features = np.hstack(
@@ -47,7 +47,7 @@ class FeatureExtractor:
                 self._normalize(lbp_hist),
                 self._normalize(desc),
                 self._normalize(hsv_hist),
-                self._normalize(hu_feats)
+                # self._normalize(hu_feats)
             )
         ).astype(np.float32)
         return True, features

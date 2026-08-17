@@ -13,7 +13,7 @@ from ssbmv.core.matcher import Matcher
 from ssbmv.source.frame_source import VideoSource
 
 _DEBUG_FRAME_NAME = "SSBMV DEBUG"
-
+_TEMPORAL_CONSISTENCY_FRAMES = 18
 
 class VisionPipeline:
     """Game state prediction pipeline for Super Smash Bros Melee gameplay."""
@@ -79,27 +79,26 @@ class VisionPipeline:
             game_state.frame_index += 1
             
             start = time.perf_counter()
-            # Run detection -> Tracking -> Matching
+            
             detections, huds = self._detector.detect(frame=frame)
             active_tracks, matched_detections = self._tracker.track(detections)
             game_state.hud_states = self._matcher.match_huds(frame=frame, huds=huds)
             matched_actors = self._matcher.match_actors(frame, matched_detections)
 
             # Temporal consistency check:
-            # keep the most frequent character id for a tracked actor (last 6 frames)
+            # keep the most frequent character id for a tracked actor
             new_tracked_matches = {}
             for i,track in enumerate(active_tracks):
                 prev_matches = tracked_matches.get(track.track_id)
                 if prev_matches:    
                     cur_match = matched_actors[i]
                     if cur_match is None:
-                        # prev_matches.append('Unknown') # TODO: could call _get_best_match here and add that instead? 
                         prev_matches.append(self._get_best_match(prev_matches))
                     else:
                         prev_matches.append(cur_match.character_id)
                     new_tracked_matches[track.track_id] = prev_matches
                 else:
-                    new_matches = deque(maxlen=18)
+                    new_matches = deque(maxlen=_TEMPORAL_CONSISTENCY_FRAMES)
                     cur_match = matched_actors[i]
                     if cur_match is None:
                         new_matches.append('Unknown')

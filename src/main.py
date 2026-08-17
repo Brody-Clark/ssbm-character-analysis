@@ -12,7 +12,7 @@ from ssbmv.core.feature_extractor import FeatureExtractor
 from ssbmv.core.detector import Detector
 from ssbmv.core.tracker import Tracker
 from ssbmv.core.matcher import Matcher
-from ssbmv.domain.models import SpriteDatabase, ActorSprites, HUDSprites
+from ssbmv.domain.models import FeatureDatabase, ActorFeatures, HUDFeatures
 from ssbmv.source.frame_source import VideoSource
 import cProfile
 
@@ -29,13 +29,13 @@ VALID_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
 def _load_character_huds(
     root_path: str | Path, extractor: FeatureExtractor
-) -> HUDSprites:
+) -> HUDFeatures:
     """Load HUD icon images from a flat directory of image files."""
     root = Path(root_path)
     if not root.exists() or not root.is_dir():
         raise ValueError(f"Invalid root path: {root_path}")
 
-    hud_sprites = HUDSprites()
+    hud_sprites = HUDFeatures()
     features_list = []
     for img_path in sorted(root.iterdir()):
         if not img_path.is_file() or img_path.suffix.lower() not in VALID_EXTENSIONS:
@@ -59,13 +59,13 @@ def _load_character_huds(
 
 def _load_character_spritesheets(
     root_path: str | Path, extractor: FeatureExtractor
-) -> ActorSprites:
+) -> ActorFeatures:
     """Load character sprite sheets from a directory of per-character animations."""
     root = Path(root_path)
     if not root.exists() or not root.is_dir():
         raise ValueError(f"Invalid root path: {root_path}")
 
-    actor_sprites = ActorSprites()
+    actor_sprites = ActorFeatures()
     image_files: list[Path] = []
     for char_dir in sorted(root.iterdir()):
         if not char_dir.is_dir():
@@ -80,9 +80,7 @@ def _load_character_spritesheets(
                 if path.is_file() and path.suffix.lower() in VALID_EXTENSIONS
             ])
 
-    features_list = (
-        []
-    )  # TODO: Figure out dimensions of features and use features = np.empty((num_images, feature_dim), dtype=np.float32)
+    features_list = []
     try:
         for img_path in image_files:
             img = imread(str(img_path))
@@ -132,40 +130,36 @@ def handle_init(args, parser):
     )
     hud_sprites = _load_character_huds(sprite_path / "huds", extractor=extractor)
 
-    db = SpriteDatabase(actor_sprites=actor_sprites, hud_sprites=hud_sprites)
+    db = FeatureDatabase(actor_features=actor_sprites, hud_features=hud_sprites)
 
     with open(str(output_file), "w", encoding="utf8") as file:
         json.dump(asdict(db), file, default=_numpy_json_encoder, indent=2)
 
-    _logger.info(f"Initilization complete. Index file created at {str(output_file)}")
+    _logger.info("Initilization complete. Index file created at %s", {str(output_file)})
 
 
-def _sprite_db_decoder(obj_dict):
-    
-    return SpriteDatabase(**obj_dict)
-
-def _load_sprite_database(json_path: str | Path) -> SpriteDatabase:
+def _load_feature_database(json_path: str | Path) -> FeatureDatabase:
     """Load and parse a SpriteDatabase from a JSON index file."""
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    actor_data = data.get("actor_sprites", {})
-    hud_data = data.get("hud_sprites", {})
+    actor_data = data.get("actor_features", {})
+    hud_data = data.get("hud_features", {})
 
-    actor_sprites = ActorSprites(
+    actor_features = ActorFeatures(
         character_names=actor_data.get("character_names", []),
         animation_names=actor_data.get("animation_names", []),
         features=np.array(actor_data.get("features", []), dtype=np.float32)
     )
 
-    hud_sprites = HUDSprites(
+    hud_features = HUDFeatures(
         character_names=hud_data.get("character_names", []),
         features=np.array(hud_data.get("features", []), dtype=np.float32)
     )
 
-    return SpriteDatabase(
-        actor_sprites=actor_sprites,
-        hud_sprites=hud_sprites
+    return FeatureDatabase(
+        actor_features=actor_features,
+        hud_features=hud_features
     )
 
 def handle_run(args, parser):
@@ -185,7 +179,7 @@ def handle_run(args, parser):
 
     _logger.info("Loading index file.")
     try:
-        sprite_db = _load_sprite_database(index)
+        sprite_db = _load_feature_database(index)
     except FileNotFoundError:
         parser.error("The specified index file does not exist.")
     except json.JSONDecodeError:
@@ -213,7 +207,7 @@ def handle_run(args, parser):
         frame_source = VideoSource(video_frame_source=str(input_path))
         detector = Detector(stage_name=args.stage)
         tracker = Tracker()
-        matcher = Matcher(feature_extractor=FeatureExtractor(), sprite_database=sprite_db)
+        matcher = Matcher(feature_extractor=FeatureExtractor(), feature_database=sprite_db)
         pipeline = VisionPipeline(detector=detector, tracker=tracker, matcher=matcher)
 
         _logger.info("Initialization complete, beginning processing.")

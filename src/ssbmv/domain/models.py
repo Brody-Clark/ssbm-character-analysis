@@ -104,18 +104,18 @@ class Frame:
     timestamp: int
 
 @dataclass(slots=True)
-class ActorSprites:
+class ActorFeatures:
     character_names: list[str] = field(default_factory=list)
     animation_names: list[str] = field(default_factory=list)
     features: npt.NDArray[float32] = field(default_factory=list)
 
 @dataclass(slots=True)
-class HUDSprites:
+class HUDFeatures:
     character_names: list[str] = field(default_factory=list)
     features: npt.NDArray[float32] = field(default_factory=list)
 
 @dataclass(slots=True)
-class SpriteDatabase:
+class FeatureDatabase:
     """Load and expose sprite assets used by the matching pipeline."""
-    actor_sprites: ActorSprites
-    hud_sprites: HUDSprites
+    actor_features: ActorFeatures
+    hud_features: HUDFeatures
