@@ -117,6 +117,8 @@ class VisionPipeline:
 
                 a = Actor()
                 a.character_id = actor_name
+                matched_actor = matched_actors[i]
+                a.animation_id = matched_actor.animation if matched_actor else "Unknown"
                 a.rect = active_tracks[i].current_rect
                 a.track_id = active_tracks[i].track_id
                 game_state.actors.append(a)

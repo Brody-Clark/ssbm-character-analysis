@@ -30,6 +30,7 @@ class Actor:
 
     rect: Rect = field(default_factory=list)
     character_id: str = "Unknown"
+    animation_id:str = "Unknown"
     # confidence_score: float = 0.0
     track_id: int = 0
 
@@ -39,6 +40,7 @@ class Match:
     """A candidate character identity with a confidence score."""
 
     character_id: str = "Unknown"
+    animation: str = "Unknown"
     confidence_score: float = 0.0
 
 

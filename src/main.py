@@ -139,7 +139,7 @@ def handle_init(args, parser):
     with open(str(output_file), "w", encoding="utf8") as file:
         json.dump(asdict(db), file, default=_numpy_json_encoder, indent=2)
 
-    _logger.info("Initilization complete. Index file created at %s", {str(output_file)})
+    _logger.info("Initialization complete. Index file created at %s", str(output_file.absolute()))
 
 
 def _load_feature_database(json_path: str | Path) -> FeatureDatabase:

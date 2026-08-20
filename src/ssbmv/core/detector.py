@@ -148,7 +148,7 @@ class Detector:
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
         _, fg_mask = cv.threshold(fg_mask, 125, 255, cv.THRESH_BINARY)
         fg_mask = cv.morphologyEx(fg_mask, cv.MORPH_OPEN, kernel, iterations=2)
-        fg_mask = cv.dilate(fg_mask, kernel=kernel, iterations=2)
+        fg_mask = cv.dilate(fg_mask, kernel=kernel, iterations=1)
 
         # HSV masking
         hsv_mask_raw = self._get_hsv_mask(img=img)

@@ -145,22 +145,9 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
 
     # FPS tracking
     elapsed_times: List[float] = []
-    timestamps: List[float] = []
 
     # Track assignment of GT actor_id -> predicted track_id
     prev_assignment: Dict[int, Optional[object]] = {}
-
-    # Prediction lables are in the form {name}_{animation}
-    def split_pred_label(label: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
-        if not label:
-            return None, None
-        label = label.strip()
-        if label.lower() == "unknown":
-            return None, None
-        if "_" in label:
-            parts = label.split("_", 1)
-            return parts[0], parts[1]
-        return label, None
 
     for fi in all_frames:
         gt_actors = gt.get(fi, [])
@@ -185,9 +172,9 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
 
         # Classification accuracy - split predicted label into character and animation
         for g, p in matches:
-            pred_label = p.get("character_id")
+            pred_char = p.get("character_id")
+            pred_anim = p.get("animation_id")
             gt_labels = g.get("labels", [])
-            pred_char, pred_anim = split_pred_label(pred_label)
             if pred_char and pred_char in gt_labels:
                 char_correct += 1
             if pred_anim and pred_anim in gt_labels:
@@ -244,7 +231,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     print(f"TP                      : {total_tp}")
     print(f"FP                      : {total_fp}")
     print(f"FN                      : {total_fn}")
-    print(f"Matching accuracy       : {matching_accuracy:.4f}")
+    print(f"Segmentation accuracy   : {matching_accuracy:.4f}")
     print(f"Precision               : {precision:.4f}")
     print(f"Recall                  : {recall:.4f}")
     print(f"F1                      : {f1:.4f}")

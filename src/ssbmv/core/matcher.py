@@ -117,8 +117,10 @@ class Matcher:
             confidence = self._distance_to_confidence(min_dist)
             if confidence >= MATCH_CONFIDENCE_THRESHOLD:
                 name = self._feature_db.actor_features.character_names[best_idx]
+                anim = self._feature_db.actor_features.animation_names[best_idx]
                 matches[match_index] = Match(
                     character_id=name,
+                    animation=anim,
                     confidence_score=confidence,
                 )
         return matches
