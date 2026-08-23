@@ -30,8 +30,7 @@ class Actor:
 
     rect: Rect = field(default_factory=list)
     character_id: str = "Unknown"
-    animation_id:str = "Unknown"
-    # confidence_score: float = 0.0
+    animation_id: str = "Unknown"
     track_id: int = 0
 
 
@@ -60,29 +59,10 @@ class DetectionCandidate:
 
 
 @dataclass(slots=True)
-class HUDDetection:
-    """A candidate HUD region detected from the current frame."""
-
-    player_slot: int
-    hud_rect: Rect
-    binary_mask: MatLike
-
-
-@dataclass(slots=True)
-class HUDState:
-    """The resolved HUD assignment for one player slot."""
-
-    player_slot: int
-    icon_character_id: Optional[str]
-    hud_rect: Rect
-
-
-@dataclass(slots=True)
 class GameState:
     """Frame-level state passed through the pipeline."""
 
     frame_index: int = 0
-    hud_states: list[HUDState] = field(default_factory=list)
     actors: list[Actor] = field(default_factory=list)
     timestamp_s: float = 0
     elapsed_frame_time_s: float = 0
@@ -109,14 +89,10 @@ class Frame:
 
 @dataclass(slots=True)
 class ActorFeatures:
+    """Character names, animation states, and corresponding feature vectors."""
+
     character_names: list[str] = field(default_factory=list)
     animation_names: list[str] = field(default_factory=list)
-    features: npt.NDArray[float32] = field(default_factory=list)
-
-
-@dataclass(slots=True)
-class HUDFeatures:
-    character_names: list[str] = field(default_factory=list)
     features: npt.NDArray[float32] = field(default_factory=list)
 
 
@@ -125,4 +101,3 @@ class FeatureDatabase:
     """Load and expose sprite assets used by the matching pipeline."""
 
     actor_features: ActorFeatures
-    hud_features: HUDFeatures

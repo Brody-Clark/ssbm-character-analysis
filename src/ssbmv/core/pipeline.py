@@ -39,22 +39,6 @@ class VisionPipeline:
                 color=(0, 255, 0),
                 thickness=2,
             )
-        for hud in game_state.hud_states:
-            if hud is None:
-                continue
-            x, y, w, h = hud.hud_rect
-            cv.rectangle(
-                debug_frame, rec=[x, y, w, h], color=(158, 200, 22), thickness=2
-            )
-            cv.putText(
-                debug_frame,
-                f"{hud.icon_character_id}",
-                org=(x, y - 10),
-                fontFace=cv.FONT_HERSHEY_SIMPLEX,
-                fontScale=0.7,
-                color=(0, 255, 0),
-                thickness=2,
-            )
         cv.imshow(_DEBUG_FRAME_NAME, debug_frame)
         while True:
             key = cv.waitKey()
@@ -81,9 +65,8 @@ class VisionPipeline:
 
             start = time.perf_counter()
 
-            detections, huds = self._detector.detect(frame=frame)
+            detections = self._detector.detect(frame=frame)
             active_tracks, matched_detections = self._tracker.track(detections)
-            game_state.hud_states = self._matcher.match_huds(frame=frame, huds=huds)
             matched_actors = self._matcher.match_actors(frame, matched_detections)
 
             # Temporal consistency check:

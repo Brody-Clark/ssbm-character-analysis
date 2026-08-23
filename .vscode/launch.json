@@ -24,7 +24,10 @@
                 "--output",
                 "./features.json",
                 "--sprites-dir",
-                "${workspaceFolder}/data/templates/"
+                "${workspaceFolder}/data/templates/",
+                "--features",
+                "hu",
+                "hsv"
             ],
             "justMyCode": false
         },
@@ -42,15 +45,18 @@
             "args": [
                 "run",
                 "--input",
-                "${workspaceFolder}/tests/recordings/temple.mp4",
+                "${workspaceFolder}/tests/recordings/corneria.mp4",
                 "--stage",
-                "temple",
+                "corneria",
                 "--output",
                 "file",
                 "--file",
                 "./results.jsonl",
                 "--index",
                 "./features.json",
+                "--features",
+                "hu",
+                "hsv"
                 // "--debug"
             ],
             "justMyCode": false

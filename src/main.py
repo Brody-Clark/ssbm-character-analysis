@@ -12,7 +12,7 @@ from ssbmv.core.feature_extractor import FeatureExtractor
 from ssbmv.core.detector import Detector
 from ssbmv.core.tracker import Tracker
 from ssbmv.core.matcher import Matcher
-from ssbmv.domain.models import FeatureDatabase, ActorFeatures, HUDFeatures
+from ssbmv.domain.models import FeatureDatabase, ActorFeatures
 from ssbmv.source.frame_source import VideoSource
 import cProfile
 
@@ -25,36 +25,6 @@ _logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 VALID_EXTENSIONS = {".jpg", ".jpeg", ".png"}
-
-
-def _load_character_huds(
-    root_path: str | Path, extractor: FeatureExtractor
-) -> HUDFeatures:
-    """Load HUD icon images from a flat directory of image files."""
-    root = Path(root_path)
-    if not root.exists() or not root.is_dir():
-        raise ValueError(f"Invalid root path: {root_path}")
-
-    hud_sprites = HUDFeatures()
-    features_list = []
-    for img_path in sorted(root.iterdir()):
-        if not img_path.is_file() or img_path.suffix.lower() not in VALID_EXTENSIONS:
-            _logger.debug("File %s is not valid. Skipping.", str(img_path))
-            continue
-
-        img = imread(str(img_path))
-        if img is not None:
-            hud_sprites.character_names.append(img_path.stem)
-            success, features = extractor.get_character_features(img)
-            if not success:
-                _logger.warning(
-                    "Failed to extract features from %s. Skipping.", img_path
-                )
-                continue
-            features_list.append(features)
-        hud_sprites.features = np.array(features_list, dtype=np.float32)
-
-    return hud_sprites
 
 
 def _load_character_spritesheets(
@@ -128,18 +98,19 @@ def handle_init(args, parser):
         raise RuntimeError(f"Invalid sprite data root path {sprite_path}")
 
     _logger.info("Generating feature index.")
-    extractor = FeatureExtractor()
+    extractor = FeatureExtractor(args.features)
     actor_sprites = _load_character_spritesheets(
         sprite_path / "sprites", extractor=extractor
     )
-    hud_sprites = _load_character_huds(sprite_path / "huds", extractor=extractor)
 
-    db = FeatureDatabase(actor_features=actor_sprites, hud_features=hud_sprites)
+    db = FeatureDatabase(actor_features=actor_sprites)
 
     with open(str(output_file), "w", encoding="utf8") as file:
         json.dump(asdict(db), file, default=_numpy_json_encoder, indent=2)
 
-    _logger.info("Initialization complete. Index file created at %s", str(output_file.absolute()))
+    _logger.info(
+        "Initialization complete. Index file created at %s", str(output_file.absolute())
+    )
 
 
 def _load_feature_database(json_path: str | Path) -> FeatureDatabase:
@@ -148,7 +119,6 @@ def _load_feature_database(json_path: str | Path) -> FeatureDatabase:
         data = json.load(f)
 
     actor_data = data.get("actor_features", {})
-    hud_data = data.get("hud_features", {})
 
     actor_features = ActorFeatures(
         character_names=actor_data.get("character_names", []),
@@ -156,12 +126,7 @@ def _load_feature_database(json_path: str | Path) -> FeatureDatabase:
         features=np.array(actor_data.get("features", []), dtype=np.float32),
     )
 
-    hud_features = HUDFeatures(
-        character_names=hud_data.get("character_names", []),
-        features=np.array(hud_data.get("features", []), dtype=np.float32),
-    )
-
-    return FeatureDatabase(actor_features=actor_features, hud_features=hud_features)
+    return FeatureDatabase(actor_features=actor_features)
 
 
 def handle_run(args, parser):
@@ -210,21 +175,16 @@ def handle_run(args, parser):
         detector = Detector(stage_name=args.stage)
         tracker = Tracker()
         matcher = Matcher(
-            feature_extractor=FeatureExtractor(), feature_database=sprite_db
+            feature_extractor=FeatureExtractor(features=args.features), feature_database=sprite_db
         )
         pipeline = VisionPipeline(detector=detector, tracker=tracker, matcher=matcher)
 
         _logger.info("Initialization complete, beginning processing.")
 
         # Process video
-        profiler = cProfile.Profile()
-        profiler.enable()
         pipeline.process(
             video_source=frame_source, output_stream=out_stream, debug=args.debug
         )
-        profiler.disable()
-        # Save output to a .prof file in your workspace root
-        profiler.dump_stats("pipeline.prof")
         _logger.info("Processing complete.")
 
 
@@ -247,6 +207,13 @@ if __name__ == "__main__":
         "-o",
         type=str,
         help="Path to store generate sprite template database .json.",
+    )
+    init_parser.add_argument(
+        "--features",
+        "-f",
+        nargs="+",
+        choices=["fd", "hu", "sat", "hsv", "lbp"],
+        help="Choose one or more features for classification.",
     )
     init_parser.set_defaults(func=handle_init)
 
@@ -278,6 +245,13 @@ if __name__ == "__main__":
         required=True,
         help="name of stage.",
         choices=["temple", "corneria", "venom"],
+    )
+    run_parser.add_argument(
+        "--features",
+        "-f",
+        nargs="+",
+        choices=["fd", "hu", "sat", "hsv", "lbp"],
+        help="Choose one or more features for classification. These must match what was used with the init command.",
     )
     run_parser.add_argument("--debug", action="store_true")
     run_parser.set_defaults(func=handle_run)

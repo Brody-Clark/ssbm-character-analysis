@@ -1,9 +1,38 @@
 import cv2 as cv
 import numpy as np
+from enum import Enum
 from skimage.feature import local_binary_pattern
 
 
+class Features(Enum):
+    """Supported features for classification."""
+
+    HSV = 1
+    SAT = 2
+    FD = 3
+    HU = 4
+    LBP = 5
+
+
+_STR_TO_FEATURES = {
+    "hsv": Features.HSV,
+    "sat": Features.SAT,
+    "fd": Features.FD,
+    "hu": Features.HU,
+    "lbp": Features.LBP,
+}
+
+
 class FeatureExtractor:
+    """Extracts feature vectors for SSBM characters."""
+
+    def __init__(self, features: list[str]):
+        self._features = set()
+        for f in features:
+            feat = _STR_TO_FEATURES.get(f, None)
+            if feat is None:
+                raise ValueError(f"Invalid feature {f}.")
+            self._features.add(feat)
 
     @staticmethod
     def _normalize(vector: np.ndarray) -> np.ndarray:
@@ -22,33 +51,48 @@ class FeatureExtractor:
         self, image: cv.typing.MatLike
     ) -> tuple[bool, np.typing.NDArray[np.float32]]:
         """Extract a combined feature vector for a candidate sprite image."""
-        img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        selected_features = self._features
+        norm_features = []
 
-        contour = self._get_shape_contour(img_gray=img_gray)
-        if contour is None:
-            return False, []
+        if not set([Features.FD, Features.HU, Features.LBP]).isdisjoint(
+            selected_features
+        ):
+            img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+            contour = self._get_shape_contour(img_gray=img_gray)
+            if contour is None:
+                return False, []
 
-        distances = self._compute_centroid_distances(contour=contour)
-        if distances is None:
-            return False, []
-
-        desc = self._get_fourier_descriptors(
-            distances=distances, num_descriptors=24, sample_size=256
-        )
-        lbp_hist = self._extract_character_lbp(img_gray)
-        # hist_hsv_sat = self._extract_saturation_histogram(image)
-        # _, _, w, h = cv.boundingRect(contour)
-        hu_feats = self._extract_hu_moments_feature(contour=contour)
-        hsv_hist = self._extract_hsv_histogram_feature(image)
-
-        features = np.hstack(
-            (
-                self._normalize(lbp_hist),
-                self._normalize(desc),
-                self._normalize(hsv_hist),
-                self._normalize(hu_feats)
+        if Features.FD in selected_features:
+            distances = self._compute_centroid_distances(contour=contour)
+            if distances is None:
+                return False, []
+            norm_features.append(
+                self._normalize(
+                    self._get_fourier_descriptors(
+                        distances=distances, num_descriptors=24, sample_size=256
+                    )
+                )
             )
-        ).astype(np.float32)
+
+        if Features.LBP in selected_features:
+            norm_features.append(self._normalize(self._extract_character_lbp(img_gray)))
+
+        if Features.SAT in selected_features:
+            norm_features.append(
+                self._normalize(self._extract_saturation_histogram(image))
+            )
+
+        if Features.HU in selected_features:
+            norm_features.append(
+                self._normalize(self._extract_hu_moments_feature(contour=contour))
+            )
+
+        if Features.HSV in selected_features:
+            norm_features.append(
+                self._normalize(self._extract_hsv_histogram_feature(image))
+            )
+
+        features = np.hstack(norm_features).astype(np.float32)
         return True, features
 
     def _extract_hu_moments_feature(self, contour: cv.typing.MatLike):

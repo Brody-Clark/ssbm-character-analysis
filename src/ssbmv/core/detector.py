@@ -2,7 +2,7 @@
 
 import cv2 as cv
 import numpy as np
-from ssbmv.domain.models import DetectionCandidate, Dimension2D, Frame, HUDDetection
+from ssbmv.domain.models import DetectionCandidate, Dimension2D, Frame
 from ssbmv.domain.stage_hsv_filters import STAGE_HSV_FILTERS
 
 _STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF = 64
@@ -26,8 +26,6 @@ class Detector:
             detectShadows=False,
         )
 
-        self._min_img = None
-        self._max_img = None
         self._scale_factor = scale_factor
         self._scale_up_factor = 1.0 / scale_factor
         self._scaled_min_sprite_area = int(
@@ -57,28 +55,6 @@ class Detector:
             mask = cv.inRange(img_hsv, self._hsv_lower[idx], self._hsv_upper[idx])
             combined_mask = cv.bitwise_or(combined_mask, mask)
         return cv.bitwise_not(combined_mask)
-
-    def _update_static_mask(self, frame_gray: cv.typing.MatLike) -> cv.typing.MatLike:
-        """Build a mask for static UI by tracking how much each pixel changes over time."""
-        if self._min_img is None or self._min_img.shape != frame_gray.shape:
-            self._min_img = frame_gray.copy()
-            self._max_img = frame_gray.copy()
-
-        np.minimum(self._min_img, frame_gray, out=self._min_img)
-        np.maximum(self._max_img, frame_gray, out=self._max_img)
-        range_img = cv.subtract(self._max_img, self._min_img)
-
-        _, static_ui_mask = cv.threshold(
-            range_img,
-            _STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF,
-            255,
-            cv.THRESH_BINARY_INV,
-        )
-        return static_ui_mask
-
-    def _get_min_area(self, dim: Dimension2D) -> int:
-        """Return the minimum acceptable candidate area for a sprite-sized region."""
-        return int(_MIN_SPRITE_AREA_RATIO * dim.w * dim.h)
 
     def _resize_image(self, img: cv.typing.MatLike, scale: float) -> cv.typing.MatLike:
         """Resize an image using the configured scale factor."""
@@ -213,30 +189,8 @@ class Detector:
 
         return candidates
 
-    def _get_character_HUDs(self, frame: cv.typing.MatLike) -> list[HUDDetection]:
-        """Return HUD icon candidates from the bottom UI strip for 1280x720 video."""
-        hud_slice = frame[536:586, 230:1080]
-        hud_slice_gray = cv.cvtColor(hud_slice, cv.COLOR_BGR2GRAY)
-        hud_mask = self._update_static_mask(hud_slice_gray)
-
-        kernel = cv.getStructuringElement(cv.MORPH_RECT, (3, 3))
-        hud_mask = cv.morphologyEx(hud_mask, cv.MORPH_OPEN, kernel, iterations=1)
-        hud_mask = cv.morphologyEx(hud_mask, cv.MORPH_CLOSE, kernel, iterations=1)
-
-        return [
-            HUDDetection(
-                player_slot=i + 1,
-                hud_rect=[x + 230, 536, 50, 50],
-                binary_mask=hud_mask[0:50, x : x + 50],
-            )
-            for i, x in enumerate(range(0, 4 * 212, 212))
-        ]
-
-    def detect(
-        self, frame: Frame
-    ) -> tuple[list[DetectionCandidate], list[HUDDetection]]:
-        """Locate dynamic actor regions and HUD icons for one frame."""
-        huds = self._get_character_HUDs(frame=frame.image)
+    def detect(self, frame: Frame) -> list[DetectionCandidate]:
+        """Locate dynamic actor regions for one frame."""
 
         scaled_image = self._resize_image(frame.image, self._scale_factor)
         scaled_dimensions = Dimension2D(
@@ -268,4 +222,4 @@ class Detector:
                 )
             )
 
-        return detections, huds
+        return detections
