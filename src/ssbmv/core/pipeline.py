@@ -13,12 +13,13 @@ from ssbmv.core.matcher import Matcher
 from ssbmv.source.frame_source import VideoSource
 
 _DEBUG_FRAME_NAME = "SSBMV DEBUG"
+_TEMPORAL_CONSISTENCY_FRAMES = 18
 
 
 class VisionPipeline:
     """Game state prediction pipeline for Super Smash Bros Melee gameplay."""
 
-    def __init__(self, detector: Detector, tracker: Tracker, matcher: Matcher ):
+    def __init__(self, detector: Detector, tracker: Tracker, matcher: Matcher):
         self._detector = detector
         self._tracker = tracker
         self._matcher = matcher
@@ -38,22 +39,6 @@ class VisionPipeline:
                 color=(0, 255, 0),
                 thickness=2,
             )
-        for hud in game_state.hud_states:
-            if hud is None:
-                continue
-            x, y, w, h = hud.hud_rect
-            cv.rectangle(
-                debug_frame, rec=[x, y, w, h], color=(158, 200, 22), thickness=2
-            )
-            cv.putText(
-                debug_frame,
-                f"{hud.icon_character_id}",
-                org=(x, y - 10),
-                fontFace=cv.FONT_HERSHEY_SIMPLEX,
-                fontScale=0.7,
-                color=(0, 255, 0),
-                thickness=2,
-            )
         cv.imshow(_DEBUG_FRAME_NAME, debug_frame)
         while True:
             key = cv.waitKey()
@@ -66,7 +51,7 @@ class VisionPipeline:
         if not matches:
             return "Unknown"
         return Counter(matches).most_common(1)[0][0]
-    
+
     def process(self, video_source: VideoSource, output_stream: TextIO, debug: bool):
         """Runs pipeline for SSBM gameplay source and prints game state results"""
         game_state = GameState()
@@ -77,32 +62,30 @@ class VisionPipeline:
             if not frame:
                 break
             game_state.frame_index += 1
-            
+
             start = time.perf_counter()
-            # Run detection -> Tracking -> Matching
-            detections, huds = self._detector.detect(frame=frame)
+
+            detections = self._detector.detect(frame=frame)
             active_tracks, matched_detections = self._tracker.track(detections)
-            game_state.hud_states = self._matcher.match_huds(frame=frame, huds=huds)
             matched_actors = self._matcher.match_actors(frame, matched_detections)
 
             # Temporal consistency check:
-            # keep the most frequent character id for a tracked actor (last 6 frames)
+            # keep the most frequent character id for a tracked actor
             new_tracked_matches = {}
-            for i,track in enumerate(active_tracks):
+            for i, track in enumerate(active_tracks):
                 prev_matches = tracked_matches.get(track.track_id)
-                if prev_matches:    
+                if prev_matches:
                     cur_match = matched_actors[i]
                     if cur_match is None:
-                        # prev_matches.append('Unknown') # TODO: could call _get_best_match here and add that instead? 
                         prev_matches.append(self._get_best_match(prev_matches))
                     else:
                         prev_matches.append(cur_match.character_id)
                     new_tracked_matches[track.track_id] = prev_matches
                 else:
-                    new_matches = deque(maxlen=18)
+                    new_matches = deque(maxlen=_TEMPORAL_CONSISTENCY_FRAMES)
                     cur_match = matched_actors[i]
                     if cur_match is None:
-                        new_matches.append('Unknown')
+                        new_matches.append("Unknown")
                     else:
                         new_matches.append(cur_match.character_id)
                     new_tracked_matches[track.track_id] = new_matches
@@ -117,6 +100,8 @@ class VisionPipeline:
 
                 a = Actor()
                 a.character_id = actor_name
+                matched_actor = matched_actors[i]
+                a.animation_id = matched_actor.animation if matched_actor else "Unknown"
                 a.rect = active_tracks[i].current_rect
                 a.track_id = active_tracks[i].track_id
                 game_state.actors.append(a)

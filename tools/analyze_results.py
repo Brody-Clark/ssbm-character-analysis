@@ -1,7 +1,7 @@
 import argparse
 import json
 import statistics
-from typing import List, Tuple, Dict, Optional
+from typing import List, Tuple, Dict, Optional, Any
 
 
 def iou(rect_a: List[int], rect_b: List[int]) -> float:
@@ -28,7 +28,7 @@ def iou(rect_a: List[int], rect_b: List[int]) -> float:
     return inter_area / union
 
 
-def load_results(results_path: str) -> Dict[int, List[Dict]]:
+def load_results(results_path: str) -> Dict[int, Dict]:
     """Load pipeline results from jsonl and return map frame_index -> record dict."""
     frames: Dict[int, Dict] = {}
     with open(results_path, "r", encoding="utf-8") as f:
@@ -58,7 +58,6 @@ def load_ground_truth(gt_path: str) -> Dict[int, List[Dict]]:
 
     frames: Dict[int, List[Dict]] = {}
     for k, v in data.items():
-        # Support both numeric keys or 'frame_0001' style
         frame_num = v.get("frame_number") if isinstance(v, dict) else None
         if frame_num is None:
             try:
@@ -73,10 +72,7 @@ def load_ground_truth(gt_path: str) -> Dict[int, List[Dict]]:
 def match_frame(
     gt_actors: List[Dict], pred_actors: List[Dict], iou_thresh: float = 0.5
 ) -> Tuple[int, int, int, List[Tuple[Dict, Dict]], List[Dict], List[Dict]]:
-    """Match predictions to ground truth for a single frame.
-
-    Returns: TP, FP, FN, list of matched pairs (gt,pred), unmatched_preds, unmatched_gts
-    """
+    """Match predictions to ground truth for a single frame."""
     if not gt_actors and not pred_actors:
         return 0, 0, 0, [], [], []
 
@@ -88,7 +84,6 @@ def match_frame(
     pred_matched = [False] * len(pred_boxes)
     matches: List[Tuple[Dict, Dict]] = []
 
-    # Build IoU matrix
     iou_mat = []
     for gb in gt_boxes:
         row = []
@@ -96,7 +91,6 @@ def match_frame(
             row.append(iou(gb, pb))
         iou_mat.append(row)
 
-    # Greedy matching by highest IoU
     while True:
         best_val = 0.0
         best_g = -1
@@ -127,8 +121,8 @@ def match_frame(
     return tp, fp, fn, matches, unmatched_preds, unmatched_gts
 
 
-def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
-    """Compares ground truth to predicted results and prints analysis metrics."""
+def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5) -> Dict[str, Any]:
+    """Compares ground truth to predicted results and returns structured evaluation metrics."""
     results = load_results(results_path)
     gt = load_ground_truth(gt_path)
 
@@ -137,16 +131,12 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     total_tp = total_fp = total_fn = 0
     total_gt = 0
 
-    # classification broken into two metrics: character vs animation
     char_correct = 0
     anim_correct = 0
     class_total = 0
     idsw = 0
 
-    # FPS tracking
     elapsed_times: List[float] = []
-
-    # Track assignment of GT actor_id -> predicted track_id
     prev_assignment: Dict[int, Optional[object]] = {}
 
     for fi in all_frames:
@@ -154,7 +144,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
         visible_gt_actors = [g for g in gt_actors if g.get("bounding_rect") is not None]
         pred_record = results.get(fi, {}) or {}
         pred_actors = pred_record.get("actors", [])
-        # collect timing if available
+
         if "elapsed_frame_time_s" in pred_record and isinstance(
             pred_record.get("elapsed_frame_time_s"), (int, float)
         ):
@@ -162,7 +152,7 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
 
         total_gt += len(visible_gt_actors)
 
-        tp, fp, fn, matches, unmatched_preds, unmatched_gts = match_frame(
+        tp, fp, fn, matches, _, _ = match_frame(
             visible_gt_actors, pred_actors, iou_thresh=iou_thresh
         )
 
@@ -170,7 +160,6 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
         total_fp += fp
         total_fn += fn
 
-        # Classification accuracy - split predicted label into character and animation
         for g, p in matches:
             pred_char = p.get("character_id")
             pred_anim = p.get("animation_id")
@@ -181,7 +170,6 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
                 anim_correct += 1
             class_total += 1
 
-        # ID switch count
         for g, p in matches:
             gt_id = g.get("actor_id")
             if gt_id is None:
@@ -190,10 +178,9 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
             prev = prev_assignment.get(gt_id)
             if prev is not None and pred_track_id is not None and pred_track_id != prev:
                 idsw += 1
-            
+
             if pred_track_id is not None:
                 prev_assignment[gt_id] = pred_track_id
-
 
     precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0.0
     recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0.0
@@ -209,13 +196,9 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
     )
     char_accuracy = char_correct / class_total if class_total > 0 else 0.0
     anim_accuracy = anim_correct / class_total if class_total > 0 else 0.0
-
-    # Multi Obj Tracking Acc metric
     mota = 1.0 - (total_fn + total_fp + idsw) / total_gt if total_gt > 0 else 0.0
 
-    # FPS metrics: processing FPS based on elapsed_frame_time_s
-    proc_fps = 0.0
-    mean_elapsed = median_elapsed = 0.0
+    proc_fps = mean_elapsed = median_elapsed = 0.0
     if elapsed_times:
         total_elapsed = sum(elapsed_times)
         proc_fps = len(elapsed_times) / total_elapsed if total_elapsed > 0 else 0.0
@@ -225,35 +208,72 @@ def analyze(results_path: str, gt_path: str, iou_thresh: float = 0.5):
         except Exception:
             median_elapsed = mean_elapsed
 
+    return {
+        "frames_evaluated": len(all_frames),
+        "detection": {
+            "tp": total_tp,
+            "fp": total_fp,
+            "fn": total_fn,
+            "segmentation_accuracy": round(matching_accuracy, 4),
+            "precision": round(precision, 4),
+            "recall": round(recall, 4),
+            "f1": round(f1, 4),
+        },
+        "tracking": {
+            "visible_gt_objects": total_gt,
+            "id_switches": idsw,
+            "mota": round(mota, 4),
+        },
+        "classification": {
+            "character_accuracy": round(char_accuracy, 4),
+            "character_correct": char_correct,
+            "animation_accuracy": round(anim_accuracy, 4),
+            "animation_correct": anim_correct,
+            "total_matches": class_total,
+        },
+        "performance": {
+            "avg_time_per_frame_s": round(mean_elapsed, 4),
+            "median_time_per_frame_s": round(median_elapsed, 4),
+            "avg_fps": round(proc_fps, 2),
+        },
+    }
+
+
+def print_summary(metrics: Dict[str, Any]) -> None:
+    """Helper to format and print human-readable summary to console."""
+    det = metrics["detection"]
+    trk = metrics["tracking"]
+    cls = metrics["classification"]
+    prf = metrics["performance"]
+
     print("Evaluation Summary:")
-    print(f"Frames evaluated        : {len(all_frames)}")
+    print(f"Frames evaluated        : {metrics['frames_evaluated']}")
     print("Detection:")
-    print(f"TP                      : {total_tp}")
-    print(f"FP                      : {total_fp}")
-    print(f"FN                      : {total_fn}")
-    print(f"Segmentation accuracy   : {matching_accuracy:.4f}")
-    print(f"Precision               : {precision:.4f}")
-    print(f"Recall                  : {recall:.4f}")
-    print(f"F1                      : {f1:.4f}")
+    print(f"TP                      : {det['tp']}")
+    print(f"FP                      : {det['fp']}")
+    print(f"FN                      : {det['fn']}")
+    print(f"Segmentation accuracy   : {det['segmentation_accuracy']:.4f}")
+    print(f"Precision               : {det['precision']:.4f}")
+    print(f"Recall                  : {det['recall']:.4f}")
+    print(f"F1                      : {det['f1']:.4f}")
     print("\nTracking:")
-    print(f"Visible GT objects      : {total_gt}")
-    print(f"ID switches (approx)    : {idsw}")
-    print(f"MOTA (approx)           : {mota:.4f}")
+    print(f"Visible GT objects      : {trk['visible_gt_objects']}")
+    print(f"ID switches (approx)    : {trk['id_switches']}")
+    print(f"MOTA (approx)           : {trk['mota']:.4f}")
     print("\nClassification:")
     print(
-        f"Character accuracy      : {char_accuracy:.4f} ({char_correct}/{class_total})"
+        f"Character accuracy      : {cls['character_accuracy']:.4f} ({cls['character_correct']}/{cls['total_matches']})"
     )
     print(
-        f"Animation accuracy      : {anim_accuracy:.4f} ({anim_correct}/{class_total})"
+        f"Animation accuracy      : {cls['animation_accuracy']:.4f} ({cls['animation_correct']}/{cls['total_matches']})"
     )
     print("\nPerformance:")
-    if elapsed_times:
-        print(f"Avg time/frame (s)     : {mean_elapsed:.4f}")
-        print(f"Median time/frame (s)  : {median_elapsed:.4f}")
-        print(f"Average FPS            : {proc_fps:.2f}")
+    print(f"Avg time/frame (s)      : {prf['avg_time_per_frame_s']:.4f}")
+    print(f"Median time/frame (s)   : {prf['median_time_per_frame_s']:.4f}")
+    print(f"Average FPS             : {prf['avg_fps']:.2f}")
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Analyze pipeline results against ground truth"
     )
@@ -261,9 +281,7 @@ if __name__ == "__main__":
         "--results", required=True, help="Path to results.jsonl produced by pipeline"
     )
     parser.add_argument(
-        "--ground-truth",
-        required=True,
-        help="Path to ground truth JSON file for the recording",
+        "--ground-truth", required=True, help="Path to ground truth JSON file"
     )
     parser.add_argument(
         "--iou",
@@ -271,8 +289,27 @@ if __name__ == "__main__":
         default=0.5,
         help="IoU threshold for detection matching (default 0.5)",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Print raw JSON to stdout instead of formatted text",
+    )
+    parser.add_argument(
+        "--output", type=str, default=None, help="Path to write JSON metrics file"
+    )
 
-    res_path = args.results
-    gt_path = args.ground_truth
-    analyze(res_path, gt_path, iou_thresh=args.iou)
+    args = parser.parse_args()
+    metrics = analyze(args.results, args.ground_truth, iou_thresh=args.iou)
+
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as f:
+            json.dump(metrics, f, indent=2)
+
+    if args.json:
+        print(json.dumps(metrics, indent=2))
+    else:
+        print_summary(metrics)
+
+
+if __name__ == "__main__":
+    main()

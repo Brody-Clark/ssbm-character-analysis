@@ -7,6 +7,7 @@ __pycache__/
 *.so
 # Pipeline results
 *.jsonl
+test_results/
 
 # Profiling
 *.prof 
