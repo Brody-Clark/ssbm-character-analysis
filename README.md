@@ -2,9 +2,9 @@
 
 <br>
 <div style="display: flex; justify-content: center; gap: 10px;">
-  <img src="./docs/assets/corneria.png" alt="corneria" width="250" />
-  <img src="./docs/assets/temple.png" alt="temple" width="250" />
-  <img src="./docs/assets/venom.png" alt="venom" width="250" />
+  <img src="./docs/assets/corneria.png" alt="corneria" width="200" />
+  <img src="./docs/assets/temple.png" alt="temple" width="200" />
+  <img src="./docs/assets/venom.png" alt="venom" width="200" />
 </div>
 <br>
 
