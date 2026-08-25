@@ -6,13 +6,13 @@ from collections import deque, Counter
 from dataclasses import asdict
 from typing import TextIO
 import cv2 as cv
-from ssbmv.domain.models import Actor, Frame, GameState
-from ssbmv.core.detector import Detector
-from ssbmv.core.tracker import Tracker
-from ssbmv.core.matcher import Matcher
-from ssbmv.source.frame_source import VideoSource
+from ssbmca.domain.models import Actor, Frame, GameState
+from ssbmca.core.detector import Detector
+from ssbmca.core.tracker import Tracker
+from ssbmca.core.matcher import Matcher
+from ssbmca.source.frame_source import VideoSource
 
-_DEBUG_FRAME_NAME = "SSBMV DEBUG"
+_DEBUG_FRAME_NAME = "SSBMCA DEBUG"
 _TEMPORAL_CONSISTENCY_FRAMES = 18
 
 
@@ -64,7 +64,6 @@ class VisionPipeline:
             game_state.frame_index += 1
 
             start = time.perf_counter()
-
             detections = self._detector.detect(frame=frame)
             active_tracks, matched_detections = self._tracker.track(detections)
             matched_actors = self._matcher.match_actors(frame, matched_detections)

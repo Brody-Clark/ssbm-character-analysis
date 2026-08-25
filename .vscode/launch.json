@@ -45,9 +45,9 @@
             "args": [
                 "run",
                 "--input",
-                "${workspaceFolder}/tests/recordings/corneria.mp4",
+                "${workspaceFolder}/tests/recordings/temple.mp4",
                 "--stage",
-                "corneria",
+                "temple",
                 "--output",
                 "file",
                 "--file",
@@ -56,8 +56,8 @@
                 "./features.json",
                 "--features",
                 "hu",
-                "hsv"
-                // "--debug"
+                "hsv",
+                "--debug"
             ],
             "justMyCode": false
         },

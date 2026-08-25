@@ -6,7 +6,7 @@ from cv2 import KalmanFilter
 from cv2.typing import Point, Rect
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
-from ssbmv.domain.models import DetectionCandidate, Track
+from ssbmca.domain.models import DetectionCandidate, Track
 
 MAX_DISTANCE = 120
 MIN_FRAMES_ACTIVE = 6

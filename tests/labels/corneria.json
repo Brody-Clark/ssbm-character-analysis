@@ -1,7 +1,7 @@
 {
     "frame_0001": {
         "frame_number": 1,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0001.png",
+        "image_name": "frame_0001.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -33,7 +33,7 @@
     },
     "frame_0002": {
         "frame_number": 2,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0002.png",
+        "image_name": "frame_0002.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -65,7 +65,7 @@
     },
     "frame_0003": {
         "frame_number": 3,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0003.png",
+        "image_name": "frame_0003.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -97,7 +97,7 @@
     },
     "frame_0004": {
         "frame_number": 4,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0004.png",
+        "image_name": "frame_0004.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -129,7 +129,7 @@
     },
     "frame_0005": {
         "frame_number": 5,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0005.png",
+        "image_name": "frame_0005.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -161,7 +161,7 @@
     },
     "frame_0006": {
         "frame_number": 6,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0006.png",
+        "image_name": "frame_0006.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -193,7 +193,7 @@
     },
     "frame_0007": {
         "frame_number": 7,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0007.png",
+        "image_name": "frame_0007.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -225,7 +225,7 @@
     },
     "frame_0008": {
         "frame_number": 8,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0008.png",
+        "image_name": "frame_0008.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -257,7 +257,7 @@
     },
     "frame_0009": {
         "frame_number": 9,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0009.png",
+        "image_name": "frame_0009.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -289,7 +289,7 @@
     },
     "frame_0010": {
         "frame_number": 10,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0010.png",
+        "image_name": "frame_0010.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -321,7 +321,7 @@
     },
     "frame_0011": {
         "frame_number": 11,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0011.png",
+        "image_name": "frame_0011.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -353,7 +353,7 @@
     },
     "frame_0012": {
         "frame_number": 12,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0012.png",
+        "image_name": "frame_0012.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -385,7 +385,7 @@
     },
     "frame_0013": {
         "frame_number": 13,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0013.png",
+        "image_name": "frame_0013.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -417,7 +417,7 @@
     },
     "frame_0014": {
         "frame_number": 14,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0014.png",
+        "image_name": "frame_0014.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -449,7 +449,7 @@
     },
     "frame_0015": {
         "frame_number": 15,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0015.png",
+        "image_name": "frame_0015.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -481,7 +481,7 @@
     },
     "frame_0016": {
         "frame_number": 16,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0016.png",
+        "image_name": "frame_0016.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -513,7 +513,7 @@
     },
     "frame_0017": {
         "frame_number": 17,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0017.png",
+        "image_name": "frame_0017.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -545,7 +545,7 @@
     },
     "frame_0018": {
         "frame_number": 18,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0018.png",
+        "image_name": "frame_0018.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -577,7 +577,7 @@
     },
     "frame_0019": {
         "frame_number": 19,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0019.png",
+        "image_name": "frame_0019.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -609,7 +609,7 @@
     },
     "frame_0020": {
         "frame_number": 20,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0020.png",
+        "image_name": "frame_0020.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -641,7 +641,7 @@
     },
     "frame_0021": {
         "frame_number": 21,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0021.png",
+        "image_name": "frame_0021.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -673,7 +673,7 @@
     },
     "frame_0022": {
         "frame_number": 22,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0022.png",
+        "image_name": "frame_0022.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -705,7 +705,7 @@
     },
     "frame_0023": {
         "frame_number": 23,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0023.png",
+        "image_name": "frame_0023.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -737,7 +737,7 @@
     },
     "frame_0024": {
         "frame_number": 24,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0024.png",
+        "image_name": "frame_0024.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -769,7 +769,7 @@
     },
     "frame_0025": {
         "frame_number": 25,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0025.png",
+        "image_name": "frame_0025.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -801,7 +801,7 @@
     },
     "frame_0026": {
         "frame_number": 26,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0026.png",
+        "image_name": "frame_0026.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -833,7 +833,7 @@
     },
     "frame_0027": {
         "frame_number": 27,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0027.png",
+        "image_name": "frame_0027.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -865,7 +865,7 @@
     },
     "frame_0028": {
         "frame_number": 28,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0028.png",
+        "image_name": "frame_0028.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -897,7 +897,7 @@
     },
     "frame_0029": {
         "frame_number": 29,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0029.png",
+        "image_name": "frame_0029.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -929,7 +929,7 @@
     },
     "frame_0030": {
         "frame_number": 30,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0030.png",
+        "image_name": "frame_0030.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -961,7 +961,7 @@
     },
     "frame_0031": {
         "frame_number": 31,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0031.png",
+        "image_name": "frame_0031.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -993,7 +993,7 @@
     },
     "frame_0032": {
         "frame_number": 32,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0032.png",
+        "image_name": "frame_0032.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1025,7 +1025,7 @@
     },
     "frame_0033": {
         "frame_number": 33,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0033.png",
+        "image_name": "frame_0033.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1057,7 +1057,7 @@
     },
     "frame_0034": {
         "frame_number": 34,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0034.png",
+        "image_name": "frame_0034.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1089,7 +1089,7 @@
     },
     "frame_0035": {
         "frame_number": 35,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0035.png",
+        "image_name": "frame_0035.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1121,7 +1121,7 @@
     },
     "frame_0036": {
         "frame_number": 36,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0036.png",
+        "image_name": "frame_0036.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1153,7 +1153,7 @@
     },
     "frame_0037": {
         "frame_number": 37,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0037.png",
+        "image_name": "frame_0037.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1185,7 +1185,7 @@
     },
     "frame_0038": {
         "frame_number": 38,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0038.png",
+        "image_name": "frame_0038.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1217,7 +1217,7 @@
     },
     "frame_0039": {
         "frame_number": 39,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0039.png",
+        "image_name": "frame_0039.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1249,7 +1249,7 @@
     },
     "frame_0040": {
         "frame_number": 40,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0040.png",
+        "image_name": "frame_0040.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1281,7 +1281,7 @@
     },
     "frame_0041": {
         "frame_number": 41,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0041.png",
+        "image_name": "frame_0041.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1313,7 +1313,7 @@
     },
     "frame_0042": {
         "frame_number": 42,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0042.png",
+        "image_name": "frame_0042.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1345,7 +1345,7 @@
     },
     "frame_0043": {
         "frame_number": 43,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0043.png",
+        "image_name": "frame_0043.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1377,7 +1377,7 @@
     },
     "frame_0044": {
         "frame_number": 44,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0044.png",
+        "image_name": "frame_0044.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1409,7 +1409,7 @@
     },
     "frame_0045": {
         "frame_number": 45,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0045.png",
+        "image_name": "frame_0045.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1441,7 +1441,7 @@
     },
     "frame_0046": {
         "frame_number": 46,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0046.png",
+        "image_name": "frame_0046.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1473,7 +1473,7 @@
     },
     "frame_0047": {
         "frame_number": 47,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0047.png",
+        "image_name": "frame_0047.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1505,7 +1505,7 @@
     },
     "frame_0048": {
         "frame_number": 48,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0048.png",
+        "image_name": "frame_0048.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1537,7 +1537,7 @@
     },
     "frame_0049": {
         "frame_number": 49,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0049.png",
+        "image_name": "frame_0049.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1569,7 +1569,7 @@
     },
     "frame_0050": {
         "frame_number": 50,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0050.png",
+        "image_name": "frame_0050.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1601,7 +1601,7 @@
     },
     "frame_0051": {
         "frame_number": 51,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0051.png",
+        "image_name": "frame_0051.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1633,7 +1633,7 @@
     },
     "frame_0052": {
         "frame_number": 52,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0052.png",
+        "image_name": "frame_0052.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1665,7 +1665,7 @@
     },
     "frame_0053": {
         "frame_number": 53,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0053.png",
+        "image_name": "frame_0053.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1697,7 +1697,7 @@
     },
     "frame_0054": {
         "frame_number": 54,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0054.png",
+        "image_name": "frame_0054.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1729,7 +1729,7 @@
     },
     "frame_0055": {
         "frame_number": 55,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0055.png",
+        "image_name": "frame_0055.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1761,7 +1761,7 @@
     },
     "frame_0056": {
         "frame_number": 56,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0056.png",
+        "image_name": "frame_0056.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1793,7 +1793,7 @@
     },
     "frame_0057": {
         "frame_number": 57,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0057.png",
+        "image_name": "frame_0057.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1825,7 +1825,7 @@
     },
     "frame_0058": {
         "frame_number": 58,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0058.png",
+        "image_name": "frame_0058.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1857,7 +1857,7 @@
     },
     "frame_0059": {
         "frame_number": 59,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0059.png",
+        "image_name": "frame_0059.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1889,7 +1889,7 @@
     },
     "frame_0060": {
         "frame_number": 60,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0060.png",
+        "image_name": "frame_0060.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1921,7 +1921,7 @@
     },
     "frame_0061": {
         "frame_number": 61,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0061.png",
+        "image_name": "frame_0061.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1953,7 +1953,7 @@
     },
     "frame_0062": {
         "frame_number": 62,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0062.png",
+        "image_name": "frame_0062.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -1985,7 +1985,7 @@
     },
     "frame_0063": {
         "frame_number": 63,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0063.png",
+        "image_name": "frame_0063.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2017,7 +2017,7 @@
     },
     "frame_0064": {
         "frame_number": 64,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0064.png",
+        "image_name": "frame_0064.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2049,7 +2049,7 @@
     },
     "frame_0065": {
         "frame_number": 65,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0065.png",
+        "image_name": "frame_0065.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2081,7 +2081,7 @@
     },
     "frame_0066": {
         "frame_number": 66,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0066.png",
+        "image_name": "frame_0066.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2113,7 +2113,7 @@
     },
     "frame_0067": {
         "frame_number": 67,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0067.png",
+        "image_name": "frame_0067.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2145,7 +2145,7 @@
     },
     "frame_0068": {
         "frame_number": 68,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0068.png",
+        "image_name": "frame_0068.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2177,7 +2177,7 @@
     },
     "frame_0069": {
         "frame_number": 69,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0069.png",
+        "image_name": "frame_0069.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2209,7 +2209,7 @@
     },
     "frame_0070": {
         "frame_number": 70,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0070.png",
+        "image_name": "frame_0070.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2241,7 +2241,7 @@
     },
     "frame_0071": {
         "frame_number": 71,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0071.png",
+        "image_name": "frame_0071.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2273,7 +2273,7 @@
     },
     "frame_0072": {
         "frame_number": 72,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0072.png",
+        "image_name": "frame_0072.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2305,7 +2305,7 @@
     },
     "frame_0073": {
         "frame_number": 73,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0073.png",
+        "image_name": "frame_0073.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2337,7 +2337,7 @@
     },
     "frame_0074": {
         "frame_number": 74,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0074.png",
+        "image_name": "frame_0074.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2369,7 +2369,7 @@
     },
     "frame_0075": {
         "frame_number": 75,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0075.png",
+        "image_name": "frame_0075.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2401,7 +2401,7 @@
     },
     "frame_0076": {
         "frame_number": 76,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0076.png",
+        "image_name": "frame_0076.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2433,7 +2433,7 @@
     },
     "frame_0077": {
         "frame_number": 77,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0077.png",
+        "image_name": "frame_0077.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2465,7 +2465,7 @@
     },
     "frame_0078": {
         "frame_number": 78,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0078.png",
+        "image_name": "frame_0078.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2497,7 +2497,7 @@
     },
     "frame_0079": {
         "frame_number": 79,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0079.png",
+        "image_name": "frame_0079.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2529,7 +2529,7 @@
     },
     "frame_0080": {
         "frame_number": 80,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0080.png",
+        "image_name": "frame_0080.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2561,7 +2561,7 @@
     },
     "frame_0081": {
         "frame_number": 81,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0081.png",
+        "image_name": "frame_0081.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2593,7 +2593,7 @@
     },
     "frame_0082": {
         "frame_number": 82,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0082.png",
+        "image_name": "frame_0082.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2625,7 +2625,7 @@
     },
     "frame_0083": {
         "frame_number": 83,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0083.png",
+        "image_name": "frame_0083.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2657,7 +2657,7 @@
     },
     "frame_0084": {
         "frame_number": 84,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0084.png",
+        "image_name": "frame_0084.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2689,7 +2689,7 @@
     },
     "frame_0085": {
         "frame_number": 85,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0085.png",
+        "image_name": "frame_0085.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2721,7 +2721,7 @@
     },
     "frame_0086": {
         "frame_number": 86,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0086.png",
+        "image_name": "frame_0086.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2753,7 +2753,7 @@
     },
     "frame_0087": {
         "frame_number": 87,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0087.png",
+        "image_name": "frame_0087.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2785,7 +2785,7 @@
     },
     "frame_0088": {
         "frame_number": 88,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0088.png",
+        "image_name": "frame_0088.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2817,7 +2817,7 @@
     },
     "frame_0089": {
         "frame_number": 89,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0089.png",
+        "image_name": "frame_0089.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2849,7 +2849,7 @@
     },
     "frame_0090": {
         "frame_number": 90,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0090.png",
+        "image_name": "frame_0090.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2881,7 +2881,7 @@
     },
     "frame_0091": {
         "frame_number": 91,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0091.png",
+        "image_name": "frame_0091.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2913,7 +2913,7 @@
     },
     "frame_0092": {
         "frame_number": 92,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0092.png",
+        "image_name": "frame_0092.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2945,7 +2945,7 @@
     },
     "frame_0093": {
         "frame_number": 93,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0093.png",
+        "image_name": "frame_0093.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -2977,7 +2977,7 @@
     },
     "frame_0094": {
         "frame_number": 94,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0094.png",
+        "image_name": "frame_0094.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3009,7 +3009,7 @@
     },
     "frame_0095": {
         "frame_number": 95,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0095.png",
+        "image_name": "frame_0095.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3041,7 +3041,7 @@
     },
     "frame_0096": {
         "frame_number": 96,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0096.png",
+        "image_name": "frame_0096.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3073,7 +3073,7 @@
     },
     "frame_0097": {
         "frame_number": 97,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0097.png",
+        "image_name": "frame_0097.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3105,7 +3105,7 @@
     },
     "frame_0098": {
         "frame_number": 98,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0098.png",
+        "image_name": "frame_0098.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3137,7 +3137,7 @@
     },
     "frame_0099": {
         "frame_number": 99,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0099.png",
+        "image_name": "frame_0099.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3169,7 +3169,7 @@
     },
     "frame_0100": {
         "frame_number": 100,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0100.png",
+        "image_name": "frame_0100.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3201,7 +3201,7 @@
     },
     "frame_0101": {
         "frame_number": 101,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0101.png",
+        "image_name": "frame_0101.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3233,7 +3233,7 @@
     },
     "frame_0102": {
         "frame_number": 102,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0102.png",
+        "image_name": "frame_0102.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3265,7 +3265,7 @@
     },
     "frame_0103": {
         "frame_number": 103,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0103.png",
+        "image_name": "frame_0103.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3297,7 +3297,7 @@
     },
     "frame_0104": {
         "frame_number": 104,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0104.png",
+        "image_name": "frame_0104.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3329,7 +3329,7 @@
     },
     "frame_0105": {
         "frame_number": 105,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0105.png",
+        "image_name": "frame_0105.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3361,7 +3361,7 @@
     },
     "frame_0106": {
         "frame_number": 106,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0106.png",
+        "image_name": "frame_0106.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3393,7 +3393,7 @@
     },
     "frame_0107": {
         "frame_number": 107,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0107.png",
+        "image_name": "frame_0107.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3425,7 +3425,7 @@
     },
     "frame_0108": {
         "frame_number": 108,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0108.png",
+        "image_name": "frame_0108.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3457,7 +3457,7 @@
     },
     "frame_0109": {
         "frame_number": 109,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0109.png",
+        "image_name": "frame_0109.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3489,7 +3489,7 @@
     },
     "frame_0110": {
         "frame_number": 110,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0110.png",
+        "image_name": "frame_0110.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3521,7 +3521,7 @@
     },
     "frame_0111": {
         "frame_number": 111,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0111.png",
+        "image_name": "frame_0111.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3553,7 +3553,7 @@
     },
     "frame_0112": {
         "frame_number": 112,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0112.png",
+        "image_name": "frame_0112.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3585,7 +3585,7 @@
     },
     "frame_0113": {
         "frame_number": 113,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0113.png",
+        "image_name": "frame_0113.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3617,7 +3617,7 @@
     },
     "frame_0114": {
         "frame_number": 114,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0114.png",
+        "image_name": "frame_0114.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3649,7 +3649,7 @@
     },
     "frame_0115": {
         "frame_number": 115,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0115.png",
+        "image_name": "frame_0115.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3681,7 +3681,7 @@
     },
     "frame_0116": {
         "frame_number": 116,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0116.png",
+        "image_name": "frame_0116.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3712,7 +3712,7 @@
     },
     "frame_0117": {
         "frame_number": 117,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0117.png",
+        "image_name": "frame_0117.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3743,7 +3743,7 @@
     },
     "frame_0118": {
         "frame_number": 118,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0118.png",
+        "image_name": "frame_0118.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3774,7 +3774,7 @@
     },
     "frame_0119": {
         "frame_number": 119,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0119.png",
+        "image_name": "frame_0119.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3805,7 +3805,7 @@
     },
     "frame_0120": {
         "frame_number": 120,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0120.png",
+        "image_name": "frame_0120.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3836,7 +3836,7 @@
     },
     "frame_0121": {
         "frame_number": 121,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0121.png",
+        "image_name": "frame_0121.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3867,7 +3867,7 @@
     },
     "frame_0122": {
         "frame_number": 122,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0122.png",
+        "image_name": "frame_0122.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3898,7 +3898,7 @@
     },
     "frame_0123": {
         "frame_number": 123,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0123.png",
+        "image_name": "frame_0123.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3929,7 +3929,7 @@
     },
     "frame_0124": {
         "frame_number": 124,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0124.png",
+        "image_name": "frame_0124.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3960,7 +3960,7 @@
     },
     "frame_0125": {
         "frame_number": 125,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0125.png",
+        "image_name": "frame_0125.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -3991,7 +3991,7 @@
     },
     "frame_0126": {
         "frame_number": 126,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0126.png",
+        "image_name": "frame_0126.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4022,7 +4022,7 @@
     },
     "frame_0127": {
         "frame_number": 127,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0127.png",
+        "image_name": "frame_0127.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4054,7 +4054,7 @@
     },
     "frame_0128": {
         "frame_number": 128,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0128.png",
+        "image_name": "frame_0128.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4086,7 +4086,7 @@
     },
     "frame_0129": {
         "frame_number": 129,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0129.png",
+        "image_name": "frame_0129.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4118,7 +4118,7 @@
     },
     "frame_0130": {
         "frame_number": 130,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0130.png",
+        "image_name": "frame_0130.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4150,7 +4150,7 @@
     },
     "frame_0131": {
         "frame_number": 131,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0131.png",
+        "image_name": "frame_0131.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4182,7 +4182,7 @@
     },
     "frame_0132": {
         "frame_number": 132,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0132.png",
+        "image_name": "frame_0132.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4214,7 +4214,7 @@
     },
     "frame_0133": {
         "frame_number": 133,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0133.png",
+        "image_name": "frame_0133.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4246,7 +4246,7 @@
     },
     "frame_0134": {
         "frame_number": 134,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0134.png",
+        "image_name": "frame_0134.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4278,7 +4278,7 @@
     },
     "frame_0135": {
         "frame_number": 135,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0135.png",
+        "image_name": "frame_0135.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4310,7 +4310,7 @@
     },
     "frame_0136": {
         "frame_number": 136,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0136.png",
+        "image_name": "frame_0136.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4342,7 +4342,7 @@
     },
     "frame_0137": {
         "frame_number": 137,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0137.png",
+        "image_name": "frame_0137.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4374,7 +4374,7 @@
     },
     "frame_0138": {
         "frame_number": 138,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0138.png",
+        "image_name": "frame_0138.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4406,7 +4406,7 @@
     },
     "frame_0139": {
         "frame_number": 139,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0139.png",
+        "image_name": "frame_0139.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4438,7 +4438,7 @@
     },
     "frame_0140": {
         "frame_number": 140,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0140.png",
+        "image_name": "frame_0140.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4470,7 +4470,7 @@
     },
     "frame_0141": {
         "frame_number": 141,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0141.png",
+        "image_name": "frame_0141.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4502,7 +4502,7 @@
     },
     "frame_0142": {
         "frame_number": 142,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0142.png",
+        "image_name": "frame_0142.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4534,7 +4534,7 @@
     },
     "frame_0143": {
         "frame_number": 143,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0143.png",
+        "image_name": "frame_0143.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4566,7 +4566,7 @@
     },
     "frame_0144": {
         "frame_number": 144,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0144.png",
+        "image_name": "frame_0144.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4598,7 +4598,7 @@
     },
     "frame_0145": {
         "frame_number": 145,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0145.png",
+        "image_name": "frame_0145.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4630,7 +4630,7 @@
     },
     "frame_0146": {
         "frame_number": 146,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0146.png",
+        "image_name": "frame_0146.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4662,7 +4662,7 @@
     },
     "frame_0147": {
         "frame_number": 147,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0147.png",
+        "image_name": "frame_0147.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4694,7 +4694,7 @@
     },
     "frame_0148": {
         "frame_number": 148,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0148.png",
+        "image_name": "frame_0148.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4726,7 +4726,7 @@
     },
     "frame_0149": {
         "frame_number": 149,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0149.png",
+        "image_name": "frame_0149.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4758,7 +4758,7 @@
     },
     "frame_0150": {
         "frame_number": 150,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0150.png",
+        "image_name": "frame_0150.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4790,7 +4790,7 @@
     },
     "frame_0151": {
         "frame_number": 151,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0151.png",
+        "image_name": "frame_0151.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4822,7 +4822,7 @@
     },
     "frame_0152": {
         "frame_number": 152,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0152.png",
+        "image_name": "frame_0152.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4854,7 +4854,7 @@
     },
     "frame_0153": {
         "frame_number": 153,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0153.png",
+        "image_name": "frame_0153.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4886,7 +4886,7 @@
     },
     "frame_0154": {
         "frame_number": 154,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0154.png",
+        "image_name": "frame_0154.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4918,7 +4918,7 @@
     },
     "frame_0155": {
         "frame_number": 155,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0155.png",
+        "image_name": "frame_0155.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4950,7 +4950,7 @@
     },
     "frame_0156": {
         "frame_number": 156,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0156.png",
+        "image_name": "frame_0156.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -4982,7 +4982,7 @@
     },
     "frame_0157": {
         "frame_number": 157,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0157.png",
+        "image_name": "frame_0157.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5014,7 +5014,7 @@
     },
     "frame_0158": {
         "frame_number": 158,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0158.png",
+        "image_name": "frame_0158.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5046,7 +5046,7 @@
     },
     "frame_0159": {
         "frame_number": 159,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0159.png",
+        "image_name": "frame_0159.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5078,7 +5078,7 @@
     },
     "frame_0160": {
         "frame_number": 160,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0160.png",
+        "image_name": "frame_0160.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5110,7 +5110,7 @@
     },
     "frame_0161": {
         "frame_number": 161,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0161.png",
+        "image_name": "frame_0161.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5142,7 +5142,7 @@
     },
     "frame_0162": {
         "frame_number": 162,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0162.png",
+        "image_name": "frame_0162.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5174,7 +5174,7 @@
     },
     "frame_0163": {
         "frame_number": 163,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0163.png",
+        "image_name": "frame_0163.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5206,7 +5206,7 @@
     },
     "frame_0164": {
         "frame_number": 164,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0164.png",
+        "image_name": "frame_0164.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5238,7 +5238,7 @@
     },
     "frame_0165": {
         "frame_number": 165,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0165.png",
+        "image_name": "frame_0165.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5270,7 +5270,7 @@
     },
     "frame_0166": {
         "frame_number": 166,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0166.png",
+        "image_name": "frame_0166.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5302,7 +5302,7 @@
     },
     "frame_0167": {
         "frame_number": 167,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0167.png",
+        "image_name": "frame_0167.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5334,7 +5334,7 @@
     },
     "frame_0168": {
         "frame_number": 168,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0168.png",
+        "image_name": "frame_0168.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5366,7 +5366,7 @@
     },
     "frame_0169": {
         "frame_number": 169,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0169.png",
+        "image_name": "frame_0169.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5398,7 +5398,7 @@
     },
     "frame_0170": {
         "frame_number": 170,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0170.png",
+        "image_name": "frame_0170.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5430,7 +5430,7 @@
     },
     "frame_0171": {
         "frame_number": 171,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0171.png",
+        "image_name": "frame_0171.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5462,7 +5462,7 @@
     },
     "frame_0172": {
         "frame_number": 172,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0172.png",
+        "image_name": "frame_0172.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5494,7 +5494,7 @@
     },
     "frame_0173": {
         "frame_number": 173,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0173.png",
+        "image_name": "frame_0173.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5526,7 +5526,7 @@
     },
     "frame_0174": {
         "frame_number": 174,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0174.png",
+        "image_name": "frame_0174.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5558,7 +5558,7 @@
     },
     "frame_0175": {
         "frame_number": 175,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0175.png",
+        "image_name": "frame_0175.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5590,7 +5590,7 @@
     },
     "frame_0176": {
         "frame_number": 176,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0176.png",
+        "image_name": "frame_0176.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5622,7 +5622,7 @@
     },
     "frame_0177": {
         "frame_number": 177,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0177.png",
+        "image_name": "frame_0177.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5654,7 +5654,7 @@
     },
     "frame_0178": {
         "frame_number": 178,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0178.png",
+        "image_name": "frame_0178.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5686,7 +5686,7 @@
     },
     "frame_0179": {
         "frame_number": 179,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0179.png",
+        "image_name": "frame_0179.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5718,7 +5718,7 @@
     },
     "frame_0180": {
         "frame_number": 180,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0180.png",
+        "image_name": "frame_0180.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5750,7 +5750,7 @@
     },
     "frame_0181": {
         "frame_number": 181,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0181.png",
+        "image_name": "frame_0181.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5782,7 +5782,7 @@
     },
     "frame_0182": {
         "frame_number": 182,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0182.png",
+        "image_name": "frame_0182.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5814,7 +5814,7 @@
     },
     "frame_0183": {
         "frame_number": 183,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0183.png",
+        "image_name": "frame_0183.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5846,7 +5846,7 @@
     },
     "frame_0184": {
         "frame_number": 184,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0184.png",
+        "image_name": "frame_0184.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5878,7 +5878,7 @@
     },
     "frame_0185": {
         "frame_number": 185,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0185.png",
+        "image_name": "frame_0185.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5910,7 +5910,7 @@
     },
     "frame_0186": {
         "frame_number": 186,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0186.png",
+        "image_name": "frame_0186.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5942,7 +5942,7 @@
     },
     "frame_0187": {
         "frame_number": 187,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0187.png",
+        "image_name": "frame_0187.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -5974,7 +5974,7 @@
     },
     "frame_0188": {
         "frame_number": 188,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0188.png",
+        "image_name": "frame_0188.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6006,7 +6006,7 @@
     },
     "frame_0189": {
         "frame_number": 189,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0189.png",
+        "image_name": "frame_0189.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6038,7 +6038,7 @@
     },
     "frame_0190": {
         "frame_number": 190,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0190.png",
+        "image_name": "frame_0190.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6070,7 +6070,7 @@
     },
     "frame_0191": {
         "frame_number": 191,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0191.png",
+        "image_name": "frame_0191.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6102,7 +6102,7 @@
     },
     "frame_0192": {
         "frame_number": 192,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0192.png",
+        "image_name": "frame_0192.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6134,7 +6134,7 @@
     },
     "frame_0193": {
         "frame_number": 193,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0193.png",
+        "image_name": "frame_0193.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6166,7 +6166,7 @@
     },
     "frame_0194": {
         "frame_number": 194,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0194.png",
+        "image_name": "frame_0194.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6198,7 +6198,7 @@
     },
     "frame_0195": {
         "frame_number": 195,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0195.png",
+        "image_name": "frame_0195.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6230,7 +6230,7 @@
     },
     "frame_0196": {
         "frame_number": 196,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0196.png",
+        "image_name": "frame_0196.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6262,7 +6262,7 @@
     },
     "frame_0197": {
         "frame_number": 197,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0197.png",
+        "image_name": "frame_0197.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6294,7 +6294,7 @@
     },
     "frame_0198": {
         "frame_number": 198,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0198.png",
+        "image_name": "frame_0198.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6326,7 +6326,7 @@
     },
     "frame_0199": {
         "frame_number": 199,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0199.png",
+        "image_name": "frame_0199.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6358,7 +6358,7 @@
     },
     "frame_0200": {
         "frame_number": 200,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0200.png",
+        "image_name": "frame_0200.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6390,7 +6390,7 @@
     },
     "frame_0201": {
         "frame_number": 201,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0201.png",
+        "image_name": "frame_0201.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6422,7 +6422,7 @@
     },
     "frame_0202": {
         "frame_number": 202,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0202.png",
+        "image_name": "frame_0202.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6454,7 +6454,7 @@
     },
     "frame_0203": {
         "frame_number": 203,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0203.png",
+        "image_name": "frame_0203.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6486,7 +6486,7 @@
     },
     "frame_0204": {
         "frame_number": 204,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0204.png",
+        "image_name": "frame_0204.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6518,7 +6518,7 @@
     },
     "frame_0205": {
         "frame_number": 205,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0205.png",
+        "image_name": "frame_0205.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6550,7 +6550,7 @@
     },
     "frame_0206": {
         "frame_number": 206,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0206.png",
+        "image_name": "frame_0206.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6582,7 +6582,7 @@
     },
     "frame_0207": {
         "frame_number": 207,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0207.png",
+        "image_name": "frame_0207.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6614,7 +6614,7 @@
     },
     "frame_0208": {
         "frame_number": 208,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0208.png",
+        "image_name": "frame_0208.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6646,7 +6646,7 @@
     },
     "frame_0209": {
         "frame_number": 209,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0209.png",
+        "image_name": "frame_0209.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6678,7 +6678,7 @@
     },
     "frame_0210": {
         "frame_number": 210,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0210.png",
+        "image_name": "frame_0210.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6710,7 +6710,7 @@
     },
     "frame_0211": {
         "frame_number": 211,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0211.png",
+        "image_name": "frame_0211.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6742,7 +6742,7 @@
     },
     "frame_0212": {
         "frame_number": 212,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0212.png",
+        "image_name": "frame_0212.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6774,7 +6774,7 @@
     },
     "frame_0213": {
         "frame_number": 213,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0213.png",
+        "image_name": "frame_0213.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6806,7 +6806,7 @@
     },
     "frame_0214": {
         "frame_number": 214,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0214.png",
+        "image_name": "frame_0214.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6838,7 +6838,7 @@
     },
     "frame_0215": {
         "frame_number": 215,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0215.png",
+        "image_name": "frame_0215.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6870,7 +6870,7 @@
     },
     "frame_0216": {
         "frame_number": 216,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0216.png",
+        "image_name": "frame_0216.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6902,7 +6902,7 @@
     },
     "frame_0217": {
         "frame_number": 217,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0217.png",
+        "image_name": "frame_0217.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6934,7 +6934,7 @@
     },
     "frame_0218": {
         "frame_number": 218,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0218.png",
+        "image_name": "frame_0218.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6966,7 +6966,7 @@
     },
     "frame_0219": {
         "frame_number": 219,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0219.png",
+        "image_name": "frame_0219.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -6998,7 +6998,7 @@
     },
     "frame_0220": {
         "frame_number": 220,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0220.png",
+        "image_name": "frame_0220.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7030,7 +7030,7 @@
     },
     "frame_0221": {
         "frame_number": 221,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0221.png",
+        "image_name": "frame_0221.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7062,7 +7062,7 @@
     },
     "frame_0222": {
         "frame_number": 222,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0222.png",
+        "image_name": "frame_0222.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7094,7 +7094,7 @@
     },
     "frame_0223": {
         "frame_number": 223,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0223.png",
+        "image_name": "frame_0223.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7126,7 +7126,7 @@
     },
     "frame_0224": {
         "frame_number": 224,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0224.png",
+        "image_name": "frame_0224.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7158,7 +7158,7 @@
     },
     "frame_0225": {
         "frame_number": 225,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0225.png",
+        "image_name": "frame_0225.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7190,7 +7190,7 @@
     },
     "frame_0226": {
         "frame_number": 226,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0226.png",
+        "image_name": "frame_0226.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7222,7 +7222,7 @@
     },
     "frame_0227": {
         "frame_number": 227,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0227.png",
+        "image_name": "frame_0227.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7254,7 +7254,7 @@
     },
     "frame_0228": {
         "frame_number": 228,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0228.png",
+        "image_name": "frame_0228.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7286,7 +7286,7 @@
     },
     "frame_0229": {
         "frame_number": 229,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0229.png",
+        "image_name": "frame_0229.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7318,7 +7318,7 @@
     },
     "frame_0230": {
         "frame_number": 230,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0230.png",
+        "image_name": "frame_0230.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7350,7 +7350,7 @@
     },
     "frame_0231": {
         "frame_number": 231,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0231.png",
+        "image_name": "frame_0231.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7382,7 +7382,7 @@
     },
     "frame_0232": {
         "frame_number": 232,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0232.png",
+        "image_name": "frame_0232.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7414,7 +7414,7 @@
     },
     "frame_0233": {
         "frame_number": 233,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0233.png",
+        "image_name": "frame_0233.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7446,7 +7446,7 @@
     },
     "frame_0234": {
         "frame_number": 234,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0234.png",
+        "image_name": "frame_0234.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7478,7 +7478,7 @@
     },
     "frame_0235": {
         "frame_number": 235,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0235.png",
+        "image_name": "frame_0235.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7510,7 +7510,7 @@
     },
     "frame_0236": {
         "frame_number": 236,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0236.png",
+        "image_name": "frame_0236.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7542,7 +7542,7 @@
     },
     "frame_0237": {
         "frame_number": 237,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0237.png",
+        "image_name": "frame_0237.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7574,7 +7574,7 @@
     },
     "frame_0238": {
         "frame_number": 238,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0238.png",
+        "image_name": "frame_0238.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7606,7 +7606,7 @@
     },
     "frame_0239": {
         "frame_number": 239,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0239.png",
+        "image_name": "frame_0239.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7638,7 +7638,7 @@
     },
     "frame_0240": {
         "frame_number": 240,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0240.png",
+        "image_name": "frame_0240.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7670,7 +7670,7 @@
     },
     "frame_0241": {
         "frame_number": 241,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0241.png",
+        "image_name": "frame_0241.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7702,7 +7702,7 @@
     },
     "frame_0242": {
         "frame_number": 242,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0242.png",
+        "image_name": "frame_0242.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7734,7 +7734,7 @@
     },
     "frame_0243": {
         "frame_number": 243,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0243.png",
+        "image_name": "frame_0243.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7766,7 +7766,7 @@
     },
     "frame_0244": {
         "frame_number": 244,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0244.png",
+        "image_name": "frame_0244.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7798,7 +7798,7 @@
     },
     "frame_0245": {
         "frame_number": 245,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0245.png",
+        "image_name": "frame_0245.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7830,7 +7830,7 @@
     },
     "frame_0246": {
         "frame_number": 246,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0246.png",
+        "image_name": "frame_0246.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7862,7 +7862,7 @@
     },
     "frame_0247": {
         "frame_number": 247,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0247.png",
+        "image_name": "frame_0247.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7893,7 +7893,7 @@
     },
     "frame_0248": {
         "frame_number": 248,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0248.png",
+        "image_name": "frame_0248.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7925,7 +7925,7 @@
     },
     "frame_0249": {
         "frame_number": 249,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0249.png",
+        "image_name": "frame_0249.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7957,7 +7957,7 @@
     },
     "frame_0250": {
         "frame_number": 250,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0250.png",
+        "image_name": "frame_0250.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -7989,7 +7989,7 @@
     },
     "frame_0251": {
         "frame_number": 251,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0251.png",
+        "image_name": "frame_0251.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8021,7 +8021,7 @@
     },
     "frame_0252": {
         "frame_number": 252,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0252.png",
+        "image_name": "frame_0252.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8053,7 +8053,7 @@
     },
     "frame_0253": {
         "frame_number": 253,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0253.png",
+        "image_name": "frame_0253.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8085,7 +8085,7 @@
     },
     "frame_0254": {
         "frame_number": 254,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0254.png",
+        "image_name": "frame_0254.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8117,7 +8117,7 @@
     },
     "frame_0255": {
         "frame_number": 255,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0255.png",
+        "image_name": "frame_0255.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8149,7 +8149,7 @@
     },
     "frame_0256": {
         "frame_number": 256,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0256.png",
+        "image_name": "frame_0256.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8181,7 +8181,7 @@
     },
     "frame_0257": {
         "frame_number": 257,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0257.png",
+        "image_name": "frame_0257.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8213,7 +8213,7 @@
     },
     "frame_0258": {
         "frame_number": 258,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0258.png",
+        "image_name": "frame_0258.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8245,7 +8245,7 @@
     },
     "frame_0259": {
         "frame_number": 259,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0259.png",
+        "image_name": "frame_0259.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8277,7 +8277,7 @@
     },
     "frame_0260": {
         "frame_number": 260,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0260.png",
+        "image_name": "frame_0260.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8309,7 +8309,7 @@
     },
     "frame_0261": {
         "frame_number": 261,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0261.png",
+        "image_name": "frame_0261.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8341,7 +8341,7 @@
     },
     "frame_0262": {
         "frame_number": 262,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0262.png",
+        "image_name": "frame_0262.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8373,7 +8373,7 @@
     },
     "frame_0263": {
         "frame_number": 263,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0263.png",
+        "image_name": "frame_0263.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8405,7 +8405,7 @@
     },
     "frame_0264": {
         "frame_number": 264,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0264.png",
+        "image_name": "frame_0264.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8437,7 +8437,7 @@
     },
     "frame_0265": {
         "frame_number": 265,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0265.png",
+        "image_name": "frame_0265.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8469,7 +8469,7 @@
     },
     "frame_0266": {
         "frame_number": 266,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0266.png",
+        "image_name": "frame_0266.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8501,7 +8501,7 @@
     },
     "frame_0267": {
         "frame_number": 267,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0267.png",
+        "image_name": "frame_0267.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8533,7 +8533,7 @@
     },
     "frame_0268": {
         "frame_number": 268,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0268.png",
+        "image_name": "frame_0268.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8565,7 +8565,7 @@
     },
     "frame_0269": {
         "frame_number": 269,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0269.png",
+        "image_name": "frame_0269.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8597,7 +8597,7 @@
     },
     "frame_0270": {
         "frame_number": 270,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0270.png",
+        "image_name": "frame_0270.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8629,7 +8629,7 @@
     },
     "frame_0271": {
         "frame_number": 271,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0271.png",
+        "image_name": "frame_0271.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8661,7 +8661,7 @@
     },
     "frame_0272": {
         "frame_number": 272,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0272.png",
+        "image_name": "frame_0272.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8693,7 +8693,7 @@
     },
     "frame_0273": {
         "frame_number": 273,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0273.png",
+        "image_name": "frame_0273.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8725,7 +8725,7 @@
     },
     "frame_0274": {
         "frame_number": 274,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0274.png",
+        "image_name": "frame_0274.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8757,7 +8757,7 @@
     },
     "frame_0275": {
         "frame_number": 275,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0275.png",
+        "image_name": "frame_0275.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8789,7 +8789,7 @@
     },
     "frame_0276": {
         "frame_number": 276,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0276.png",
+        "image_name": "frame_0276.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8821,7 +8821,7 @@
     },
     "frame_0277": {
         "frame_number": 277,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0277.png",
+        "image_name": "frame_0277.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8853,7 +8853,7 @@
     },
     "frame_0278": {
         "frame_number": 278,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0278.png",
+        "image_name": "frame_0278.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8885,7 +8885,7 @@
     },
     "frame_0279": {
         "frame_number": 279,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0279.png",
+        "image_name": "frame_0279.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8917,7 +8917,7 @@
     },
     "frame_0280": {
         "frame_number": 280,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0280.png",
+        "image_name": "frame_0280.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8949,7 +8949,7 @@
     },
     "frame_0281": {
         "frame_number": 281,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0281.png",
+        "image_name": "frame_0281.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -8981,7 +8981,7 @@
     },
     "frame_0282": {
         "frame_number": 282,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0282.png",
+        "image_name": "frame_0282.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9013,7 +9013,7 @@
     },
     "frame_0283": {
         "frame_number": 283,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0283.png",
+        "image_name": "frame_0283.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9045,7 +9045,7 @@
     },
     "frame_0284": {
         "frame_number": 284,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0284.png",
+        "image_name": "frame_0284.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9077,7 +9077,7 @@
     },
     "frame_0285": {
         "frame_number": 285,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0285.png",
+        "image_name": "frame_0285.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9109,7 +9109,7 @@
     },
     "frame_0286": {
         "frame_number": 286,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0286.png",
+        "image_name": "frame_0286.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9141,7 +9141,7 @@
     },
     "frame_0287": {
         "frame_number": 287,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0287.png",
+        "image_name": "frame_0287.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9173,7 +9173,7 @@
     },
     "frame_0288": {
         "frame_number": 288,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0288.png",
+        "image_name": "frame_0288.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9205,7 +9205,7 @@
     },
     "frame_0289": {
         "frame_number": 289,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0289.png",
+        "image_name": "frame_0289.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9237,7 +9237,7 @@
     },
     "frame_0290": {
         "frame_number": 290,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0290.png",
+        "image_name": "frame_0290.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9269,7 +9269,7 @@
     },
     "frame_0291": {
         "frame_number": 291,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0291.png",
+        "image_name": "frame_0291.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9301,7 +9301,7 @@
     },
     "frame_0292": {
         "frame_number": 292,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0292.png",
+        "image_name": "frame_0292.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9333,7 +9333,7 @@
     },
     "frame_0293": {
         "frame_number": 293,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0293.png",
+        "image_name": "frame_0293.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9365,7 +9365,7 @@
     },
     "frame_0294": {
         "frame_number": 294,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0294.png",
+        "image_name": "frame_0294.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9397,7 +9397,7 @@
     },
     "frame_0295": {
         "frame_number": 295,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0295.png",
+        "image_name": "frame_0295.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9429,7 +9429,7 @@
     },
     "frame_0296": {
         "frame_number": 296,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0296.png",
+        "image_name": "frame_0296.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9461,7 +9461,7 @@
     },
     "frame_0297": {
         "frame_number": 297,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0297.png",
+        "image_name": "frame_0297.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9493,7 +9493,7 @@
     },
     "frame_0298": {
         "frame_number": 298,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0298.png",
+        "image_name": "frame_0298.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9525,7 +9525,7 @@
     },
     "frame_0299": {
         "frame_number": 299,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0299.png",
+        "image_name": "frame_0299.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9557,7 +9557,7 @@
     },
     "frame_0300": {
         "frame_number": 300,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0300.png",
+        "image_name": "frame_0300.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9589,7 +9589,7 @@
     },
     "frame_0301": {
         "frame_number": 301,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0301.png",
+        "image_name": "frame_0301.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9621,7 +9621,7 @@
     },
     "frame_0302": {
         "frame_number": 302,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0302.png",
+        "image_name": "frame_0302.png",
         "actors": [
             {
                 "actor_id": 1,
@@ -9653,7 +9653,7 @@
     },
     "frame_0303": {
         "frame_number": 303,
-        "image_path": "D:\\Dev\\Super Smash Bros Vision\\ssbmv\\data\\recordings\\corneria\\frame_0303.png",
+        "image_name": "frame_0303.png",
         "actors": [
             {
                 "actor_id": 1,

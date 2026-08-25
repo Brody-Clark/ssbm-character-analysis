@@ -5,13 +5,13 @@ import cv2 as cv
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from ssbmv.domain.models import (
+from ssbmca.domain.models import (
     DetectionCandidate,
     Frame,
     Match,
     FeatureDatabase,
 )
-from ssbmv.core.feature_extractor import FeatureExtractor
+from ssbmca.core.feature_extractor import FeatureExtractor
 
 _logger = logging.getLogger(__name__)
 

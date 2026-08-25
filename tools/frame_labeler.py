@@ -219,9 +219,10 @@ def main():
             frame_key = f"frame_{frame_num + 1:04d}"
             
             if frame_key not in db:
+                image_name = Path(filepath).name
                 db[frame_key] = {
                     "frame_number": frame_num + 1,
-                    "image_path": filepath,
+                    "image_name": image_name,
                     "actors": []
                 }
 

@@ -7,13 +7,13 @@ import json
 from dataclasses import asdict
 from cv2 import imread
 import numpy as np
-from ssbmv.core.pipeline import VisionPipeline
-from ssbmv.core.feature_extractor import FeatureExtractor
-from ssbmv.core.detector import Detector
-from ssbmv.core.tracker import Tracker
-from ssbmv.core.matcher import Matcher
-from ssbmv.domain.models import FeatureDatabase, ActorFeatures
-from ssbmv.source.frame_source import VideoSource
+from ssbmca.core.pipeline import VisionPipeline
+from ssbmca.core.feature_extractor import FeatureExtractor
+from ssbmca.core.detector import Detector
+from ssbmca.core.tracker import Tracker
+from ssbmca.core.matcher import Matcher
+from ssbmca.domain.models import FeatureDatabase, ActorFeatures
+from ssbmca.source.frame_source import VideoSource
 import cProfile
 
 logging.basicConfig(
@@ -175,7 +175,8 @@ def handle_run(args, parser):
         detector = Detector(stage_name=args.stage)
         tracker = Tracker()
         matcher = Matcher(
-            feature_extractor=FeatureExtractor(features=args.features), feature_database=sprite_db
+            feature_extractor=FeatureExtractor(features=args.features),
+            feature_database=sprite_db,
         )
         pipeline = VisionPipeline(detector=detector, tracker=tracker, matcher=matcher)
 
@@ -217,7 +218,7 @@ if __name__ == "__main__":
     )
     init_parser.set_defaults(func=handle_init)
 
-    run_parser = subparsers.add_parser("run", help="Run SSBMV pipeline.")
+    run_parser = subparsers.add_parser("run", help="Run SSBM Character Analysis pipeline.")
 
     run_parser.add_argument(
         "--input", "-i", required=True, type=str, help="Path to video file to analyze."
@@ -231,8 +232,8 @@ if __name__ == "__main__":
     run_parser.add_argument(
         "--index",
         type=str,
+        required=True,
         help="Path to the template index .json file created by running the init command.",
-        default="./index.json",
     )
     run_parser.add_argument(
         "--file",

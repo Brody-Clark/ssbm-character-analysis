@@ -2,11 +2,9 @@
 
 import cv2 as cv
 import numpy as np
-from ssbmv.domain.models import DetectionCandidate, Dimension2D, Frame
-from ssbmv.domain.stage_hsv_filters import STAGE_HSV_FILTERS
+from ssbmca.domain.models import DetectionCandidate, Dimension2D, Frame
+from ssbmca.domain.stage_hsv_filters import STAGE_HSV_FILTERS
 
-_STATIC_MASK_MAX_ALLOWED_PIXEL_DIFF = 64
-_MIN_SPRITE_AREA_RATIO = 0.006
 _MIN_SPRITE_AREA_PIXELS = 2000
 _MAX_SPRITE_AREA_PIXELS = 70000
 _MIN_SPRITE_ASPECT_RATIO = 0.35
