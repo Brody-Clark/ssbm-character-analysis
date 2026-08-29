@@ -73,7 +73,7 @@ def render_display() -> tuple[np.ndarray, np.ndarray]:
     h, w = original_img.shape[:2]
     combined_mask = np.zeros((h, w), dtype=np.uint8)
 
-    # 1. Compute cumulative mask across all selected HSV ranges
+    # Compute cumulative mask across all selected HSV ranges
     for item in selected_ranges:
         lower = np.array(item["lower"], dtype=np.uint8)
         upper = np.array(item["upper"], dtype=np.uint8)
@@ -81,7 +81,7 @@ def render_display() -> tuple[np.ndarray, np.ndarray]:
         mask = cv2.inRange(hsv_img, lower, upper)
         combined_mask = cv2.bitwise_or(combined_mask, mask)
 
-    # 2. Draw selection boxes on display image
+    # Draw selection boxes on display image
     for i, item in enumerate(selected_ranges, 1):
         bx, by, bw, bh = item["box"]
         cv2.rectangle(display_img, (bx, by), (bx + bw, by + bh), (0, 255, 0), 2)
@@ -124,7 +124,7 @@ def main():
     cv2.namedWindow(window_name)
     cv2.setMouseCallback(window_name, mouse_callback)
 
-    print("\n--- INSTRUCTIONS ---")
+    print("\nINSTRUCTIONS:")
     print(" 1. Click & Drag boxes over stage geometry/background elements.")
     print(" 2. Press 'u' to undo the last selection.")
     print(" 3. Press SPACEBAR to finish and output HSV bounds to console.")
@@ -156,12 +156,8 @@ def main():
 
     cv2.destroyAllWindows()
 
-    # Output Python-ready data structures
-    print("\n" + "=" * 50)
-    print("       FINAL EXTRACTED HSV BOUNDS FOR PIPELINE       ")
-    print("=" * 50 + "\n")
-
-    print("# Copy/Paste this into your stage config manager:\n")
+    # Output Json
+    print("FINAL EXTRACTED HSV BOUNDS FOR PIPELINE:\n")
     print("STAGE_HSV_FILTERS = [")
     for i, item in enumerate(selected_ranges, 1):
         print(f'    {{"lower": {item["lower"]}, "upper": {item["upper"]}}},'

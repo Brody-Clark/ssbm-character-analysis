@@ -8,9 +8,9 @@
 </div>
 <br>
 
-Super Smash Bros. Melee Character Analysis (SSBMCA) is an experimental computer vision pipeline for exploring the detection, tracking, and identification of player characters in Super Smash Bros. Melee gameplay footage using classical image processing techniques built with OpenCV. This project investigates how image segmentation, contour analysis, temporal tracking, and different combinations of visual features can be used to extract gameplay information from video. The current implementation supports a limited set of stages and characters, while its data-driven design allows additional stages and character templates to be incorporated.
+Super Smash Bros. Melee Character Analysis (SSBMCA) is an experimental computer vision pipeline for exploring the detection, tracking, and identification of player characters in Super Smash Bros. Melee gameplay footage using classical image processing techniques. This project investigates how image segmentation, contour analysis, temporal tracking, and different combinations of visual features can be used to extract gameplay information from video. The current implementation supports a limited set of stages and characters, however its data-driven design allows additional stages and character templates to be incorporated.
 
-This system is intended as an experimental foundation rather than a complete solution, with particular attention to challenges such as occlusion, dynamic visual effects, and changing stage appearance. Please see the accompanying paper for more information, located at [/paper/ssbm_character_analysis.pdf](./paper/).
+This system is intended as an experimental foundation rather than a complete solution, with particular attention to challenges such as occlusion, dynamic visual effects, and changing stage appearances. Please see the accompanying paper for more information, located at [/paper/ssbm_character_analysis.pdf](./paper/).
 
 ## Table of Contents
 
@@ -45,7 +45,7 @@ or by using the supplied `requirements.txt`:
 python -m pip install -r ./requirements.txt
 ```
 
-**NOTE:** This project relies on pre-compiled templates for actor matching which are located in the `/data/templates/` directory.
+**NOTE:** This project relies on pre-compiled templates for actor matching which are located in the `/data/templates/` directory. More templates can be added but are expected to follow the naming and organization convention present in the templates directory.
 
 ## Command Line Options
 

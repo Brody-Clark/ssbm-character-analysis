@@ -42,14 +42,14 @@ def process_images(input_dir: str, output_dir: str, scale: float = 1.20):
 
         img_h, img_w = img.shape[:2]
 
-        # 1. Convert to grayscale & binary threshold
+        # Convert to grayscale & binary threshold
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         # Using OTSU thresholding handles varying brightness across images automatically
         _, binary = cv2.threshold(
             gray, 1, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
         )
 
-        # 2. Find external contours
+        # Find external contours
         contours, _ = cv2.findContours(
             binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
@@ -58,14 +58,14 @@ def process_images(input_dir: str, output_dir: str, scale: float = 1.20):
             print(f"No foreground detected in: {file_path.name}")
             continue
 
-        # 3. Get the largest contour by area
+        # Get the largest contour by area
         largest_contour = max(contours, key=cv2.contourArea)
 
-        # 4. Get base bounding box and apply 10% padding expansion
+        # Get base bounding box and apply small padding expansion
         x, y, w, h = cv2.boundingRect(largest_contour)
         x1, y1, x2, y2 = expand_bbox(x, y, w, h, scale, img_w, img_h)
 
-        # 5. Crop image to padded box and save
+        # Crop image to padded box and save
         cropped_img = img[y1:y2, x1:x2]
         out_file = output_path / file_path.name
         cv2.imwrite(str(out_file), cropped_img)
@@ -75,7 +75,7 @@ def process_images(input_dir: str, output_dir: str, scale: float = 1.20):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Crop images around the largest contour with a 20 percent bounding box margin."
+        description="Crop images around the largest contour with a small percent bounding box margin."
     )
     parser.add_argument(
         "-i",

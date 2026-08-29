@@ -4,12 +4,10 @@ import os
 import glob
 from pathlib import Path
 
-# --- CONFIGURATION ---
 IMAGE_DIR = str(Path.cwd() / "data"  / "venom")    # Path to extracted FFMPEG frames
 OUTPUT_JSON = str(Path.cwd() / "data" /  "recordings" /"venom_test.json")
-NUM_ACTORS = 2              # 2 characters per frame
+NUM_ACTORS = 2              # Expecting up to 2 characters per frame
 
-# --- HOTKEY MAPPING (Single Character -> Label) ---
 LABEL_HOTKEYS = {
     '0': 'mario',
     '1': 'kirby',
@@ -167,14 +165,14 @@ def run_pass_2_labels(image_files, actor_idx, boxes):
             cv2.imshow("Pass 2: Labeling", display_img)
             key = cv2.waitKey(0) & 0xFF
 
-            if key == 32:  # Spacebar -> Commit and move to next frame
+            if key == 32:  # Spacebar: Commit and move to next frame
                 annotations[filepath] = {
                     "rect": box,
                     "labels": list(active_labels)
                 }
                 break
 
-            elif key == 8:  # Backspace -> Reset active input on current frame
+            elif key == 8:  # Backspace: Reset active input on current frame
                 active_labels.clear()
 
             else:

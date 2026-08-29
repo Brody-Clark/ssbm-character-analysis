@@ -89,7 +89,6 @@ def create_dashboard(image_path, current_input, current_idx, total_images):
     return combined_window
 
 def main():
-    # Parse cli arguments and handle bad inputs
     parser = argparse.ArgumentParser(
         description="Label images in a directory by action.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -140,16 +139,15 @@ def main():
         display_frame = create_dashboard(img_path, current_buffer, idx, total_imgs)
         cv2.imshow("Melee CV Annotation Tool", display_frame)
         
-        # Pull keyboard interaction codes
         key = cv2.waitKey(0) & 0xFF
         char_key = chr(key)
         
-        # Escape sequence breaks app
+        # Escape sequence terminates app
         if key == 27: 
             print("Session terminated manually by user.")
             break
             
-        # If character pressed is in our key dictionary, store it in buffer
+        # If character pressed is in key dictionary, store it in buffer
         elif char_key in ANIMATION_MAP:
             current_buffer = char_key
             
@@ -174,7 +172,7 @@ def main():
                 print("Warning: Load a valid numeric option before pressing Spacebar.")
 
     cv2.destroyAllWindows()
-    print("Labeling complete!")
+    print("Labeling complete")
 
 if __name__ == '__main__':
     main()
