@@ -1,7 +1,7 @@
 # SSBM Character Analysis
 
 <br>
-<div style="display: flex; justify-content: center; gap: 10px;">
+<div style="display: flex; justify-content: center; gap: 10px; text-align: center;">
   <img src="./docs/assets/corneria.png" alt="corneria" width="200" />
   <img src="./docs/assets/temple.png" alt="temple" width="200" />
   <img src="./docs/assets/venom.png" alt="venom" width="200" />
@@ -10,7 +10,7 @@
 
 Super Smash Bros. Melee Character Analysis (SSBMCA) is an experimental computer vision pipeline for exploring the detection, tracking, and identification of player characters in Super Smash Bros. Melee gameplay footage using classical image processing techniques. This project investigates how image segmentation, contour analysis, temporal tracking, and different combinations of visual features can be used to extract gameplay information from video. The current implementation supports a limited set of stages and characters, however its data-driven design allows additional stages and character templates to be incorporated.
 
-This system is intended as an experimental foundation rather than a complete solution, with particular attention to challenges such as occlusion, dynamic visual effects, and changing stage appearances. Please see the accompanying paper for more information, located at [/paper/ssbm_character_analysis.pdf](./paper/ssbm_character_analysis.pdf).
+This system is intended as an experimental foundation rather than a complete solution, with particular attention to challenges such as occlusion, dynamic visual effects, and changing stage appearances. Please see the [related paper](./paper/ssbm_character_analysis.pdf) for more information.
 
 ## Table of Contents
 
