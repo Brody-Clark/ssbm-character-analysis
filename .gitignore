@@ -5,6 +5,12 @@ __pycache__/
 
 # C extensions
 *.so
+# Pipeline results
+*.jsonl
+test_results/
+
+# Profiling
+*.prof 
 
 # Distribution / packaging
 .Python
@@ -216,3 +222,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Test data
+data/

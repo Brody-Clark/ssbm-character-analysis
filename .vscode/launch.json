@@ -1,0 +1,91 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug Init",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+                "PYTHONUNBUFFERED": "1"
+            },
+            "args": [
+                "init",
+                "--output",
+                "./features.json",
+                "--sprites-dir",
+                "${workspaceFolder}/data/templates/",
+                "--features",
+                "hu",
+                "hsv"
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Debug Pipeline with Video",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+                "PYTHONUNBUFFERED": "1"
+            },
+            "args": [
+                "run",
+                "--input",
+                "${workspaceFolder}/tests/recordings/temple.mp4",
+                "--stage",
+                "temple",
+                "--output",
+                "file",
+                "--file",
+                "./results.jsonl",
+                "--index",
+                "./features.json",
+                "--features",
+                "hu",
+                "hsv",
+                "--debug"
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Profile Pipeline with Video",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "cProfile",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+                "PYTHONUNBUFFERED": "1"
+            },
+            "args": [
+                "-o",
+                "${workspaceFolder}/pipeline.prof",
+                "${workspaceFolder}/src/main.py",
+                "--input",
+                "${workspaceFolder}/data/recordings/temple.mp4",
+                "--stage",
+                "temple",
+                "--output",
+                "file",
+                "--file",
+                "${workspaceFolder}/results.jsonl"
+            ],
+            "justMyCode": false
+        }
+    ]
+}
