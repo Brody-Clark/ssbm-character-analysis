@@ -26,6 +26,10 @@ This system is intended as an experimental foundation rather than a complete sol
     - [Visualizing with Debug](#visualizing-with-debug)
   - [Running Test Suite](#running-test-suite)
   - [Analyzing Results](#analyzing-results)
+  - [Extending the Project](#extending-the-project)
+    - [Adding a Character](#adding-a-character)
+    - [Adding a New Stage](#adding-a-new-stage)
+    - [Testing a New Character or Stage](#testing-a-new-character-or-stage)
 
 ## Prerequisites
 
@@ -157,3 +161,37 @@ python ./tools/analyze_results.py --results ./results.jsonl --ground-truth ./tes
 ```
 
 This will print the performance and accuracy metrics found in the supporting paper to the console.
+
+## Extending the Project
+
+The pipeline can be extended to support additional characters and stages. Character recognition relies on pre-compiled templates, while stage-specific character detection relies on HSV color masks.
+
+### Adding a Character
+
+To add support for a new character, add the character's template images to `data/templates/`.
+
+Templates should follow the existing directory structure and naming convention used by the included Mario and Kirby templates. The template set should contain representative frames from the character's supported animation states.
+
+For best results, include multiple poses and animation frames for each state. The current system uses these templates during the character matching stage, so the quality and coverage of the template set directly affects classification performance.
+
+### Adding a New Stage
+
+Each stage requires a set of HSV thresholds used to suppress stage-specific colors during character detection.
+
+The repository includes a tool for generating and testing stage masks located in `tools/stage_mask_creation/`.
+
+Use this tool to develop HSV thresholds for the new stage. Multiple narrow HSV ranges can be combined to selectively remove stage colors while preserving character pixels. This approach is preferred over using a single broad HSV range because it provides more precise control over the segmentation.
+
+Once the appropriate thresholds have been determined, the results are printed to the console. Add the printed stage's HSV filter configuration to:
+
+```text
+src/ssbmca/domain/stage_hsv_filters.py
+```
+
+The new stage must be registered using the same structure as the existing stage configurations.
+
+### Testing a New Character or Stage
+
+After adding the templates and stage-specific HSV configuration, run the pipeline against gameplay footage containing the new character or stage. Verify the detection masks first before evaluating character matching. Poor segmentation will propagate into the tracking and matching stages, so HSV thresholds should be tuned until the character regions are consistently isolated from the stage.
+
+For new characters, it is recommended to test multiple animation states and poses, including movement, attacks, jumping, and recovery states, to ensure that the template database provides sufficient coverage.
