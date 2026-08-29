@@ -14,7 +14,6 @@ from ssbmca.core.tracker import Tracker
 from ssbmca.core.matcher import Matcher
 from ssbmca.domain.models import FeatureDatabase, ActorFeatures
 from ssbmca.source.frame_source import VideoSource
-import cProfile
 
 logging.basicConfig(
     level=logging.INFO,
@@ -218,7 +217,9 @@ if __name__ == "__main__":
     )
     init_parser.set_defaults(func=handle_init)
 
-    run_parser = subparsers.add_parser("run", help="Run SSBM Character Analysis pipeline.")
+    run_parser = subparsers.add_parser(
+        "run", help="Run SSBM Character Analysis pipeline."
+    )
 
     run_parser.add_argument(
         "--input", "-i", required=True, type=str, help="Path to video file to analyze."
